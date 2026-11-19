@@ -22,3 +22,6 @@ public/admin/
 
 # Claude Code — personal settings stay local (agents/skills are committed)
 .claude/settings.local.json
+
+# Design-review screenshots (npm run screenshots) — regenerate, do not commit
+docs/screenshots/

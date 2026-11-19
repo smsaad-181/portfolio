@@ -44,6 +44,12 @@ const profile = defineCollection({
       oshwlab: urlSchema.optional(),
     }),
     resume: z.string(), // path to the PDF in public/resume/
+    // Hero proof stats, e.g. { value: "6", label: "boards designed" }.
+    // Optional: the row stays hidden until Saad enters real numbers.
+    stats: z
+      .array(z.object({ value: z.string().min(1), label: z.string().min(1) }))
+      .max(4)
+      .optional(),
   }),
 });
 

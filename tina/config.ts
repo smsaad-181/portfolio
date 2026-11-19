@@ -89,6 +89,23 @@ const profileCollection: Collection = {
       required: true,
       description: "Upload the current CV as a PDF. Path stored as public/resume/…",
     },
+    {
+      type: "object" as const,
+      name: "stats",
+      label: "Hero stats",
+      list: true,
+      description:
+        "Up to 4 proof numbers shown under your name on the home page, e.g. 6 / boards designed. Leave empty to hide the row. Use real numbers only.",
+      ui: {
+        itemProps: (item: { value?: string; label?: string }) => ({
+          label: item?.value && item?.label ? `${item.value} ${item.label}` : "New stat",
+        }),
+      },
+      fields: [
+        { type: "string" as const, name: "value", label: "Number", required: true },
+        { type: "string" as const, name: "label", label: "Label", required: true },
+      ],
+    },
   ],
 };
 

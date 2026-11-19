@@ -1,115 +1,8 @@
-/* ─── Design tokens ─────────────────────────────────────────────────────────
-   Dark-first palette: deep violet-black with a pink → blue signal gradient.
-   Light theme is opt-in via the nav toggle (html[data-theme="light"]).
-   Fonts are loaded with <link> in BaseLayout (not @import — it blocks render).
-   Monospace accent font for code/spec/stat callouts; Rubik for body copy.
+/* ─── Global base styles ────────────────────────────────────────────────────
+   Every colour, size and space comes from tokens.css (imported first in
+   BaseLayout). Fonts are self-hosted via @fontsource (no third-party
+   requests): Inter Variable for text, JetBrains Mono for labels and specs.
    ─────────────────────────────────────────────────────────────────────────── */
-
-:root {
-  color-scheme: dark;
-
-  /* Background layers */
-  --bg-base: #0b0614;
-  --bg-surface: #130b22;
-  --bg-elevated: #1c1230;
-  --bg-overlay: #2a1d44;
-
-  /* Text (muted is ≥4.5:1 on --bg-base) */
-  --text-primary: #f1eaf9;
-  --text-secondary: #b3a6c6;
-  --text-muted: #8a7ca0;
-  --text-inverse: #0b0614;
-
-  /* Accent: signal pink, with a blue partner for gradients */
-  --accent: #ff5a8a;
-  --accent-dim: #e23e74;
-  --accent-2: #5b8cff;
-  --accent-glow: rgba(255, 90, 138, 0.14);
-  --gradient-accent: linear-gradient(90deg, #ff4f7b 0%, #c86bff 55%, #5b8cff 100%);
-  /* Darker stops so white button text stays ≥4.5:1 */
-  --gradient-button: linear-gradient(90deg, #d42a62 0%, #3a63d6 100%);
-
-  /* Hero atmosphere */
-  --hero-glow-pink: rgba(255, 60, 120, 0.22);
-  --hero-glow-blue: rgba(70, 90, 255, 0.18);
-  --hero-wave-opacity: 0.55;
-
-  /* Status badge colors */
-  --status-completed: #3fb950;
-  --status-completed-bg: rgba(63, 185, 80, 0.12);
-  --status-in-progress: #e3b341;
-  --status-in-progress-bg: rgba(227, 179, 65, 0.12);
-  --status-prototype: #b388ff;
-  --status-prototype-bg: rgba(179, 136, 255, 0.12);
-  --status-error: #ff7b72;
-
-  /* Borders */
-  --border: #2a1d44;
-  --border-subtle: #1c1230;
-
-  /* Spacing scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-24: 6rem;
-
-  /* Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-
-  /* Typography */
-  --font-body: 'Rubik', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-  --font-script: 'Mr Dafoe', 'Brush Script MT', cursive;
-
-  /* Layout */
-  --max-content: 1200px;
-  --nav-height: 72px;
-}
-
-/* ─── Light theme (opt-in via nav toggle) ──────────────────────────────────── */
-
-:root[data-theme="light"] {
-  color-scheme: light;
-
-  --bg-base: #faf7fd;
-  --bg-surface: #ffffff;
-  --bg-elevated: #f1ebf8;
-  --bg-overlay: #e4dbef;
-
-  --text-primary: #1a1028;
-  --text-secondary: #4a3d5e;
-  --text-muted: #6f6385;
-  --text-inverse: #ffffff;
-
-  /* Darker than the dark-theme pink so it stays ≥4.5:1 on light tints */
-  --accent: #b8285d;
-  --accent-dim: #9c1f4d;
-  --accent-2: #3b6fe0;
-  --accent-glow: rgba(214, 51, 108, 0.1);
-  --gradient-accent: linear-gradient(90deg, #d6336c 0%, #9b4dd6 55%, #3b6fe0 100%);
-
-  --hero-glow-pink: rgba(255, 90, 140, 0.16);
-  --hero-glow-blue: rgba(90, 120, 255, 0.14);
-  --hero-wave-opacity: 0.35;
-
-  --status-completed: #166a2e;
-  --status-completed-bg: rgba(22, 106, 46, 0.1);
-  --status-in-progress: #7d5300;
-  --status-in-progress-bg: rgba(125, 83, 0, 0.1);
-  --status-prototype: #6f3fd0;
-  --status-prototype-bg: rgba(111, 63, 208, 0.1);
-  --status-error: #c62828;
-
-  --border: #e2d8ee;
-  --border-subtle: #efe8f6;
-}
 
 /* ─── Reset & base ──────────────────────────────────────────────────────────── */
 
@@ -130,10 +23,11 @@ body {
   background-color: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: var(--fs-16);
+  line-height: var(--lh-body);
   min-height: 100dvh;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  font-feature-settings: "cv11", "ss01"; /* Inter: straight-sided 1, open digits */
+  transition: background-color var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
 }
 
 /* ─── Shared buttons ───────────────────────────────────────────────────────── */
@@ -142,25 +36,27 @@ body {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0.7rem 1.5rem;
-  border-radius: 999px;
-  font-weight: 500;
-  font-size: 0.95rem;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--fs-14);
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
 
 .btn--primary {
-  background: var(--gradient-button);
-  color: #ffffff;
-  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: 1px solid var(--accent);
 }
 
 .btn--primary:hover {
-  color: #ffffff;
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: var(--text-on-accent);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px -8px rgba(212, 42, 98, 0.6);
 }
 
 .btn--secondary {
@@ -179,6 +75,7 @@ body {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -228,14 +125,16 @@ pre {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  line-height: 1.25;
+  line-height: var(--lh-heading);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); }
-h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
-h3 { font-size: clamp(1.1rem, 2.5vw, 1.4rem); }
+h1 { font-size: clamp(var(--fs-28), 4vw, var(--fs-40)); }
+h2 { font-size: clamp(var(--fs-22), 3vw, var(--fs-28)); }
+h3 { font-size: var(--fs-18); }
 
 p { margin-block: 0.75em; }
 p:first-child { margin-block-start: 0; }
@@ -245,7 +144,9 @@ ul, ol {
   padding-inline-start: 1.5em;
 }
 
-li + li { margin-top: 0.25em; }
+/* Spacing between stacked list items — article text only, so inline lists
+   (nav, footer, chips) stay aligned. */
+.prose li + li { margin-top: 0.25em; }
 
 /* ─── Layout helpers ───────────────────────────────────────────────────────── */
 
@@ -357,4 +258,14 @@ li + li { margin-top: 0.25em; }
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+/* ─── Engineering grid motif (≤ 6 % opacity, via --grid-line) ───────────────── */
+
+.bg-grid {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: -1px -1px;
 }

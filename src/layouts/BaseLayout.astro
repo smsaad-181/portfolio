@@ -7,6 +7,12 @@
  */
 import Nav from "@components/Nav.astro";
 import Footer from "@components/Footer.astro";
+// Self-hosted fonts (two families): Inter Variable + JetBrains Mono 400/500/600.
+import "@fontsource-variable/inter";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/500.css";
+import "@fontsource/jetbrains-mono/600.css";
+import "@styles/tokens.css";
 import "@styles/global.css";
 import { absoluteUrl, assetUrl, pageUrl } from "../lib/urls";
 
@@ -49,24 +55,18 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Theme: apply the saved choice before first paint (dark-first default) -->
+    <!-- Theme, before first paint (no flash): the visitor's saved choice,
+         else their system setting, else dark. -->
     <script is:inline>
       (function () {
-        var theme = "dark";
-        try {
-          if (localStorage.getItem("theme") === "light") theme = "light";
-        } catch (e) {}
+        var theme = null;
+        try { theme = localStorage.getItem("theme"); } catch (e) {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
         document.documentElement.setAttribute("data-theme", theme);
       })();
     </script>
-
-    <!-- Fonts (preconnect + link — faster than a CSS @import) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Mr+Dafoe&family=Rubik:wght@400;500;600;700&display=swap"
-    />
 
     <!-- Primary meta -->
     <title>{fullTitle}</title>

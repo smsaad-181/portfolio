@@ -1,0 +1,49 @@
+---
+/**
+ * Wordmark.astro — the one brand mark, used in the nav and footer.
+ * A copper "SM" chip (same as the favicon) + the name in Inter.
+ */
+export interface Props {
+  /** Hide the name below 400 px wide (nav only). */
+  compact?: boolean;
+}
+const { compact = true } = Astro.props;
+---
+
+<span class:list={["wordmark", { "wordmark--compact": compact }]}>
+  <span class="wordmark__chip" aria-hidden="true">SM</span>
+  <span class="wordmark__name">Sultan Mahmud</span>
+</span>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .wordmark__chip {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--text-on-accent);
+    font: 600 var(--fs-14) / 1 var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+
+  .wordmark__name {
+    font-size: var(--fs-16);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 400px) {
+    .wordmark--compact .wordmark__name {
+      font-size: var(--fs-14);
+    }
+  }
+</style>

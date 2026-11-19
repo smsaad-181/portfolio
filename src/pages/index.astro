@@ -1,14 +1,15 @@
 ---
 /**
  * Homepage — /
- * Hero (greeting, gradient name, role badge, bio, portrait), featured
- * projects (CMS-controlled via `featured` + `order`), skill highlights,
- * resume CTA.
+ * Hero: title + employer, plain name, one positioning line, CTAs, optional
+ * proof stats (profile.stats — hidden until Saad supplies real numbers),
+ * and on the right either his headshot or a datasheet-style spec panel
+ * built from CMS data (profile, current job, skills by category).
+ * Then featured projects (CMS-controlled via `featured` + `order`), skills,
+ * and the CV call-to-action.
  *
- * Portrait: drop a photo at src/assets/profile/portrait.{png,webp,jpg} —
- * a transparent-background PNG cut-out looks best. It is picked up
- * automatically and optimised by Astro's <Image />. Until then a monogram
- * is shown instead.
+ * Headshot: put a photo at src/assets/profile/portrait.{jpg,png,webp} and it
+ * replaces the spec panel automatically (optimised by Astro's <Image />).
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionHeading from "@components/SectionHeading.astro";
@@ -25,20 +26,14 @@ const profile = await getProfile();
 const featured = await getFeaturedProjects();
 const allSkills = await getCollection("skills");
 const currentJob = (await getCollection("experience")).find((e) => e.data.current);
+const stats = profile.data.stats ?? [];
 
-// Optional portrait — first match wins.
+// Optional headshot — first match wins.
 const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
   "../assets/profile/portrait.{png,webp,avif,jpg,jpeg}",
   { eager: true }
 );
 const portrait = Object.values(portraitFiles)[0]?.default;
-
-const initials = profile.data.name
-  .split(" ")
-  .map((w) => w.charAt(0))
-  .join("")
-  .slice(0, 2)
-  .toUpperCase();
 
 // Group skills by category (lowercase stored, title-case at render)
 const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
@@ -58,17 +53,27 @@ function titleCase(s: string): string {
     .join(" ");
 }
 
-// Flowing line-art for the hero background: a family of cubic curves whose
-// four points each drift by a fixed step per line, which reads as silk/waves.
-type Pt = [x: number, y: number, dx: number, dy: number];
-function wavePaths(count: number, p0: Pt, c1: Pt, c2: Pt, p3: Pt): string[] {
-  const at = (p: Pt, i: number) => `${(p[0] + p[2] * i).toFixed(1)} ${(p[1] + p[3] * i).toFixed(1)}`;
-  return Array.from({ length: count }, (_, i) =>
-    `M${at(p0, i)} C${at(c1, i)} ${at(c2, i)} ${at(p3, i)}`
-  );
+/** Skill names in one category, strongest first (for the spec panel). */
+function skillNames(category: string): string[] {
+  return (skillsByCategory[category] ?? [])
+    .slice()
+    .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))
+    .map((s) => s.data.name);
 }
-const wavesTop = wavePaths(42, [120, -40, 7, 0], [100, 280, 5, -4], [540, 400, -3, -7], [680, 60, 0, 6]);
-const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 7, -3], [560, 620, 5, 0]);
+
+const sinceYear = currentJob ? new Date(currentJob.data.startDate).getFullYear() : null;
+const specRows = [
+  { label: "Role", value: profile.data.title },
+  ...(currentJob ? [{ label: "Company", value: `${currentJob.data.company}${sinceYear ? ` · since ${sinceYear}` : ""}` }] : []),
+  { label: "Based in", value: profile.data.location },
+];
+const specLists = [
+  { label: "Platforms", items: skillNames("iot & communication") },
+  { label: "Protocols", items: skillNames("protocols") },
+  { label: "EDA & CAD", items: skillNames("pcb & eda") },
+].filter((l) => l.items.length > 0);
+
+const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company}` : profile.data.title;
 ---
 
 <BaseLayout
@@ -77,75 +82,72 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
   description={profile.data.summary}
 >
   <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
-  <section class="hero" aria-label="Introduction">
-    <div class="hero__bg" aria-hidden="true">
-      <svg class="hero__waves hero__waves--top" viewBox="0 0 600 500" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="wave-top" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#7b5cff" />
-            <stop offset="100%" stop-color="#3d5bff" />
-          </linearGradient>
-        </defs>
-        <g fill="none" stroke="url(#wave-top)" stroke-width="0.8" vector-effect="non-scaling-stroke">
-          {wavesTop.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
-        </g>
-      </svg>
-      <svg class="hero__waves hero__waves--bottom" viewBox="0 0 600 500" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="wave-bottom" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#ff3d7f" />
-            <stop offset="100%" stop-color="#8a3dff" />
-          </linearGradient>
-        </defs>
-        <g fill="none" stroke="url(#wave-bottom)" stroke-width="0.8">
-          {wavesBottom.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
-        </g>
-      </svg>
-    </div>
-
+  <section class="hero" aria-labelledby="hero-name">
+    <div class="hero__grid bg-grid" aria-hidden="true"></div>
     <div class="container hero__inner">
       <div class="hero__content">
-        <p class="hero__greeting">Hello, I'm</p>
-        <h1 class="hero__name">{profile.data.name}</h1>
-
-        <p class="hero__badge">
-          <svg viewBox="0 0 24 24" aria-hidden="true" class="hero__badge-icon">
-            <rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
-            <rect x="9.5" y="9.5" width="5" height="5" rx="0.8" fill="currentColor" />
-            <path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-          </svg>
-          {profile.data.title}
-        </p>
-
-        <p class="hero__bio">
-          I design PCBs, write embedded firmware and build IoT products, taking
-          an idea from the <span class="u">first schematic</span> to a
-          <span class="u">working board</span>.
-          {currentJob && <>Currently at {currentJob.data.company} in {profile.data.location.split(",")[0]}.</>}
+        <p class="hero__eyebrow">{eyebrow}</p>
+        <h1 class="hero__name" id="hero-name">{profile.data.name}</h1>
+        <p class="hero__pitch">
+          I design PCBs and embedded firmware for IoT products, with ESP32,
+          LoRaWAN and Modbus, from schematic to working board.
         </p>
 
         <div class="hero__actions">
-          <a href={pageUrl("/projects/")} class="btn btn--primary">View Projects</a>
+          <a href={pageUrl("/projects/")} class="btn btn--primary">View projects</a>
           <ResumeButton variant="secondary" />
         </div>
+
+        {stats.length > 0 && (
+          <dl class="hero__stats">
+            {stats.map((s) => (
+              <div class="hero__stat">
+                <dt>{s.label}</dt>
+                <dd>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </div>
 
-      <div class="hero__portrait">
-        <div class="hero__portrait-glow" aria-hidden="true"></div>
+      <div class="hero__aside">
         {portrait ? (
-          <Image
-            src={portrait}
-            alt={`${profile.data.name}, ${profile.data.title}`}
-            widths={[320, 480, 640, 960]}
-            sizes="(max-width: 900px) 300px, 480px"
-            loading="eager"
-            fetchpriority="high"
-            class="hero__photo"
-          />
+          <figure class="hero__portrait">
+            <Image
+              src={portrait}
+              alt={`${profile.data.name}, ${profile.data.title}`}
+              widths={[320, 480, 640, 960]}
+              sizes="(max-width: 900px) 320px, 420px"
+              loading="eager"
+              fetchpriority="high"
+              class="hero__photo"
+            />
+          </figure>
         ) : (
-          <div class="hero__monogram" role="img" aria-label={profile.data.name}>
-            <span>{initials}</span>
-          </div>
+          <aside class="spec" aria-label="Quick spec">
+            <header class="spec__head">
+              <span class="spec__title">Quick spec</span>
+              <span class="spec__ref" aria-hidden="true">SM-01</span>
+            </header>
+            <dl class="spec__rows">
+              {specRows.map((r) => (
+                <div class="spec__row">
+                  <dt>{r.label}</dt>
+                  <dd>{r.value}</dd>
+                </div>
+              ))}
+              {specLists.map((l) => (
+                <div class="spec__row spec__row--list">
+                  <dt>{l.label}</dt>
+                  <dd>
+                    <ul class="spec__chips" role="list">
+                      {l.items.map((item) => <li>{item}</li>)}
+                    </ul>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </aside>
         )}
       </div>
     </div>
@@ -175,7 +177,7 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
         </div>
         <div class="projects-cta">
           <a href={pageUrl("/projects/")} class="btn btn--secondary">
-            All Projects →
+            All projects →
           </a>
         </div>
       </div>
@@ -221,7 +223,7 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
       </div>
       <div class="cta-actions">
         <ResumeButton variant="primary" />
-        <a href={pageUrl("/contact/")} class="btn btn--secondary">Get in Touch</a>
+        <a href={pageUrl("/contact/")} class="btn btn--secondary">Get in touch</a>
       </div>
     </div>
   </section>
@@ -235,131 +237,58 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
 
   .section--alt {
     background: var(--bg-surface);
+    border-block: 1px solid var(--border-subtle);
   }
 
   /* ── Hero ────────────────────────────────────────────────────────────── */
   .hero {
     position: relative;
-    overflow: hidden;
     isolation: isolate;
-    /* Slide under the transparent sticky nav so the art fills the top edge */
+    /* Slide under the transparent sticky nav so the grid reaches the top */
     margin-top: calc(-1 * var(--nav-height));
-    padding-top: var(--nav-height);
-    min-height: 100dvh;
-    display: flex;
-    align-items: stretch;
-    background:
-      radial-gradient(ellipse 60% 70% at 0% 100%, var(--hero-glow-pink), transparent 70%),
-      radial-gradient(ellipse 55% 60% at 100% 0%, var(--hero-glow-blue), transparent 70%),
-      var(--bg-base);
+    padding-top: calc(var(--nav-height) + var(--space-16));
+    padding-bottom: var(--space-16);
   }
 
-  .hero__bg {
+  .hero__grid {
     position: absolute;
     inset: 0;
     z-index: -1;
-    pointer-events: none;
-  }
-
-  .hero__waves {
-    position: absolute;
-    opacity: var(--hero-wave-opacity);
-  }
-
-  .hero__waves--top {
-    top: -6%;
-    right: -4%;
-    width: 58%;
-    height: 80%;
-    animation: drift 18s ease-in-out infinite alternate;
-  }
-
-  .hero__waves--bottom {
-    bottom: -14%;
-    left: -6%;
-    width: 50%;
-    height: 75%;
-    opacity: calc(var(--hero-wave-opacity) * 0.8);
-    animation: drift 22s ease-in-out infinite alternate-reverse;
-  }
-
-  @keyframes drift {
-    from { transform: translate3d(0, 0, 0) rotate(0deg); }
-    to   { transform: translate3d(-14px, 10px, 0) rotate(-1.5deg); }
+    /* Grid fades out toward the bottom so sections below sit on a plain ground */
+    -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--text-primary) 55%, transparent 100%);
   }
 
   .hero__inner {
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: var(--space-12);
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: var(--space-16);
     align-items: center;
   }
 
-  .hero__content {
-    padding-block: var(--space-16);
-  }
-
-  .hero__greeting {
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 400;
-    color: var(--text-primary);
-    margin-bottom: 0;
+  .hero__eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    margin-bottom: var(--space-4);
   }
 
   .hero__name {
-    font-size: clamp(2.5rem, 5.5vw, 4rem);
-    font-weight: 500;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    margin-bottom: var(--space-6);
-    background: linear-gradient(90deg, #ff4f7b 0%, #e2508f 50%, #c86bff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    width: fit-content;
-  }
-
-  :global(:root[data-theme="light"]) .hero__name {
-    background-image: linear-gradient(90deg, #d6336c 0%, #b0368a 50%, #8a3dd6 100%);
-  }
-
-  .hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: 0.35rem 0.9rem 0.35rem 0.7rem;
-    border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
-    background: color-mix(in srgb, var(--accent-2) 10%, transparent);
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-primary);
+    font-size: clamp(var(--fs-40), 6vw, var(--fs-56));
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
     margin-bottom: var(--space-6);
   }
 
-  .hero__badge-icon {
-    width: 16px;
-    height: 16px;
-    color: var(--accent);
-  }
-
-  .hero__bio {
-    font-size: 1.05rem;
-    line-height: 1.85;
-    letter-spacing: 0.02em;
+  .hero__pitch {
+    font-size: clamp(var(--fs-18), 2vw, var(--fs-22));
+    line-height: 1.45;
     color: var(--text-secondary);
-    max-width: 56ch;
+    max-width: 34ch;
     margin-bottom: var(--space-8);
-  }
-
-  /* Gradient underline on highlighted words */
-  .u {
-    color: var(--text-primary);
-    background-image: var(--gradient-accent);
-    background-size: 100% 2px;
-    background-position: 0 100%;
-    background-repeat: no-repeat;
-    padding-bottom: 2px;
   }
 
   .hero__actions {
@@ -368,61 +297,139 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
     flex-wrap: wrap;
   }
 
-  /* Portrait — sits on the bottom edge and fades into the background */
-  .hero__portrait {
-    position: relative;
-    align-self: end;
+  .hero__stats {
     display: flex;
-    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    margin-top: var(--space-12);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
   }
 
-  .hero__portrait-glow {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    width: 80%;
-    aspect-ratio: 1;
-    transform: translateX(-50%);
-    border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 65%);
-    filter: blur(20px);
-    z-index: -1;
+  .hero__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-1);
+  }
+
+  .hero__stat dd {
+    font-size: var(--fs-28);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .hero__stat dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    color: var(--text-muted);
+  }
+
+  /* Headshot: cropped rectangle with a thin copper border */
+  .hero__portrait {
+    justify-self: end;
+    max-width: 420px;
+    padding: var(--space-2);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
   }
 
   .hero__photo {
+    display: block;
     width: 100%;
-    max-width: 480px;
     height: auto;
-    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
   }
 
-  .hero__monogram {
-    align-self: center;
-    margin-bottom: 18vh;
-    width: min(340px, 70vw);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    padding: 3px;
-    background: var(--gradient-accent);
+  /* Spec panel — reads like the key-specs box on a component datasheet */
+  .spec {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .spec__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-6);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+  }
+
+  .spec__title {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+  }
+
+  .spec__ref {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .spec__rows {
     display: grid;
   }
 
-  .hero__monogram span {
+  .spec__row {
     display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 25%, var(--bg-elevated), var(--bg-base) 70%);
-    font-family: var(--font-script);
-    font-size: clamp(5rem, 12vw, 8rem);
-    line-height: 1;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-6);
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: baseline;
+  }
+
+  .spec__row:last-child {
+    border-bottom: 0;
+  }
+
+  .spec__row dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    color: var(--text-muted);
+  }
+
+  .spec__row dd {
+    font-size: var(--fs-14);
+    font-weight: 500;
     color: var(--text-primary);
+    min-width: 0;
+  }
+
+  .spec__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+  }
+
+  .spec__chips li {
+    margin: 0;
+    padding: 2px var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: var(--bg-base);
   }
 
   /* Projects grid */
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
     gap: var(--space-6);
   }
 
@@ -434,15 +441,15 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
   /* Skills grid */
   .skills-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
     gap: var(--space-8);
   }
 
   .skills-group__title {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: var(--fs-14);
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: var(--space-3);
@@ -472,7 +479,7 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
   }
 
   .cta-title {
-    font-size: 1.5rem;
+    font-size: var(--fs-22);
     font-weight: 700;
     margin-block: var(--space-2);
   }
@@ -480,7 +487,6 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
   .cta-body {
     color: var(--text-secondary);
     max-width: 50ch;
-    font-size: 0.95rem;
   }
 
   .cta-actions {
@@ -490,38 +496,37 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
     flex-wrap: wrap;
   }
 
-  /* Responsive */
+  /* Responsive — on narrow screens the name and pitch come first */
   @media (max-width: 900px) {
     .hero {
-      min-height: unset;
+      padding-top: calc(var(--nav-height) + var(--space-8));
     }
 
     .hero__inner {
       grid-template-columns: 1fr;
-      gap: 0;
-    }
-
-    .hero__content {
-      padding-block: var(--space-8) var(--space-12);
+      gap: var(--space-12);
     }
 
     .hero__portrait {
-      order: -1;
-      align-self: center;
-      padding-top: var(--space-6);
+      justify-self: start;
+      max-width: 320px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero__portrait {
+      display: none;
     }
 
-    .hero__photo {
-      max-width: 300px;
+    .spec__row {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+      padding-inline: var(--space-4);
     }
 
-    .hero__monogram {
-      margin-bottom: 0;
-      width: min(220px, 60vw);
+    .spec__head {
+      padding-inline: var(--space-4);
     }
-
-    .hero__waves--top { width: 90%; height: 55%; }
-    .hero__waves--bottom { width: 90%; height: 45%; }
   }
 
   @media (max-width: 640px) {

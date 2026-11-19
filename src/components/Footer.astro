@@ -6,6 +6,8 @@
  * profile collection is loaded on a given page. Update these when Saad
  * confirms his exact profile URLs.
  */
+import Wordmark from "@components/Wordmark.astro";
+
 const year = new Date().getFullYear();
 
 const socialLinks = [
@@ -35,10 +37,8 @@ const socialLinks = [
 <footer class="footer" role="contentinfo">
   <div class="footer__inner container">
     <div class="footer__brand">
-      <span class="footer__logo" aria-hidden="true">
-        <span class="footer__logo-bracket">{"{"}</span>
-        saad
-        <span class="footer__logo-bracket">{"}"}</span>
+      <span class="footer__logo">
+        <Wordmark compact={false} />
       </span>
       <p class="footer__tagline">Hardware Engineer · PCB Design · Embedded Systems · IoT</p>
     </div>
@@ -52,7 +52,7 @@ const socialLinks = [
               class="footer__social-link"
               target={link.href.startsWith("mailto") ? undefined : "_blank"}
               rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-              aria-label={`${link.label} (opens in new tab)`}
+              aria-label={link.href.startsWith("mailto") ? link.label : `${link.label} (opens in new tab)`}
             >
               {link.label}
             </a>
@@ -92,16 +92,8 @@ const socialLinks = [
   }
 
   .footer__logo {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--text-primary);
     display: inline-block;
-    margin-bottom: var(--space-2);
-  }
-
-  .footer__logo-bracket {
-    color: var(--accent);
+    margin-bottom: var(--space-3);
   }
 
   .footer__tagline {

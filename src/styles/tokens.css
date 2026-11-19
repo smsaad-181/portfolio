@@ -1,0 +1,123 @@
+/* ─── Design tokens — the ONLY place colours, type sizes and spacing are set ──
+   Identity: engineering datasheet. Neutral near-black (or warm paper in
+   light), one accent — PCB copper — and a faint 24-px grid.
+   Components must use these variables; no hex/rgb literals elsewhere
+   (exception: src/pages/images/og-default.png.ts renders a PNG and keeps
+   its own copy of these values — update both together).
+
+   Theme: dark by default. BaseLayout's inline <head> script sets
+   html[data-theme] from the saved choice or the system setting before
+   first paint. Contrast: every text/background pair below meets WCAG AA
+   (≥ 4.5:1) in both themes — checked by `npm run audit:pages`.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --bg-base: #0b0d10;
+  --bg-surface: #12151a;
+  --bg-elevated: #191d24;
+  --bg-overlay: #232831;
+  --border: #1f242c;
+  --border-subtle: #171b21;
+  --grid-line: rgba(255, 255, 255, 0.04);
+
+  /* Text */
+  --text-primary: #e8eaed;
+  --text-secondary: #a9b0ba;
+  --text-muted: #8a929d;
+  --text-inverse: #0b0d10;
+
+  /* Accent — PCB copper (one accent only) */
+  --accent: #d9822b;
+  --accent-dim: #e8964a;            /* hover: lighter on dark */
+  --accent-glow: rgba(217, 130, 43, 0.12);
+  --text-on-accent: #0b0d10;
+
+  /* Status — used ONLY inside status badges */
+  --status-completed: #3fb950;
+  --status-completed-bg: rgba(63, 185, 80, 0.12);
+  --status-in-progress: #d29922;
+  --status-in-progress-bg: rgba(210, 153, 34, 0.12);
+  --status-prototype: #58a6ff;
+  --status-prototype-bg: rgba(88, 166, 255, 0.12);
+  --status-error: #ff7b72;
+
+  /* Elevation */
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  /* Type — two families: Inter (body/headings) + JetBrains Mono (labels/specs) */
+  --font-body: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-18: 1.125rem;
+  --fs-22: 1.375rem;
+  --fs-28: 1.75rem;
+  --fs-40: 2.5rem;
+  --fs-56: 3.5rem;
+  --lh-body: 1.5;
+  --lh-heading: 1.15;
+
+  /* Spacing — 4 px base: 4, 8, 12, 16, 24, 32, 48, 64, 96 */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 6px;          /* cards */
+  --radius-pill: 999px;      /* chips */
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-slow: 250ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout */
+  --max-content: 1120px;
+  --nav-height: 64px;
+  --grid-size: 24px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-base: #fafaf7;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f2f2ee;
+  --bg-overlay: #e8e8e3;
+  --border: #e4e4df;
+  --border-subtle: #efefea;
+  --grid-line: rgba(0, 0, 0, 0.045);
+
+  --text-primary: #16181c;
+  --text-secondary: #45494f;
+  --text-muted: #62676e;
+  --text-inverse: #ffffff;
+
+  /* Darker copper so text and links stay ≥ 4.5:1 on paper */
+  --accent: #9a5512;
+  --accent-dim: #7e450e;
+  --accent-glow: rgba(154, 85, 18, 0.08);
+  --text-on-accent: #ffffff;
+
+  --status-completed: #166a2e;
+  --status-completed-bg: rgba(22, 106, 46, 0.1);
+  --status-in-progress: #7d5300;
+  --status-in-progress-bg: rgba(125, 83, 0, 0.1);
+  --status-prototype: #0b5cad;
+  --status-prototype-bg: rgba(11, 92, 173, 0.1);
+  --status-error: #c62828;
+
+  --shadow-md: 0 8px 24px rgba(20, 20, 10, 0.08);
+}

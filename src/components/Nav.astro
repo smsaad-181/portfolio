@@ -1,11 +1,13 @@
 ---
 /**
  * Nav.astro
- * Top navigation bar: signature logo, links with a gradient underline on the
- * active page, and a light/dark theme toggle.
- * Transparent over the page until you scroll, then gains a blurred backdrop.
- * Mobile: collapses into a hamburger via <details> (works without JS).
+ * Top navigation: "SM · Sultan Mahmud" wordmark (same mark as the favicon
+ * and footer), links with a copper underline on the active page, and a
+ * light/dark theme toggle. Transparent until the page scrolls, then gains
+ * a blurred backdrop. Mobile collapses into a <details> menu (works
+ * without JS).
  */
+import Wordmark from "@components/Wordmark.astro";
 import { pageUrl } from "../lib/urls";
 
 const home = pageUrl("/"); // "/portfolio/"
@@ -31,13 +33,10 @@ function isActive(href: string): boolean {
 <header class="nav-wrapper" role="banner" data-nav>
   <nav class="nav container" aria-label="Primary navigation">
     <a href={home} class="nav__logo" aria-label="Sultan Mahmud — Home">
-      <span class="nav__logo-bracket" aria-hidden="true">&lt;</span>
-      <span class="nav__logo-name">Saad</span>
-      <span class="nav__logo-bracket" aria-hidden="true">/&gt;</span>
+      <Wordmark />
     </a>
 
     <div class="nav__right">
-      <!-- Desktop links -->
       <ul class="nav__links" role="list">
         {navLinks.map((link) => (
           <li>
@@ -52,22 +51,18 @@ function isActive(href: string): boolean {
         ))}
       </ul>
 
-      <!-- Theme toggle -->
       <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to light theme">
-        <!-- Sun: shown in dark mode -->
         <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="4.5" fill="currentColor" />
           <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" />
           </g>
         </svg>
-        <!-- Moon: shown in light mode -->
         <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z" />
         </svg>
       </button>
 
-      <!-- Mobile toggle (pure CSS via <details>) -->
       <details class="nav__mobile-menu">
         <summary class="nav__hamburger" aria-label="Toggle navigation menu">
           <span class="nav__hamburger-bar"></span>
@@ -131,14 +126,14 @@ function isActive(href: string): boolean {
     align-items: center;
     background: transparent;
     border-bottom: 1px solid transparent;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    transition: background var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease);
   }
 
   .nav-wrapper.is-scrolled {
-    background: color-mix(in srgb, var(--bg-base) 78%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom-color: var(--border-subtle);
+    background: color-mix(in srgb, var(--bg-base) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom-color: var(--border);
   }
 
   .nav {
@@ -148,11 +143,7 @@ function isActive(href: string): boolean {
     gap: var(--space-4);
   }
 
-  /* Logo: < Saad /> in a signature script */
   .nav__logo {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     flex-shrink: 0;
     color: var(--text-primary);
     text-decoration: none;
@@ -162,32 +153,16 @@ function isActive(href: string): boolean {
     color: var(--text-primary);
   }
 
-  .nav__logo-bracket {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--text-primary);
-  }
-
-  .nav__logo-name {
-    font-family: var(--font-script);
-    font-size: 2rem;
-    line-height: 1;
-    padding-inline: 0.15rem;
-    transform: translateY(2px);
-  }
-
   .nav__right {
     display: flex;
     align-items: center;
     gap: var(--space-4);
   }
 
-  /* Desktop links */
   .nav__links {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-1);
     list-style: none;
     padding: 0;
     margin: 0;
@@ -201,11 +176,11 @@ function isActive(href: string): boolean {
     position: relative;
     display: block;
     padding: var(--space-2) var(--space-3);
-    font-size: 0.95rem;
+    font-size: var(--fs-14);
     font-weight: 500;
     color: var(--text-secondary);
     text-decoration: none;
-    transition: color 0.15s;
+    transition: color var(--dur-fast) var(--ease);
   }
 
   .nav__link::after {
@@ -213,56 +188,47 @@ function isActive(href: string): boolean {
     position: absolute;
     left: var(--space-3);
     right: var(--space-3);
-    bottom: 0;
+    bottom: 2px;
     height: 2px;
-    border-radius: 2px;
-    background: var(--gradient-accent);
+    background: var(--accent);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.2s ease;
+    transition: transform var(--dur-base) var(--ease);
   }
 
   .nav__link:hover {
     color: var(--text-primary);
   }
 
-  .nav__link:hover::after {
-    transform: scaleX(0.5);
-  }
-
   .nav__link--active,
   .nav__link--active:hover {
     color: var(--text-primary);
-    font-weight: 600;
   }
 
-  .nav__link--active::after,
-  .nav__link--active:hover::after {
+  .nav__link--active::after {
     transform: scaleX(1);
   }
 
-  /* Theme toggle */
   .theme-toggle {
     display: grid;
     place-items: center;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
     background: transparent;
-    color: var(--text-primary);
-    transition: background 0.15s, border-color 0.15s, transform 0.3s ease;
+    color: var(--text-secondary);
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
   }
 
   .theme-toggle:hover {
-    background: var(--bg-elevated);
-    border-color: var(--border);
-    transform: rotate(20deg);
+    color: var(--text-primary);
+    border-color: var(--accent);
   }
 
   .theme-toggle__icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   .theme-toggle__icon--moon {
@@ -277,7 +243,6 @@ function isActive(href: string): boolean {
     display: block;
   }
 
-  /* Mobile toggle */
   .nav__mobile-menu {
     display: none;
     position: relative;
@@ -292,10 +257,10 @@ function isActive(href: string): boolean {
     gap: 5px;
     width: 36px;
     height: 36px;
-    padding: 8px;
+    padding: 9px 8px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border);
-    background: var(--bg-elevated);
+    background: transparent;
   }
 
   .nav__hamburger::-webkit-details-marker { display: none; }
@@ -307,11 +272,6 @@ function isActive(href: string): boolean {
     height: 2px;
     background: var(--text-secondary);
     border-radius: 2px;
-    transition: background 0.15s;
-  }
-
-  .nav__hamburger:hover .nav__hamburger-bar {
-    background: var(--text-primary);
   }
 
   .nav__mobile-links {
@@ -324,17 +284,16 @@ function isActive(href: string): boolean {
     border-radius: var(--radius-lg);
     padding: var(--space-2);
     list-style: none;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-md);
   }
 
   .nav__mobile-link {
     display: block;
     padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-16);
     font-weight: 500;
     color: var(--text-secondary);
-    transition: color 0.15s, background 0.15s;
     text-decoration: none;
   }
 
@@ -345,8 +304,8 @@ function isActive(href: string): boolean {
 
   .nav__mobile-link--active {
     color: var(--text-primary);
-    background: var(--accent-glow);
     box-shadow: inset 2px 0 0 var(--accent);
+    background: var(--accent-glow);
   }
 
   @media (max-width: 760px) {

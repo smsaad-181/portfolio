@@ -1,0 +1,54 @@
+---
+/**
+ * SectionHeading.astro
+ * Consistent section heading with a label above and an optional description below.
+ */
+export interface Props {
+  label: string;
+  title: string;
+  description?: string;
+  /** Align left (default) or center */
+  align?: "left" | "center";
+  /** 1 on pages where this is the page title (one <h1> per page); default 2. */
+  level?: 1 | 2;
+  /** id on the heading, for aria-labelledby on the parent section. */
+  id?: string;
+}
+const { label, title, description, align = "left", level = 2, id } = Astro.props;
+const Heading = level === 1 ? "h1" : "h2";
+---
+
+<div class:list={["section-heading", `section-heading--${align}`]}>
+  <p class="section-label">{label}</p>
+  <Heading class="section-heading__title" id={id}>{title}</Heading>
+  {description && <p class="section-heading__desc">{description}</p>}
+</div>
+
+<style>
+  .section-heading {
+    margin-bottom: var(--space-8);
+  }
+
+  .section-heading--center {
+    text-align: center;
+  }
+
+  .section-heading__title {
+    font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: var(--space-2);
+    margin-bottom: 0;
+  }
+
+  .section-heading__desc {
+    margin-top: var(--space-3);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 60ch;
+  }
+
+  .section-heading--center .section-heading__desc {
+    margin-inline: auto;
+  }
+</style>

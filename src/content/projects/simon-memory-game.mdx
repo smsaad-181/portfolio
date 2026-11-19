@@ -1,0 +1,41 @@
+---
+title: "Simon Memory Game"
+summary: "ESP32-based Simon memory game PCB with LEDs, tactile buttons, a passive buzzer, and an SSD1306 OLED display."
+coverImage:
+  src: "/portfolio/images/placeholder.svg"
+  alt: "Simon Memory Game PCB — ESP32 board with LEDs, buttons, buzzer, and OLED"
+gallery: []
+tags: ["ESP32", "PCB Design", "Game", "OLED"]
+status: "completed"
+role: "Hardware & Firmware Engineer"
+links: {}
+featured: false
+order: 5
+draft: false
+bomHighlights:
+  - component: "ESP32"
+    notes: "Game logic and display controller"
+  - component: "SSD1306 OLED"
+    notes: "Displays score, level, and game state"
+  - component: "Passive buzzer"
+    notes: "Tone generation for each button press and game-over sequence"
+  - component: "4× tactile buttons"
+    notes: "Player input, debounced in firmware"
+  - component: "4× LEDs"
+    notes: "Visual sequence indicator"
+---
+
+## Motivation
+
+A self-contained game PCB as a platform for practicing ESP32-based firmware design — state machines, debouncing, tone generation — all in a form factor that's actually fun to use.
+
+## Key Components
+
+- **ESP32** — manages game state, button polling with debounce, LED sequencing, and buzzer tones
+- **SSD1306 OLED** — shows current level, score, and game-over screen
+- **4× colored LEDs + 4× tactile buttons** — the core Simon interaction
+- **Passive buzzer** — distinct tone per button; rising pitch sequence on level advance
+
+## Outcome
+
+Fully playable game with increasing sequence length per level, high-score tracking in firmware, and distinct audio feedback per input. A compact, standalone PCB with no external dependencies.

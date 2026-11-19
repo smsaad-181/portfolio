@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0d1117"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="314" x2="1200" y2="314" stroke="#21262d" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Accent bar left -->
+  <rect x="0" y="0" width="6" height="630" fill="#00d4ff"/>
+
+  <!-- Name -->
+  <text x="80" y="240" font-family="monospace, Courier New" font-size="64" font-weight="700" fill="#e6edf3">Sultan Mahmud</text>
+
+  <!-- Alias / handle -->
+  <text x="80" y="310" font-family="monospace, Courier New" font-size="36" font-weight="400" fill="#8b949e">/ Saad</text>
+
+  <!-- Title line -->
+  <text x="80" y="390" font-family="monospace, Courier New" font-size="28" font-weight="400" fill="#00d4ff">Hardware Engineer · PCB Design · Embedded Systems · IoT</text>
+
+  <!-- URL -->
+  <text x="80" y="560" font-family="monospace, Courier New" font-size="22" font-weight="400" fill="#484f58">smsaad-181.github.io/portfolio</text>
+
+  <!-- Decorative brackets top-right -->
+  <text x="1080" y="120" font-family="monospace, Courier New" font-size="120" font-weight="700" fill="#161b22">{}</text>
+</svg>

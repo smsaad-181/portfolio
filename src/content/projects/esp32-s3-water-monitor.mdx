@@ -1,0 +1,48 @@
+---
+title: "ESP32-S3 Water Monitoring System"
+summary: "Custom PCB water level monitor using an ESP32-S3, HC-SR04 ultrasonic sensor, relay, RGB LED, and HLK-PM01 mains power supply — with a diagnosed Wi-Fi failure caused by incorrect pull-up voltage references."
+coverImage:
+  src: "/portfolio/images/placeholder.svg"
+  alt: "ESP32-S3 Water Monitoring System PCB with ultrasonic sensor and HLK-PM01 power supply"
+gallery: []
+tags: ["ESP32-S3", "IoT", "Sensors", "PCB Design", "Power Supply"]
+status: "completed"
+role: "Hardware & Firmware Engineer"
+links: {}
+featured: true
+order: 3
+draft: false
+bomHighlights:
+  - component: "ESP32-S3"
+    notes: "Main MCU — 3.3 V logic; ECHO line must not be connected to 5 V directly"
+  - component: "HC-SR04"
+    notes: "5 V ultrasonic sensor — ECHO output is 5 V, requires level shifting to 3.3 V"
+  - component: "HLK-PM01"
+    notes: "Mains-to-5V AC-DC module; compact form factor for enclosure mounting"
+  - component: "RGB LED"
+    notes: "Visual status indicator: full / normal / low / empty levels"
+  - component: "Relay"
+    notes: "Controls pump or solenoid valve based on level thresholds"
+---
+
+## Motivation
+
+A mains-powered water tank monitor for a home installation: measure level via ultrasonic sensor, trigger a relay at configurable thresholds, and report status over Wi-Fi. The HLK-PM01 module keeps the form factor small enough to fit inside a standard enclosure.
+
+## Key Components
+
+- **ESP32-S3** — Wi-Fi MCU running the web UI, MQTT reporting, and relay control
+- **HC-SR04** — ultrasonic distance sensor; TRIG/ECHO interface, but ECHO output is 5 V
+- **HLK-PM01** — compact AC-DC converter (230 V → 5 V), powering the board from mains
+- **RGB LED** — color-coded status: full (blue), normal (green), low (yellow), empty (red)
+- **Relay** — switches the pump/valve load
+
+## Challenges & How They Were Solved
+
+**Wi-Fi failure on the custom PCB** — The board powered up and firmware ran, but Wi-Fi would not initialize. After extensive firmware-side debugging (checking SDK logs, heap, antenna clearance), the root cause was traced to pull-up resistors on the boot-mode strapping pins referencing 5 V instead of 3.3 V. The ESP32-S3 samples those pins at boot; a 5 V pull-up pushed the sampled voltage above the 3.3 V logic rail, causing the wrong boot mode to be latched. Corrected to 3.3 V references; Wi-Fi initialized normally on the next power cycle.
+
+**Unprotected 5 V ECHO line** — The HC-SR04 ECHO pin outputs 5 V, but the ESP32-S3 GPIO is only 3.3 V tolerant. Initial schematic wired ECHO directly to the GPIO, risking long-term damage. Fixed with a resistor voltage divider (10 kΩ / 20 kΩ) to bring ECHO down to ~3.3 V before it reaches the MCU.
+
+## Outcome
+
+Stable in long-term operation. Level readings accurate to ±1 cm over the measured range. Wi-Fi reporting and relay control functioning as designed.

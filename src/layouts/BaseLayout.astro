@@ -1,0 +1,145 @@
+---
+/**
+ * BaseLayout.astro
+ * Wraps every page. Handles <head> meta, nav, footer, and global styles.
+ * Per-page SEO is supplied via props; sensible defaults fall back to the
+ * site-wide profile data.
+ */
+import Nav from "@components/Nav.astro";
+import Footer from "@components/Footer.astro";
+import "@styles/global.css";
+import { absoluteUrl, assetUrl, pageUrl } from "../lib/urls";
+
+export interface Props {
+  title: string;
+  /** Use `title` as-is instead of appending " · Sultan Mahmud" (Home). */
+  fullTitle?: boolean;
+  description?: string;
+  /** Absolute URL to an OG image (should be 1200×630). Falls back to a default. */
+  ogImage?: string | undefined;
+  /** Canonical URL for this page. Defaults to the production URL of this path. */
+  canonicalUrl?: string;
+  /** If true, adds noindex (e.g. for the 404 page). */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  fullTitle: titleIsFull = false,
+  description = "Hardware Engineer specialising in PCB design, embedded systems, and IoT product development.",
+  ogImage,
+  canonicalUrl,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = absoluteUrl(pageUrl("/")); // https://smsaad-181.github.io/portfolio/
+// Canonical is built from `site` + path, never from the request host
+// (otherwise local builds would publish localhost URLs).
+const canonical = canonicalUrl ?? absoluteUrl(Astro.url.pathname);
+// Generated at build time by src/pages/images/og-default.png.ts (PNG —
+// social crawlers don't accept SVG OG images).
+const ogImageUrl = ogImage ?? absoluteUrl(assetUrl("/images/og-default.png"));
+const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Theme: apply the saved choice before first paint (dark-first default) -->
+    <script is:inline>
+      (function () {
+        var theme = "dark";
+        try {
+          if (localStorage.getItem("theme") === "light") theme = "light";
+        } catch (e) {}
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+
+    <!-- Fonts (preconnect + link — faster than a CSS @import) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Mr+Dafoe&family=Rubik:wght@400;500;600;700&display=swap"
+    />
+
+    <!-- Primary meta -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- JSON-LD: Person (helps Google surface the profile) -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Sultan Mahmud",
+      "alternateName": "Saad",
+      "jobTitle": "Hardware Engineer",
+      "url": siteUrl,
+      "sameAs": [
+        "https://github.com/smsaad-181",
+        "https://linkedin.com/in/sultan-mahmud-saad",
+        "https://oshwlab.com/smsaad181"
+      ],
+      "knowsAbout": [
+        "PCB Design", "Embedded Systems", "IoT", "ESP32",
+        "Arduino", "LoRaWAN", "MQTT", "Circuit Design"
+      ]
+    })} />
+
+    <!-- Per-page extra head content (e.g. project JSON-LD) -->
+    <slot name="head" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href={assetUrl("/favicon.svg")} />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <Nav />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-4);
+    z-index: 9999;
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent);
+    color: var(--text-inverse);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: top 0.15s ease;
+  }
+
+  .skip-link:focus {
+    top: var(--space-4);
+  }
+</style>

@@ -1,0 +1,360 @@
+/* ─── Design tokens ─────────────────────────────────────────────────────────
+   Dark-first palette: deep violet-black with a pink → blue signal gradient.
+   Light theme is opt-in via the nav toggle (html[data-theme="light"]).
+   Fonts are loaded with <link> in BaseLayout (not @import — it blocks render).
+   Monospace accent font for code/spec/stat callouts; Rubik for body copy.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  /* Background layers */
+  --bg-base: #0b0614;
+  --bg-surface: #130b22;
+  --bg-elevated: #1c1230;
+  --bg-overlay: #2a1d44;
+
+  /* Text (muted is ≥4.5:1 on --bg-base) */
+  --text-primary: #f1eaf9;
+  --text-secondary: #b3a6c6;
+  --text-muted: #8a7ca0;
+  --text-inverse: #0b0614;
+
+  /* Accent: signal pink, with a blue partner for gradients */
+  --accent: #ff5a8a;
+  --accent-dim: #e23e74;
+  --accent-2: #5b8cff;
+  --accent-glow: rgba(255, 90, 138, 0.14);
+  --gradient-accent: linear-gradient(90deg, #ff4f7b 0%, #c86bff 55%, #5b8cff 100%);
+  /* Darker stops so white button text stays ≥4.5:1 */
+  --gradient-button: linear-gradient(90deg, #d42a62 0%, #3a63d6 100%);
+
+  /* Hero atmosphere */
+  --hero-glow-pink: rgba(255, 60, 120, 0.22);
+  --hero-glow-blue: rgba(70, 90, 255, 0.18);
+  --hero-wave-opacity: 0.55;
+
+  /* Status badge colors */
+  --status-completed: #3fb950;
+  --status-completed-bg: rgba(63, 185, 80, 0.12);
+  --status-in-progress: #e3b341;
+  --status-in-progress-bg: rgba(227, 179, 65, 0.12);
+  --status-prototype: #b388ff;
+  --status-prototype-bg: rgba(179, 136, 255, 0.12);
+  --status-error: #ff7b72;
+
+  /* Borders */
+  --border: #2a1d44;
+  --border-subtle: #1c1230;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Typography */
+  --font-body: 'Rubik', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-script: 'Mr Dafoe', 'Brush Script MT', cursive;
+
+  /* Layout */
+  --max-content: 1200px;
+  --nav-height: 72px;
+}
+
+/* ─── Light theme (opt-in via nav toggle) ──────────────────────────────────── */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-base: #faf7fd;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1ebf8;
+  --bg-overlay: #e4dbef;
+
+  --text-primary: #1a1028;
+  --text-secondary: #4a3d5e;
+  --text-muted: #6f6385;
+  --text-inverse: #ffffff;
+
+  /* Darker than the dark-theme pink so it stays ≥4.5:1 on light tints */
+  --accent: #b8285d;
+  --accent-dim: #9c1f4d;
+  --accent-2: #3b6fe0;
+  --accent-glow: rgba(214, 51, 108, 0.1);
+  --gradient-accent: linear-gradient(90deg, #d6336c 0%, #9b4dd6 55%, #3b6fe0 100%);
+
+  --hero-glow-pink: rgba(255, 90, 140, 0.16);
+  --hero-glow-blue: rgba(90, 120, 255, 0.14);
+  --hero-wave-opacity: 0.35;
+
+  --status-completed: #166a2e;
+  --status-completed-bg: rgba(22, 106, 46, 0.1);
+  --status-in-progress: #7d5300;
+  --status-in-progress-bg: rgba(125, 83, 0, 0.1);
+  --status-prototype: #6f3fd0;
+  --status-prototype-bg: rgba(111, 63, 208, 0.1);
+  --status-error: #c62828;
+
+  --border: #e2d8ee;
+  --border-subtle: #efe8f6;
+}
+
+/* ─── Reset & base ──────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 100dvh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ─── Shared buttons ───────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.7rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn--primary {
+  background: var(--gradient-button);
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+.btn--primary:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px -8px rgba(212, 42, 98, 0.6);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn--secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-dim);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+pre {
+  overflow-x: auto;
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.4rem); }
+
+p { margin-block: 0.75em; }
+p:first-child { margin-block-start: 0; }
+p:last-child { margin-block-end: 0; }
+
+ul, ol {
+  padding-inline-start: 1.5em;
+}
+
+li + li { margin-top: 0.25em; }
+
+/* ─── Layout helpers ───────────────────────────────────────────────────────── */
+
+.container {
+  width: 100%;
+  max-width: var(--max-content);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding-inline: var(--space-4);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ─── MDX / prose content ──────────────────────────────────────────────────── */
+
+.prose {
+  max-width: 72ch;
+}
+
+.prose h2 {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 1.35rem;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-2);
+  font-size: 1.1rem;
+}
+
+.prose ul, .prose ol {
+  margin-block: var(--space-3);
+}
+
+.prose li {
+  color: var(--text-secondary);
+}
+
+.prose strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.prose code {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+  color: var(--accent);
+}
+
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: var(--space-4);
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-block: var(--space-4);
+}
+
+/* ─── Section headings ─────────────────────────────────────────────────────── */
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: var(--space-3);
+}
+
+/* ─── Utility: mono stat callout ───────────────────────────────────────────── */
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ─── Focus styles ─────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

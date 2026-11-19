@@ -1,0 +1,48 @@
+---
+title: "DIY ATmega328P Digital Clock"
+summary: "ATmega328P-based digital clock using a DS1307 RTC and a 4-digit 7-segment display, with I²C debugging, display ghosting fix, and clock drift compensation."
+coverImage:
+  src: "/portfolio/images/placeholder.svg"
+  alt: "DIY ATmega328P Digital Clock PCB with 4-digit 7-segment display"
+gallery: []
+tags: ["ATmega328P", "RTC", "7-Segment Display", "I2C", "PCB Design"]
+status: "completed"
+role: "Hardware & Firmware Engineer"
+links: {}
+featured: true
+order: 2
+draft: false
+bomHighlights:
+  - component: "ATmega328P"
+    notes: "Main microcontroller running the timekeeping and display logic"
+  - component: "DS1307"
+    notes: "Real-time clock IC with I²C interface and battery backup"
+  - component: "4-digit 7-segment display"
+    notes: "Common-cathode display; ghosting issue required software timing fix"
+  - component: "CR2032 coin cell"
+    notes: "Backup power for DS1307 to maintain time through power cycles"
+---
+
+## Motivation
+
+A from-scratch digital clock to get comfortable with the full stack: schematic, PCB layout, firmware, and debugging on real hardware — not a shield or a module breakout.
+
+## Key Components
+
+- **ATmega328P** — runs the display multiplexing and I²C communication
+- **DS1307 RTC** — keeps accurate time with a coin-cell backup
+- **4-digit 7-segment display** — multiplexed via the ATmega, one digit active at a time
+
+## Challenges & How They Were Solved
+
+**I²C communication issues** — The DS1307 initially returned corrupted data. Root cause was missing pull-up resistors on SDA/SCL (left floating). Adding 4.7 kΩ pull-ups to 5 V resolved the issue immediately.
+
+**Display ghosting** — At the initial multiplexing timing, segments from the previous digit were faintly visible when switching. Fixed by inserting a short blanking interval between digit switches, turning all segments off for ~50 µs before activating the next digit.
+
+**Brightness balancing** — Different digit positions appeared at different brightness levels due to unequal parasitic loading. Adjusted the current-limiting resistors per digit to normalize perceived brightness across all four positions.
+
+**Clock drift** — The DS1307's 32.768 kHz crystal had measurable drift over 24 hours. Compensated in firmware by applying a per-day correction offset measured against a reference clock over one week.
+
+## Outcome
+
+Clock runs accurately in daily use, correct time maintained through power cycles via the coin-cell backup.

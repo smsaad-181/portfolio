@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Dark background circle -->
+  <circle cx="32" cy="32" r="32" fill="#0d1117"/>
+  <!-- Cyan bracket-based monogram -->
+  <text
+    x="50%"
+    y="50%"
+    dominant-baseline="central"
+    text-anchor="middle"
+    font-family="monospace"
+    font-size="28"
+    font-weight="700"
+    fill="#00d4ff"
+  >{S}</text>
+</svg>

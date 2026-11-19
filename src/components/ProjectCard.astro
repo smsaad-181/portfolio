@@ -1,0 +1,189 @@
+---
+/**
+ * ProjectCard.astro
+ * Grid card for a project. Shows: cover image, title, summary, up to 3 tag
+ * chips, and a status badge.
+ *
+ * Cover images live in public/ as plain paths (Tina Cloud commits them
+ * there) and render through Astro's <Image />, base-prefixed. If the file
+ * hasn't been uploaded yet, the image area is omitted (no 404, no
+ * placeholder text shown to the public).
+ */
+import { Image } from "astro:assets";
+import StatusBadge from "@components/StatusBadge.astro";
+import TagChip from "@components/TagChip.astro";
+import { assetUrl, publicFileExists } from "../lib/urls";
+
+export interface Props {
+  title: string;
+  /** Base-aware URL from projectUrl(entry). */
+  href: string;
+  summary: string;
+  coverImage: {
+    src: string;
+    alt: string;
+  };
+  tags: string[];
+  status: "completed" | "in-progress" | "prototype";
+}
+
+const { title, href, summary, coverImage, tags, status } = Astro.props;
+const hasCover = publicFileExists(coverImage.src);
+const displayTags = tags.slice(0, 3);
+---
+
+<article class="project-card" aria-label={title}>
+  {hasCover && (
+    <a href={href} class="project-card__image-link" tabindex="-1" aria-hidden="true">
+      <div class="project-card__image-wrap">
+        <Image
+          src={assetUrl(coverImage.src)}
+          alt={coverImage.alt}
+          width={640}
+          height={360}
+          class="project-card__image"
+          loading="lazy"
+        />
+      </div>
+    </a>
+  )}
+
+  <div class="project-card__body">
+    <div class="project-card__meta">
+      <StatusBadge status={status} />
+      <div class="project-card__tags" aria-label="Project tags">
+        {displayTags.map((tag) => <TagChip tag={tag} />)}
+        {tags.length > 3 && (
+          <span class="project-card__tags-more" aria-label={`${tags.length - 3} more tags`}>
+            +{tags.length - 3}
+          </span>
+        )}
+      </div>
+    </div>
+
+    <h3 class="project-card__title">
+      <a href={href} class="project-card__title-link">{title}</a>
+    </h3>
+
+    <p class="project-card__summary">{summary}</p>
+
+    <a href={href} class="project-card__cta" aria-label={`View ${title} details`}>
+      View project <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+
+  .project-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .project-card__image-link {
+    display: block;
+  }
+
+  .project-card__image-wrap {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--bg-elevated);
+  }
+
+  .project-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .project-card:hover .project-card__image {
+    transform: scale(1.03);
+  }
+
+  .project-card__body {
+    padding: var(--space-4) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    flex: 1;
+  }
+
+  .project-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    align-items: center;
+  }
+
+  .project-card__tags-more {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 2px 6px;
+  }
+
+  .project-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .project-card__title-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .project-card__title-link:hover {
+    color: var(--accent);
+  }
+
+  .project-card__summary {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  .project-card__cta {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: auto;
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    transition: gap 0.15s, color 0.15s;
+  }
+
+  .project-card__cta:hover {
+    color: var(--accent-dim);
+    gap: var(--space-3);
+  }
+</style>

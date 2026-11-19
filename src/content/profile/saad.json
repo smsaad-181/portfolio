@@ -1,0 +1,17 @@
+{
+  "name": "Sultan Mahmud",
+  "title": "Hardware Engineer",
+  "location": "Dhaka, Bangladesh",
+  "email": "smsaad181@gmail.com",
+  "summary": "Hardware engineer specializing in PCB design, embedded systems, and IoT product development. Experienced with ESP32, Arduino, and ATmega microcontrollers, communication protocols (I²C, SPI, UART, Modbus, MQTT, LoRaWAN), and end-to-end product development from schematic to firmware.",
+  "avatar": {
+    "src": "/images/avatar.jpg",
+    "alt": "Sultan Mahmud — Hardware Engineer"
+  },
+  "socialLinks": {
+    "github": "https://github.com/smsaad-181",
+    "linkedin": "https://linkedin.com/in/sultan-mahmud-saad",
+    "oshwlab": "https://oshwlab.com/smsaad181"
+  },
+  "resume": "/resume/sultan-mahmud-cv.pdf"
+}

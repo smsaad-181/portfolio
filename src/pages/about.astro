@@ -1,0 +1,482 @@
+---
+/**
+ * About page — /about/
+ * Full bio + experience timeline, education, certifications, skills.
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SectionHeading from "@components/SectionHeading.astro";
+import SkillBar from "@components/SkillBar.astro";
+import { getCollection } from "astro:content";
+import { getProfile } from "../lib/profile";
+
+const profile = await getProfile();
+const experiences = await getCollection("experience");
+const educations = await getCollection("education");
+const certs = await getCollection("certifications");
+const allSkills = await getCollection("skills");
+
+// Sort experience: current first, then by startDate desc
+const sortedExp = experiences.sort((a, b) => {
+  if (a.data.current && !b.data.current) return -1;
+  if (!a.data.current && b.data.current) return 1;
+  return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
+});
+
+// Sort education by year desc
+const sortedEdu = educations.sort((a, b) => b.data.year - a.data.year);
+
+// Group skills by category
+const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
+  (acc, skill) => {
+    const cat = skill.data.category;
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat]!.push(skill);
+    return acc;
+  },
+  {}
+);
+
+function titleCase(s: string): string {
+  return s.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+---
+
+<BaseLayout
+  title="About"
+  description={`About ${profile.data.name} — ${profile.data.title}. ${profile.data.summary}`}
+>
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <section class="page-header" aria-label="About me">
+    <div class="container">
+      <p class="section-label">// about me</p>
+      <h1 class="page-header__title">{profile.data.name}</h1>
+      <p class="page-header__role">{profile.data.title} · {profile.data.location}</p>
+      <p class="page-header__summary">{profile.data.summary}</p>
+      <div class="page-header__links">
+        {profile.data.socialLinks.github && (
+          <a href={profile.data.socialLinks.github} target="_blank" rel="noopener noreferrer" class="social-link">
+            GitHub
+          </a>
+        )}
+        {profile.data.socialLinks.linkedin && (
+          <a href={profile.data.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" class="social-link">
+            LinkedIn
+          </a>
+        )}
+        {profile.data.socialLinks.oshwlab && (
+          <a href={profile.data.socialLinks.oshwlab} target="_blank" rel="noopener noreferrer" class="social-link">
+            OSHWLab
+          </a>
+        )}
+        <a href={`mailto:${profile.data.email}`} class="social-link">
+          {profile.data.email}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Experience ─────────────────────────────────────────────────────── -->
+  <section class="section" aria-labelledby="experience-heading">
+    <div class="container">
+      <SectionHeading label="// career" title="Experience" />
+      <div class="timeline">
+        {sortedExp.map((exp) => (
+          <article class="timeline-item" aria-label={`${exp.data.role} at ${exp.data.company}`}>
+            <div class="timeline-item__marker" aria-hidden="true">
+              <span class:list={["timeline-item__dot", { "timeline-item__dot--active": exp.data.current }]}></span>
+              <span class="timeline-item__line"></span>
+            </div>
+            <div class="timeline-item__content">
+              <div class="timeline-item__header">
+                <div>
+                  <h3 class="timeline-item__role">{exp.data.role}</h3>
+                  <p class="timeline-item__company">{exp.data.company}</p>
+                </div>
+                <time class="timeline-item__period">
+                  {formatDate(exp.data.startDate)} —{" "}
+                  {exp.data.current
+                    ? <span class="timeline-item__current">Present</span>
+                    : exp.data.endDate ? formatDate(exp.data.endDate) : ""}
+                </time>
+              </div>
+              <ul class="timeline-item__bullets">
+                {exp.data.bullets.map((bullet) => (
+                  <li>{bullet}</li>
+                ))}
+              </ul>
+              {exp.data.tags.length > 0 && (
+                <div class="timeline-item__tags" aria-label="Technologies used">
+                  {exp.data.tags.map((tag) => (
+                    <span class="timeline-tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Education ──────────────────────────────────────────────────────── -->
+  <section class="section section--alt" aria-labelledby="education-heading">
+    <div class="container">
+      <SectionHeading label="// background" title="Education" />
+      <div class="edu-grid">
+        {sortedEdu.map((edu) => (
+          <div class="edu-card">
+            <div class="edu-card__year">{edu.data.year}</div>
+            <div class="edu-card__body">
+              <h3 class="edu-card__degree">{edu.data.degree}</h3>
+              <p class="edu-card__institute">{edu.data.institute}</p>
+              <p class="edu-card__detail">
+                <span class="edu-card__group">{edu.data.group}</span>
+                <span class="edu-card__result">{edu.data.result}</span>
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Certifications -->
+      {certs.length > 0 && (
+        <div class="certs">
+          <h3 class="certs__title">Certifications & Training</h3>
+          <ul class="certs__list" role="list">
+            {certs.map((cert) => (
+              <li class="cert-item">
+                <span class="cert-item__name">{cert.data.name}</span>
+                {cert.data.issuer && <span class="cert-item__issuer"> — {cert.data.issuer}</span>}
+                {cert.data.year && <span class="cert-item__year">{cert.data.year}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- ── Skills ─────────────────────────────────────────────────────────── -->
+  <section class="section" aria-labelledby="skills-heading">
+    <div class="container">
+      <SectionHeading label="// toolbox" title="Skills & Technologies" />
+      <div class="skills-grid">
+        {Object.entries(skillsByCategory).map(([category, skills]) => (
+          <div class="skills-group">
+            <h3 class="skills-group__title">{titleCase(category)}</h3>
+            <div class="skills-group__list">
+              {skills
+                .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))
+                .map((skill) => (
+                  <SkillBar name={skill.data.name} proficiency={skill.data.proficiency} />
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding-block: var(--space-16) var(--space-12);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .page-header__title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+
+  .page-header__role {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--accent);
+    margin-bottom: var(--space-4);
+  }
+
+  .page-header__summary {
+    color: var(--text-secondary);
+    max-width: 65ch;
+    margin-bottom: var(--space-6);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .page-header__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .social-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .social-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .section {
+    padding-block: var(--space-16);
+  }
+
+  .section--alt {
+    background: var(--bg-surface);
+  }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 0 var(--space-4);
+  }
+
+  .timeline-item__marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+
+  .timeline-item__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-base);
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+
+  .timeline-item__dot--active {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  .timeline-item__line {
+    width: 2px;
+    flex: 1;
+    background: var(--border-subtle);
+    margin-top: 6px;
+  }
+
+  .timeline-item:last-child .timeline-item__line {
+    display: none;
+  }
+
+  .timeline-item__content {
+    padding-bottom: var(--space-10);
+  }
+
+  .timeline-item__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .timeline-item__role {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .timeline-item__company {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  .timeline-item__period {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  .timeline-item__current {
+    color: var(--status-completed);
+    font-weight: 600;
+  }
+
+  .timeline-item__bullets {
+    padding-left: 1.2em;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-3);
+  }
+
+  .timeline-item__bullets li + li {
+    margin-top: var(--space-1);
+  }
+
+  .timeline-item__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .timeline-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* Education */
+  .edu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-10);
+  }
+
+  .edu-card {
+    display: flex;
+    gap: var(--space-4);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-6);
+    transition: border-color 0.15s;
+  }
+
+  .edu-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .edu-card__year {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .edu-card__degree {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+  }
+
+  .edu-card__institute {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+  }
+
+  .edu-card__detail {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+  }
+
+  .edu-card__group {
+    color: var(--text-muted);
+  }
+
+  .edu-card__result {
+    font-family: var(--font-mono);
+    color: var(--status-completed);
+    font-weight: 600;
+  }
+
+  /* Certifications */
+  .certs__title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: var(--space-4);
+  }
+
+  .certs__list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .cert-item {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .cert-item__name { font-weight: 500; color: var(--text-primary); }
+  .cert-item__issuer { color: var(--text-muted); font-size: 0.85rem; }
+  .cert-item__year {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--accent);
+    margin-left: auto;
+  }
+
+  /* Skills */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-8);
+  }
+
+  .skills-group__title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: var(--space-3);
+  }
+
+  .skills-group__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+</style>

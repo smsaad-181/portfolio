@@ -1,0 +1,24 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# env — every .env* file is ignored except the committed template
+.env*
+!.env.example
+
+# tina
+tina/__generated__/
+# Tina builds the /admin bundle into public/admin/ at build time.
+# Commit the source (tina/config.ts) but not the generated bundle.
+public/admin/
+
+# editor/OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# Claude Code — personal settings stay local (agents/skills are committed)
+.claude/settings.local.json

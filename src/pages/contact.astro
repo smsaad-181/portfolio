@@ -1,0 +1,235 @@
+---
+/**
+ * Contact page — /contact/
+ * Static links only — no backend. Email, LinkedIn, GitHub, OSHWLab.
+ * Uses mailto: for email (per requirements: no custom server).
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getProfile } from "../lib/profile";
+
+const profile = await getProfile();
+---
+
+<BaseLayout
+  title="Contact"
+  description={`Get in touch with ${profile.data.name} — Hardware Engineer. Available via email, LinkedIn, GitHub, and OSHWLab.`}
+>
+  <section class="contact-page">
+    <div class="container contact-inner">
+      <div class="contact-header">
+        <p class="section-label">// reach out</p>
+        <h1 class="contact-header__title">Get in Touch</h1>
+        <p class="contact-header__body">
+          Open to hardware engineering roles, IoT product development projects,
+          and collaboration on interesting embedded systems problems. The fastest
+          way to reach me is email.
+        </p>
+      </div>
+
+      <div class="contact-cards" role="list" aria-label="Contact options">
+        <!-- Email -->
+        <a
+          href={`mailto:${profile.data.email}`}
+          class="contact-card"
+          role="listitem"
+          aria-label={`Send email to ${profile.data.email}`}
+        >
+          <div class="contact-card__icon" aria-hidden="true">✉</div>
+          <div class="contact-card__content">
+            <h2 class="contact-card__title">Email</h2>
+            <p class="contact-card__value">{profile.data.email}</p>
+            <p class="contact-card__hint">Fastest response, usually within 24h</p>
+          </div>
+          <span class="contact-card__arrow" aria-hidden="true">→</span>
+        </a>
+
+        <!-- LinkedIn -->
+        {profile.data.socialLinks.linkedin && (
+          <a
+            href={profile.data.socialLinks.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            role="listitem"
+            aria-label="Connect on LinkedIn (opens in new tab)"
+          >
+            <div class="contact-card__icon" aria-hidden="true">in</div>
+            <div class="contact-card__content">
+              <h2 class="contact-card__title">LinkedIn</h2>
+              <p class="contact-card__value">Sultan Mahmud</p>
+              <p class="contact-card__hint">Professional profile and work history</p>
+            </div>
+            <span class="contact-card__arrow" aria-hidden="true">→</span>
+          </a>
+        )}
+
+        <!-- GitHub -->
+        {profile.data.socialLinks.github && (
+          <a
+            href={profile.data.socialLinks.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            role="listitem"
+            aria-label="View GitHub profile (opens in new tab)"
+          >
+            <div class="contact-card__icon" aria-hidden="true">gh</div>
+            <div class="contact-card__content">
+              <h2 class="contact-card__title">GitHub</h2>
+              <p class="contact-card__value">smsaad-181</p>
+              <p class="contact-card__hint">Code, firmware, and open-source projects</p>
+            </div>
+            <span class="contact-card__arrow" aria-hidden="true">→</span>
+          </a>
+        )}
+
+        <!-- OSHWLab -->
+        {profile.data.socialLinks.oshwlab && (
+          <a
+            href={profile.data.socialLinks.oshwlab}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-card"
+            role="listitem"
+            aria-label="View OSHWLab profile (opens in new tab)"
+          >
+            <div class="contact-card__icon" aria-hidden="true">⊞</div>
+            <div class="contact-card__content">
+              <h2 class="contact-card__title">OSHWLab</h2>
+              <p class="contact-card__value">smsaad181</p>
+              <p class="contact-card__hint">PCB schematics and board files</p>
+            </div>
+            <span class="contact-card__arrow" aria-hidden="true">→</span>
+          </a>
+        )}
+      </div>
+
+      <div class="contact-note">
+        <p>
+          Based in <strong>Dhaka, Bangladesh (Uttara)</strong>. Available for
+          remote collaboration globally, or in-person for Dhaka-based roles.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-page {
+    padding-block: var(--space-16) var(--space-24);
+    min-height: calc(100dvh - var(--nav-height));
+  }
+
+  .contact-inner {
+    max-width: 720px;
+  }
+
+  .contact-header {
+    margin-bottom: var(--space-10);
+  }
+
+  .contact-header__title {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-block: var(--space-2) var(--space-4);
+  }
+
+  .contact-header__body {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 55ch;
+  }
+
+  .contact-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-10);
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.15s;
+  }
+
+  .contact-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .contact-card__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--accent-glow);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .contact-card__content {
+    flex: 1;
+  }
+
+  .contact-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+  }
+
+  .contact-card__value {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: var(--space-1);
+  }
+
+  .contact-card__hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .contact-card__arrow {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    transition: color 0.15s, transform 0.15s;
+  }
+
+  .contact-card:hover .contact-card__arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .contact-note {
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .contact-note strong {
+    color: var(--text-primary);
+  }
+</style>

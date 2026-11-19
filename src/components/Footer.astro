@@ -1,0 +1,176 @@
+---
+/**
+ * Footer.astro
+ * Simple footer with social links and copyright.
+ * Social links are hardcoded here so the footer renders even before the
+ * profile collection is loaded on a given page. Update these when Saad
+ * confirms his exact profile URLs.
+ */
+const year = new Date().getFullYear();
+
+const socialLinks = [
+  {
+    label: "GitHub",
+    href: "https://github.com/smsaad-181",
+    icon: "github",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://linkedin.com/in/sultan-mahmud-saad",
+    icon: "linkedin",
+  },
+  {
+    label: "OSHWLab",
+    href: "https://oshwlab.com/smsaad181",
+    icon: "oshwlab",
+  },
+  {
+    label: "Email",
+    href: "mailto:smsaad181@gmail.com",
+    icon: "email",
+  },
+];
+---
+
+<footer class="footer" role="contentinfo">
+  <div class="footer__inner container">
+    <div class="footer__brand">
+      <span class="footer__logo" aria-hidden="true">
+        <span class="footer__logo-bracket">{"{"}</span>
+        saad
+        <span class="footer__logo-bracket">{"}"}</span>
+      </span>
+      <p class="footer__tagline">Hardware Engineer · PCB Design · Embedded Systems · IoT</p>
+    </div>
+
+    <nav class="footer__social" aria-label="Social links">
+      <ul role="list">
+        {socialLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="footer__social-link"
+              target={link.href.startsWith("mailto") ? undefined : "_blank"}
+              rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+              aria-label={`${link.label} (opens in new tab)`}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <p class="footer__copy">
+      &copy; {year} Sultan Mahmud. Built with
+      <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>
+      &amp; edited via
+      <a href="https://tina.io" target="_blank" rel="noopener noreferrer">Tina CMS</a>.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--space-24);
+    border-top: 1px solid var(--border-subtle);
+    padding-block: var(--space-12);
+    background: var(--bg-surface);
+  }
+
+  .footer__inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: var(--space-6) var(--space-8);
+    align-items: start;
+  }
+
+  .footer__brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .footer__logo {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    display: inline-block;
+    margin-bottom: var(--space-2);
+  }
+
+  .footer__logo-bracket {
+    color: var(--accent);
+  }
+
+  .footer__tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .footer__social {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .footer__social ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .footer__social-link {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer__social-link:hover {
+    color: var(--accent);
+  }
+
+  .footer__copy {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .footer__copy a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footer__copy a:hover {
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 640px) {
+    .footer__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .footer__social {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .footer__social ul {
+      justify-content: flex-start;
+    }
+
+    .footer__copy {
+      grid-row: 3;
+    }
+  }
+</style>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" fill="none">
+  <rect width="1280" height="720" fill="#161b22"/>
+  <rect x="0" y="0" width="1280" height="720" fill="none" stroke="#30363d" stroke-width="2"/>
+  <!-- Grid lines -->
+  <line x1="0" y1="360" x2="1280" y2="360" stroke="#21262d" stroke-width="1"/>
+  <line x1="640" y1="0" x2="640" y2="720" stroke="#21262d" stroke-width="1"/>
+  <!-- Crosshair -->
+  <circle cx="640" cy="360" r="80" stroke="#30363d" stroke-width="2" fill="none"/>
+  <line x1="560" y1="360" x2="720" y2="360" stroke="#484f58" stroke-width="2"/>
+  <line x1="640" y1="280" x2="640" y2="440" stroke="#484f58" stroke-width="2"/>
+  <!-- Label -->
+  <text x="640" y="490" text-anchor="middle" font-family="monospace" font-size="22" fill="#484f58">cover image — upload via /admin</text>
+</svg>

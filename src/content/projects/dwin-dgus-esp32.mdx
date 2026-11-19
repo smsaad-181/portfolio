@@ -1,0 +1,37 @@
+---
+title: "DWIN DGUS Display + DHT11 via ESP32 MicroPython"
+summary: "ESP32 MicroPython project integrating a DWIN DGUS touchscreen display with DHT11 temperature/humidity sensor data — currently working through unresolved UART framing and ASCII formatting issues."
+coverImage:
+  src: "/portfolio/images/placeholder.svg"
+  alt: "DWIN DGUS display connected to ESP32 running MicroPython"
+gallery: []
+tags: ["ESP32", "MicroPython", "UART", "DWIN", "Sensors"]
+status: "in-progress"
+role: "Firmware Engineer"
+draft: false
+featured: false
+order: 7
+links: {}
+bomHighlights:
+  - component: "DWIN DGUS display"
+    notes: "Proprietary UART protocol for screen control and data injection"
+  - component: "DHT11"
+    notes: "Temperature and humidity sensor; single-wire protocol"
+  - component: "ESP32"
+    notes: "Running MicroPython; UART framing to DGUS still under investigation"
+---
+
+## Motivation
+
+Integrate a DWIN DGUS touchscreen as a local display for sensor readings, controlled entirely from MicroPython on the ESP32 — no C++ firmware required.
+
+## Status
+
+**In progress — unresolved issues.**
+
+The DWIN DGUS display uses a proprietary UART protocol with specific framing (header bytes, address, length, data). DHT11 readings are being acquired correctly, but two issues remain unresolved:
+
+- **UART framing errors** — occasional corrupted frames sent to the display result in missed or garbled screen updates. The exact cause (timing, baud-rate tolerance, or byte-ordering in the MicroPython UART write) has not been pinpointed.
+- **ASCII formatting** — the DGUS display expects data in a specific ASCII format for its variable addresses; MicroPython's string encoding is producing off-by-one alignment in some multi-digit values.
+
+Work is ongoing. This entry will be updated once both issues are resolved and the display reliably shows live sensor data.

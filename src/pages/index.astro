@@ -1,0 +1,536 @@
+---
+/**
+ * Homepage — /
+ * Hero (greeting, gradient name, role badge, bio, portrait), featured
+ * projects (CMS-controlled via `featured` + `order`), skill highlights,
+ * resume CTA.
+ *
+ * Portrait: drop a photo at src/assets/profile/portrait.{png,webp,jpg} —
+ * a transparent-background PNG cut-out looks best. It is picked up
+ * automatically and optimised by Astro's <Image />. Until then a monogram
+ * is shown instead.
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SectionHeading from "@components/SectionHeading.astro";
+import ProjectCard from "@components/ProjectCard.astro";
+import SkillBar from "@components/SkillBar.astro";
+import ResumeButton from "@components/ResumeButton.astro";
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import { getFeaturedProjects } from "../lib/projects";
+import { getProfile } from "../lib/profile";
+import { pageUrl, projectUrl } from "../lib/urls";
+
+const profile = await getProfile();
+const featured = await getFeaturedProjects();
+const allSkills = await getCollection("skills");
+const currentJob = (await getCollection("experience")).find((e) => e.data.current);
+
+// Optional portrait — first match wins.
+const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/profile/portrait.{png,webp,avif,jpg,jpeg}",
+  { eager: true }
+);
+const portrait = Object.values(portraitFiles)[0]?.default;
+
+const initials = profile.data.name
+  .split(" ")
+  .map((w) => w.charAt(0))
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+
+// Group skills by category (lowercase stored, title-case at render)
+const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
+  (acc, skill) => {
+    const cat = skill.data.category;
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat]!.push(skill);
+    return acc;
+  },
+  {}
+);
+
+function titleCase(s: string): string {
+  return s
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+// Flowing line-art for the hero background: a family of cubic curves whose
+// four points each drift by a fixed step per line, which reads as silk/waves.
+type Pt = [x: number, y: number, dx: number, dy: number];
+function wavePaths(count: number, p0: Pt, c1: Pt, c2: Pt, p3: Pt): string[] {
+  const at = (p: Pt, i: number) => `${(p[0] + p[2] * i).toFixed(1)} ${(p[1] + p[3] * i).toFixed(1)}`;
+  return Array.from({ length: count }, (_, i) =>
+    `M${at(p0, i)} C${at(c1, i)} ${at(c2, i)} ${at(p3, i)}`
+  );
+}
+const wavesTop = wavePaths(42, [120, -40, 7, 0], [100, 280, 5, -4], [540, 400, -3, -7], [680, 60, 0, 6]);
+const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 7, -3], [560, 620, 5, 0]);
+---
+
+<BaseLayout
+  title="Sultan Mahmud — Hardware Engineer"
+  fullTitle
+  description={profile.data.summary}
+>
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <section class="hero" aria-label="Introduction">
+    <div class="hero__bg" aria-hidden="true">
+      <svg class="hero__waves hero__waves--top" viewBox="0 0 600 500" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="wave-top" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7b5cff" />
+            <stop offset="100%" stop-color="#3d5bff" />
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#wave-top)" stroke-width="0.8" vector-effect="non-scaling-stroke">
+          {wavesTop.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
+        </g>
+      </svg>
+      <svg class="hero__waves hero__waves--bottom" viewBox="0 0 600 500" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="wave-bottom" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff3d7f" />
+            <stop offset="100%" stop-color="#8a3dff" />
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#wave-bottom)" stroke-width="0.8">
+          {wavesBottom.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
+        </g>
+      </svg>
+    </div>
+
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <p class="hero__greeting">Hello, I'm</p>
+        <h1 class="hero__name">{profile.data.name}</h1>
+
+        <p class="hero__badge">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="hero__badge-icon">
+            <rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <rect x="9.5" y="9.5" width="5" height="5" rx="0.8" fill="currentColor" />
+            <path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          {profile.data.title}
+        </p>
+
+        <p class="hero__bio">
+          I design PCBs, write embedded firmware and build IoT products, taking
+          an idea from the <span class="u">first schematic</span> to a
+          <span class="u">working board</span>.
+          {currentJob && <>Currently at {currentJob.data.company} in {profile.data.location.split(",")[0]}.</>}
+        </p>
+
+        <div class="hero__actions">
+          <a href={pageUrl("/projects/")} class="btn btn--primary">View Projects</a>
+          <ResumeButton variant="secondary" />
+        </div>
+      </div>
+
+      <div class="hero__portrait">
+        <div class="hero__portrait-glow" aria-hidden="true"></div>
+        {portrait ? (
+          <Image
+            src={portrait}
+            alt={`${profile.data.name}, ${profile.data.title}`}
+            widths={[320, 480, 640, 960]}
+            sizes="(max-width: 900px) 300px, 480px"
+            loading="eager"
+            fetchpriority="high"
+            class="hero__photo"
+          />
+        ) : (
+          <div class="hero__monogram" role="img" aria-label={profile.data.name}>
+            <span>{initials}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Featured projects ───────────────────────────────────────────────── -->
+  {featured.length > 0 && (
+    <section class="section" aria-labelledby="featured-heading">
+      <div class="container">
+        <SectionHeading
+          label="// selected work"
+          title="Featured Projects"
+          id="featured-heading"
+          description="Hardware builds, firmware deep-dives, and IoT systems — each one a real debugging story."
+        />
+        <div class="projects-grid">
+          {featured.map((project) => (
+            <ProjectCard
+              title={project.data.title}
+              href={projectUrl(project)}
+              summary={project.data.summary}
+              coverImage={project.data.coverImage}
+              tags={project.data.tags}
+              status={project.data.status}
+            />
+          ))}
+        </div>
+        <div class="projects-cta">
+          <a href={pageUrl("/projects/")} class="btn btn--secondary">
+            All Projects →
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ── Skills ─────────────────────────────────────────────────────────── -->
+  <section class="section section--alt" aria-labelledby="skills-heading">
+    <div class="container">
+      <SectionHeading
+        label="// toolbox"
+        title="Skills & Technologies"
+        id="skills-heading"
+        description="The hardware and software toolkit I reach for on every project."
+      />
+      <div class="skills-grid">
+        {Object.entries(skillsByCategory).map(([category, skills]) => (
+          <div class="skills-group">
+            <h3 class="skills-group__title">{titleCase(category)}</h3>
+            <div class="skills-group__list">
+              {skills
+                .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))
+                .map((skill) => (
+                  <SkillBar name={skill.data.name} proficiency={skill.data.proficiency} />
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Resume CTA ─────────────────────────────────────────────────────── -->
+  <section class="section cta-section" aria-label="Resume download">
+    <div class="container cta-inner">
+      <div>
+        <p class="section-label">// work with me</p>
+        <h2 class="cta-title">Looking to collaborate or hire?</h2>
+        <p class="cta-body">
+          I'm open to hardware engineering roles and IoT product development projects.
+          Grab my CV or reach out directly.
+        </p>
+      </div>
+      <div class="cta-actions">
+        <ResumeButton variant="primary" />
+        <a href={pageUrl("/contact/")} class="btn btn--secondary">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ── Sections ────────────────────────────────────────────────────────── */
+  .section {
+    padding-block: var(--space-24);
+  }
+
+  .section--alt {
+    background: var(--bg-surface);
+  }
+
+  /* ── Hero ────────────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    /* Slide under the transparent sticky nav so the art fills the top edge */
+    margin-top: calc(-1 * var(--nav-height));
+    padding-top: var(--nav-height);
+    min-height: 100dvh;
+    display: flex;
+    align-items: stretch;
+    background:
+      radial-gradient(ellipse 60% 70% at 0% 100%, var(--hero-glow-pink), transparent 70%),
+      radial-gradient(ellipse 55% 60% at 100% 0%, var(--hero-glow-blue), transparent 70%),
+      var(--bg-base);
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero__waves {
+    position: absolute;
+    opacity: var(--hero-wave-opacity);
+  }
+
+  .hero__waves--top {
+    top: -6%;
+    right: -4%;
+    width: 58%;
+    height: 80%;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+
+  .hero__waves--bottom {
+    bottom: -14%;
+    left: -6%;
+    width: 50%;
+    height: 75%;
+    opacity: calc(var(--hero-wave-opacity) * 0.8);
+    animation: drift 22s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes drift {
+    from { transform: translate3d(0, 0, 0) rotate(0deg); }
+    to   { transform: translate3d(-14px, 10px, 0) rotate(-1.5deg); }
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .hero__content {
+    padding-block: var(--space-16);
+  }
+
+  .hero__greeting {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  .hero__name {
+    font-size: clamp(2.5rem, 5.5vw, 4rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-6);
+    background: linear-gradient(90deg, #ff4f7b 0%, #e2508f 50%, #c86bff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+  }
+
+  :global(:root[data-theme="light"]) .hero__name {
+    background-image: linear-gradient(90deg, #d6336c 0%, #b0368a 50%, #8a3dd6 100%);
+  }
+
+  .hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.35rem 0.9rem 0.35rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+    background: color-mix(in srgb, var(--accent-2) 10%, transparent);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero__badge-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+  }
+
+  .hero__bio {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+    max-width: 56ch;
+    margin-bottom: var(--space-8);
+  }
+
+  /* Gradient underline on highlighted words */
+  .u {
+    color: var(--text-primary);
+    background-image: var(--gradient-accent);
+    background-size: 100% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
+  }
+
+  .hero__actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  /* Portrait — sits on the bottom edge and fades into the background */
+  .hero__portrait {
+    position: relative;
+    align-self: end;
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero__portrait-glow {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    width: 80%;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 65%);
+    filter: blur(20px);
+    z-index: -1;
+  }
+
+  .hero__photo {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
+  }
+
+  .hero__monogram {
+    align-self: center;
+    margin-bottom: 18vh;
+    width: min(340px, 70vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 3px;
+    background: var(--gradient-accent);
+    display: grid;
+  }
+
+  .hero__monogram span {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, var(--bg-elevated), var(--bg-base) 70%);
+    font-family: var(--font-script);
+    font-size: clamp(5rem, 12vw, 8rem);
+    line-height: 1;
+    color: var(--text-primary);
+  }
+
+  /* Projects grid */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .projects-cta {
+    margin-top: var(--space-8);
+    text-align: center;
+  }
+
+  /* Skills grid */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-8);
+  }
+
+  .skills-group__title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: var(--space-3);
+  }
+
+  .skills-group__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  /* CTA section */
+  .cta-section {
+    padding-block: var(--space-16);
+  }
+
+  .cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-12);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+  }
+
+  .cta-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-block: var(--space-2);
+  }
+
+  .cta-body {
+    color: var(--text-secondary);
+    max-width: 50ch;
+    font-size: 0.95rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .hero {
+      min-height: unset;
+    }
+
+    .hero__inner {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .hero__content {
+      padding-block: var(--space-8) var(--space-12);
+    }
+
+    .hero__portrait {
+      order: -1;
+      align-self: center;
+      padding-top: var(--space-6);
+    }
+
+    .hero__photo {
+      max-width: 300px;
+    }
+
+    .hero__monogram {
+      margin-bottom: 0;
+      width: min(220px, 60vw);
+    }
+
+    .hero__waves--top { width: 90%; height: 55%; }
+    .hero__waves--bottom { width: 90%; height: 45%; }
+  }
+
+  @media (max-width: 640px) {
+    .cta-inner {
+      padding: var(--space-6);
+    }
+
+    .section {
+      padding-block: var(--space-16);
+    }
+  }
+</style>

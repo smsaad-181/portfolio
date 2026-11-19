@@ -1,0 +1,59 @@
+---
+/**
+ * TagChip.astro
+ * Renders a single tag as a small pill. Normalises casing to title-case for
+ * display (content stores tags lowercase; we format them at render time per
+ * content-model.md).
+ */
+export interface Props {
+  tag: string;
+  /** If provided, wraps the chip in a button/link for filtering. */
+  href?: string;
+}
+
+const { tag, href } = Astro.props;
+
+/** Title-case a tag: "pcb design" → "PCB Design" */
+function toDisplayCase(raw: string): string {
+  return raw
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const displayTag = toDisplayCase(tag);
+---
+
+{href ? (
+  <a href={href} class="tag-chip tag-chip--link">
+    {displayTag}
+  </a>
+) : (
+  <span class="tag-chip">
+    {displayTag}
+  </span>
+)}
+
+<style>
+  .tag-chip {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    text-decoration: none;
+  }
+
+  .tag-chip--link:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    background: var(--accent-glow);
+    cursor: pointer;
+  }
+</style>

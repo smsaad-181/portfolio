@@ -1,0 +1,270 @@
+---
+/**
+ * Projects index — /projects/
+ * Filterable grid of all non-draft projects. Filter by tag and status
+ * is client-side (no server needed — purely URL-hash driven).
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SectionHeading from "@components/SectionHeading.astro";
+import ProjectCard from "@components/ProjectCard.astro";
+import { getPublishedProjects, getAllTags } from "../../lib/projects";
+import { projectUrl } from "../../lib/urls";
+
+const projects = await getPublishedProjects();
+const allTags = await getAllTags();
+const statuses = ["completed", "in-progress", "prototype"] as const;
+---
+
+<BaseLayout
+  title="Projects"
+  description="Hardware engineering projects — PCB design, embedded systems, IoT builds, and firmware deep-dives."
+>
+  <section class="page-header">
+    <div class="container">
+      <SectionHeading
+        label="// portfolio"
+        title="Projects"
+        level={1}
+        description="PCB design, embedded firmware, and IoT builds. Each project is a real engineering problem solved end-to-end."
+      />
+    </div>
+  </section>
+
+  <section class="projects-section" aria-label="Projects list">
+    <div class="container">
+      <!-- Filters -->
+      <div class="filters" role="group" aria-label="Filter projects">
+        <div class="filters__group">
+          <span class="filters__label">Status</span>
+          <div class="filters__chips" role="group" aria-label="Filter by status">
+            <button
+              class="filter-btn filter-btn--active"
+              data-filter-type="status"
+              data-filter-value="all"
+              aria-pressed="true"
+            >
+              All
+            </button>
+            {statuses.map((s) => (
+              <button
+                class="filter-btn"
+                data-filter-type="status"
+                data-filter-value={s}
+                aria-pressed="false"
+              >
+                {s === "in-progress" ? "In Progress" : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="filters__group">
+          <span class="filters__label">Tag</span>
+          <div class="filters__chips" role="group" aria-label="Filter by tag">
+            <button
+              class="filter-btn filter-btn--active"
+              data-filter-type="tag"
+              data-filter-value="all"
+              aria-pressed="true"
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button
+                class="filter-btn"
+                data-filter-type="tag"
+                data-filter-value={tag}
+                aria-pressed="false"
+              >
+                {tag.split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- Count -->
+      <p class="projects-count" id="projects-count" aria-live="polite">
+        {projects.length} project{projects.length !== 1 ? "s" : ""}
+      </p>
+
+      <!-- Grid -->
+      <div
+        class="projects-grid"
+        id="projects-grid"
+        role="list"
+        aria-label="Projects"
+      >
+        {projects.map((project) => (
+          <div
+            class="project-item"
+            role="listitem"
+            data-status={project.data.status}
+            data-tags={project.data.tags.map((t) => t.toLowerCase()).join(",")}
+          >
+            <ProjectCard
+              title={project.data.title}
+              href={projectUrl(project)}
+              summary={project.data.summary}
+              coverImage={project.data.coverImage}
+              tags={project.data.tags}
+              status={project.data.status}
+            />
+          </div>
+        ))}
+      </div>
+
+      <p class="no-results" id="no-results" hidden aria-live="polite">
+        No projects match the selected filters.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<!-- Client-side filter logic (no framework, no bundler needed) -->
+<script>
+  const noResults = document.getElementById("no-results");
+  const countEl = document.getElementById("projects-count");
+  const allItems = Array.from(document.querySelectorAll<HTMLElement>(".project-item"));
+
+  let activeStatus = "all";
+  let activeTag = "all";
+
+  function applyFilters() {
+    let visible = 0;
+    for (const item of allItems) {
+      const status = item.dataset["status"] ?? "";
+      const tags = (item.dataset["tags"] ?? "").split(",");
+      const statusMatch = activeStatus === "all" || status === activeStatus;
+      const tagMatch = activeTag === "all" || tags.includes(activeTag);
+      const show = statusMatch && tagMatch;
+      item.hidden = !show;
+      if (show) visible++;
+    }
+    if (countEl) {
+      countEl.textContent = `${visible} project${visible !== 1 ? "s" : ""}`;
+    }
+    if (noResults) noResults.hidden = visible > 0;
+  }
+
+  function updateButtons(type: string, value: string) {
+    const btns = document.querySelectorAll<HTMLButtonElement>(
+      `[data-filter-type="${type}"]`
+    );
+    for (const btn of btns) {
+      const isActive = btn.dataset["filterValue"] === value;
+      btn.classList.toggle("filter-btn--active", isActive);
+      btn.setAttribute("aria-pressed", String(isActive));
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>("[data-filter-type]");
+    if (!btn) return;
+    const type = btn.dataset["filterType"]!;
+    const value = btn.dataset["filterValue"]!;
+    if (type === "status") activeStatus = value;
+    if (type === "tag") activeTag = value;
+    updateButtons(type, value);
+    applyFilters();
+  });
+</script>
+
+<style>
+  .page-header {
+    padding-block: var(--space-16) var(--space-8);
+  }
+
+  .projects-section {
+    padding-bottom: var(--space-24);
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .filters__group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .filters__label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+
+  .filters__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .filter-btn {
+    appearance: none;
+    padding: 3px 12px;
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .filter-btn:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    background: var(--accent-glow);
+  }
+
+  .filter-btn--active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+
+  .projects-count {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .no-results {
+    text-align: center;
+    color: var(--text-secondary);
+    padding-block: var(--space-16);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 480px) {
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

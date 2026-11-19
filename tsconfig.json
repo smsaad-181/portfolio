@@ -1,0 +1,15 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  // Generated bundles: public/admin/ is written by `tinacms build` (several MB
+  // of JS — type-checking it exhausts memory); dist/ is build output.
+  "exclude": ["dist", "public/admin", "node_modules"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@content/*": ["src/content/*"],
+      "@styles/*": ["src/styles/*"]
+    }
+  }
+}

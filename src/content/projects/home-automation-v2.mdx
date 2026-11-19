@@ -1,0 +1,57 @@
+---
+title: "Home Automation V2"
+summary: "6-channel ESP32-WROOM-32 home automation board with a dark-sidebar web dashboard, NTP time sync, solar-aware scheduling, and a 20-rule automation engine stored in non-volatile storage."
+coverImage:
+  src: "/portfolio/images/placeholder.svg"
+  alt: "Home Automation V2 PCB — 6-channel ESP32 relay board with dark web dashboard"
+gallery: []
+tags: ["ESP32", "PCB Design", "Home Automation", "NVS", "Web Dashboard", "NTP", "Firmware"]
+status: "completed"
+role: "Hardware & Firmware Engineer"
+dateCompleted: "2024-12-01"
+links: {}
+featured: true
+order: 1
+draft: false
+bomHighlights:
+  - component: "ESP32-WROOM-32"
+    notes: "Main microcontroller; handles Wi-Fi, web server, and automation logic"
+  - component: "CH340C"
+    notes: "USB-to-UART bridge for firmware upload — TX/RX cross-connection bug caught and fixed at schematic review"
+  - component: "Optoisolator (PC817)"
+    notes: "Relay isolation from MCU — added during V1→V2 revision after GPIO strapping-pin conflicts on GPIO2"
+  - component: "AMS1117-3.3"
+    notes: "3.3 V LDO regulator for ESP32 power rail"
+---
+
+## Motivation
+
+The original 4-channel relay board worked but had two persistent problems: a GPIO2 strapping-pin conflict that made firmware uploads unreliable, and no electrical isolation between the relay coils and the MCU. This project is the full redesign — expanding to 6 channels, fixing the isolation gap with optoisolators, and adding a proper auto-reset circuit alongside a complete web dashboard rewrite.
+
+## Key Components
+
+- **ESP32-WROOM-32** — runs the web server, NTP sync, and automation engine entirely on-chip
+- **6× relay outputs** via optoisolators (PC817) to keep relay coil transients off the MCU power rail
+- **CH340C** USB-to-UART bridge for firmware uploads, with corrected TX/RX routing (previous revision had them swapped on the schematic)
+- **NVS (Non-Volatile Storage)** — automation rules and channel labels persist across power cycles
+
+## Features
+
+- Dark-sidebar web dashboard served directly from the ESP32 — no external server
+- NTP time sync against a public pool; time zone offset configurable from the UI
+- Solar calculations using Dhaka coordinates (NOAA algorithm) for sunrise/sunset-based rules
+- 20-rule automation engine with four trigger types: time-based, solar-event, manual, and state-change
+
+## Challenges & How They Were Solved
+
+**TX/RX cross-connection on schematic** — The CH340C TX was wired to the ESP32 TX (and RX to RX) in the original layout, which prevented firmware uploads entirely. Caught during schematic review before fabrication and corrected.
+
+**GPIO2 strapping pin (V1 lesson)** — The previous 4-channel board used GPIO2 for a relay channel. GPIO2 is sampled at boot to set the flash download mode, so a pulled-high relay coil prevented normal boot. Moved to a non-strapping GPIO in V2.
+
+**JSON parsing bugs** — The automation rule parser had edge cases that only appeared with real rule combinations. A Python simulation script was written to replay rule sets before loading them on hardware, catching three distinct parsing bugs before the board was powered up.
+
+**Optoisolator isolation** — Added after the V1 board showed occasional MCU resets when multiple relays switched simultaneously. The PC817 opto breaks the ground path between relay coil and MCU, eliminating the transient coupling.
+
+## Outcome
+
+All 6 channels stable in long-term home use. The automation engine handles the original target use case (morning/evening lighting schedules + solar-offset rules) without manual intervention.

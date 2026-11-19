@@ -1,0 +1,18 @@
+{
+  "company": "Southern IoT Limited",
+  "role": "Assistant Officer",
+  "startDate": "2025-01-14",
+  "current": true,
+  "bullets": [
+    "Circuit/schematic design and PCB design for IoT products",
+    "Sensor integration (temperature, humidity, gas, laser, fingerprint, RFID) and embedded debugging",
+    "Hardware documentation and design review",
+    "LoRaWAN gateway integration and Raspberry Pi Pico development for IoT applications",
+    "Node-RED for IoT data visualization and control flows",
+    "Protocols: I²C, SPI, UART, Modbus, MQTT",
+    "Motor driver work (A4988, L298N) and power regulation circuit design",
+    "Jacquard machine control/racking board observation",
+    "Notable internal project: three-phase voltage indicator"
+  ],
+  "tags": ["PCB Design", "ESP32", "LoRaWAN", "MQTT", "I2C", "SPI", "UART", "Modbus", "Node-RED", "Raspberry Pi Pico"]
+}

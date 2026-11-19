@@ -1,0 +1,210 @@
+---
+/**
+ * Resume page — /resume/
+ * Links directly to the PDF in public/resume/ for download. If the PDF hasn't
+ * been uploaded yet, offers "CV available on request" (mailto) instead.
+ * The PDF path is sourced from the profile content entry so Saad can
+ * update it via /admin (by uploading a new file in Tina) without touching code.
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getProfile, getResumeUrl } from "../lib/profile";
+
+const profile = await getProfile();
+const resumeUrl = getResumeUrl(profile);
+const requestHref = `mailto:${profile.data.email}?subject=${encodeURIComponent("CV request")}`;
+---
+
+<BaseLayout
+  title="Resume"
+  description={`Download the CV of ${profile.data.name}, ${profile.data.title}.`}
+>
+  <section class="resume-page">
+    <div class="container resume-inner">
+      <p class="section-label">// cv</p>
+      <h1 class="resume-title">Resume</h1>
+      <p class="resume-body">
+        {resumeUrl
+          ? "Download the latest version of my CV as a PDF."
+          : "My CV is available on request — email me and I'll send the latest version."}
+      </p>
+
+      {resumeUrl ? (
+      <div class="resume-actions">
+        <a
+          href={resumeUrl}
+          download
+          class="btn btn--primary"
+          aria-label={`Download ${profile.data.name}'s resume as PDF`}
+        >
+          Download CV (PDF)
+        </a>
+        <a
+          href={resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn--secondary"
+          aria-label="Open resume PDF in new tab"
+        >
+          Open in Browser
+        </a>
+      </div>
+      ) : (
+      <div class="resume-actions">
+        <a href={requestHref} class="btn btn--primary">Request my CV by email</a>
+      </div>
+      )}
+
+      <div class="resume-meta">
+        <p class="section-label">// quick overview</p>
+        <dl class="resume-facts">
+          <div class="resume-fact">
+            <dt>Name</dt>
+            <dd>{profile.data.name}</dd>
+          </div>
+          <div class="resume-fact">
+            <dt>Title</dt>
+            <dd>{profile.data.title}</dd>
+          </div>
+          <div class="resume-fact">
+            <dt>Location</dt>
+            <dd>{profile.data.location}</dd>
+          </div>
+          <div class="resume-fact">
+            <dt>Email</dt>
+            <dd>
+              <a href={`mailto:${profile.data.email}`}>{profile.data.email}</a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .resume-page {
+    padding-block: var(--space-16) var(--space-24);
+    min-height: calc(100dvh - var(--nav-height));
+  }
+
+  .resume-inner {
+    max-width: 640px;
+  }
+
+  .resume-title {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-block: var(--space-2) var(--space-4);
+  }
+
+  .resume-body {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-8);
+  }
+
+  .resume-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-12);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.65rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .btn--primary {
+    background: var(--accent);
+    color: var(--text-inverse);
+    border: 1px solid var(--accent);
+  }
+
+  .btn--primary:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent-dim);
+    color: var(--text-inverse);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .btn--secondary:hover {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+  }
+
+  .resume-meta {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-8);
+  }
+
+  .resume-meta .section-label {
+    margin-bottom: var(--space-4);
+  }
+
+  .resume-facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .resume-fact {
+    display: flex;
+    gap: var(--space-6);
+    font-size: 0.9rem;
+  }
+
+  .resume-fact dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    min-width: 80px;
+    padding-top: 2px;
+  }
+
+  .resume-fact dd {
+    color: var(--text-secondary);
+  }
+
+  .resume-fact a {
+    color: var(--accent);
+  }
+
+  .resume-note {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .resume-note a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .resume-note a:hover {
+    color: var(--accent);
+  }
+</style>

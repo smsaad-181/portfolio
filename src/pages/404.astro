@@ -1,0 +1,139 @@
+---
+/**
+ * 404 page — required for GitHub Pages fallback.
+ * noindex prevents this from appearing in search results.
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { pageUrl } from "../lib/urls";
+---
+
+<BaseLayout
+  title="Page Not Found"
+  description="The page you were looking for doesn't exist."
+  noindex={true}
+>
+  <section class="not-found">
+    <div class="container not-found__inner">
+      <!-- Decorative numeral drawn with CSS so it isn't treated as body text -->
+      <div class="not-found__code" aria-hidden="true" data-code="404"></div>
+      <p class="section-label">// page not found</p>
+      <h1 class="not-found__title">Nothing here</h1>
+      <p class="not-found__body">
+        The page you were looking for doesn't exist or has been moved.
+      </p>
+      <div class="not-found__terminal" aria-hidden="true">
+        <p><span class="t-prompt">$</span> <span class="t-cmd">ls ./requested-page</span></p>
+        <p class="t-err">ls: cannot access './requested-page': No such file or directory</p>
+        <p><span class="t-prompt">$</span> <span class="t-cursor">_</span></p>
+      </div>
+      <div class="not-found__actions">
+        <a href={pageUrl("/")} class="btn btn--primary">Back to Home</a>
+        <a href={pageUrl("/projects/")} class="btn btn--secondary">Browse Projects</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    min-height: calc(100dvh - var(--nav-height) - 200px);
+    padding-block: var(--space-16);
+  }
+
+  .not-found__inner {
+    max-width: 560px;
+  }
+
+  .not-found__code {
+    font-family: var(--font-mono);
+    font-size: clamp(4rem, 10vw, 7rem);
+    font-weight: 800;
+    color: var(--bg-elevated);
+    line-height: 1;
+    margin-bottom: var(--space-2);
+    user-select: none;
+  }
+
+  .not-found__code::before {
+    content: attr(data-code);
+  }
+
+  .not-found__title {
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-block: var(--space-2) var(--space-3);
+  }
+
+  .not-found__body {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-6);
+  }
+
+  .not-found__terminal {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.8;
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-8);
+  }
+
+  .t-prompt { color: var(--accent); }
+  .t-cmd { color: var(--text-primary); }
+  .t-err { color: var(--status-error); padding-left: 1ch; }
+  .t-cursor {
+    display: inline-block;
+    color: var(--accent);
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .not-found__actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.4rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .btn--primary {
+    background: var(--accent);
+    color: var(--text-inverse);
+    border: 1px solid var(--accent);
+  }
+
+  .btn--primary:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent-dim);
+    color: var(--text-inverse);
+  }
+
+  .btn--secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+
+  .btn--secondary:hover {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+  }
+</style>

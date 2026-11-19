@@ -1,8 +1,8 @@
 ---
 /**
  * Nav.astro
- * Top navigation: "SM · Sultan Mahmud" wordmark (same mark as the favicon
- * and footer), links with a copper underline on the active page, and a
+^ * Top navigation: < Sultan Mahmud /> signature wordmark (same mark as the
+ * footer), links with a gradient underline on the active page, and a
  * light/dark theme toggle. Transparent until the page scrolls, then gains
  * a blurred backdrop. Mobile collapses into a <details> menu (works
  * without JS).
@@ -190,7 +190,7 @@ function isActive(href: string): boolean {
     right: var(--space-3);
     bottom: 2px;
     height: 2px;
-    background: var(--accent);
+    background: var(--gradient-accent);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform var(--dur-base) var(--ease);

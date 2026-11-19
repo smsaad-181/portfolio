@@ -21,7 +21,7 @@ function escapeXml(s: string): string {
 
 export const GET: APIRoute = async () => {
   const { data } = await getProfile();
-  const accent = "#d9822b"; // = --accent (dark) in tokens.css
+  const accent = "#ff5a8a"; // = --accent (dark) in tokens.css
 
   // Faint 24-px engineering grid (matches --grid-size)
   const grid: string[] = [];
@@ -32,13 +32,13 @@ export const GET: APIRoute = async () => {
   const mono = "DejaVu Sans Mono, Consolas, Menlo, monospace";
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
-  <rect width="100%" height="100%" fill="#0b0d10"/>
+  <rect width="100%" height="100%" fill="#0b0614"/>
   <g stroke="#ffffff" stroke-opacity="0.04" stroke-width="1">${grid.join("")}</g>
   <rect x="80" y="150" width="6" height="250" fill="${accent}"/>
   <text x="116" y="196" font-family="${mono}" font-size="26" fill="${accent}" letter-spacing="4">// ${escapeXml(data.title.toUpperCase())}</text>
-  <text x="112" y="300" font-family="${sans}" font-size="88" font-weight="700" fill="#e8eaed">${escapeXml(data.name)}</text>
-  <text x="116" y="372" font-family="${sans}" font-size="34" fill="#a9b0ba">PCB design · Embedded firmware · IoT products</text>
-  <text x="116" y="540" font-family="${mono}" font-size="24" fill="#8a929d">smsaad-181.github.io/portfolio · ${escapeXml(data.location)}</text>
+  <text x="112" y="300" font-family="${sans}" font-size="88" font-weight="700" fill="#f1eaf9">${escapeXml(data.name)}</text>
+  <text x="116" y="372" font-family="${sans}" font-size="34" fill="#b3a6c6">PCB design · Embedded firmware · IoT products</text>
+  <text x="116" y="540" font-family="${mono}" font-size="24" fill="#8a7ca0">smsaad-181.github.io/portfolio · ${escapeXml(data.location)}</text>
 </svg>`;
 
   const png = await sharp(Buffer.from(svg)).png().toBuffer();

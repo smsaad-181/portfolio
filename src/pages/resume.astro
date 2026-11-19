@@ -186,6 +186,8 @@ const requestHref = `mailto:${profile.data.email}?subject=${encodeURIComponent("
 
   .resume-fact dd {
     color: var(--text-secondary);
+    min-width: 0;
+    overflow-wrap: anywhere; /* long email must wrap on phones */
   }
 
   .resume-fact a {

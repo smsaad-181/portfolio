@@ -1,15 +1,13 @@
 ---
 /**
  * Homepage — /
- * Hero: title + employer, plain name, one positioning line, CTAs, optional
- * proof stats (profile.stats — hidden until Saad supplies real numbers),
- * and on the right either his headshot or a datasheet-style spec panel
- * built from CMS data (profile, current job, skills by category).
- * Then featured projects (CMS-controlled via `featured` + `order`), skills,
- * and the CV call-to-action.
+ * Hero in Saad's chosen style: "Hello, I'm", gradient name, role pill, bio
+ * with underlined highlights, flowing line-art and glows, and his cut-out
+ * portrait on the right fading into the page. Then featured projects
+ * (CMS-controlled via `featured` + `order`), skills and the CV call-to-action.
  *
- * Headshot: put a photo at src/assets/profile/portrait.{jpg,png,webp} and it
- * replaces the spec panel automatically (optimised by Astro's <Image />).
+ * Portrait: src/assets/profile/portrait.{png,webp,jpg} — a transparent-
+ * background cut-out looks best. Optimised by Astro's <Image />.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionHeading from "@components/SectionHeading.astro";
@@ -28,12 +26,19 @@ const allSkills = await getCollection("skills");
 const currentJob = (await getCollection("experience")).find((e) => e.data.current);
 const stats = profile.data.stats ?? [];
 
-// Optional headshot — first match wins.
+// Portrait — first match wins.
 const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
   "../assets/profile/portrait.{png,webp,avif,jpg,jpeg}",
   { eager: true }
 );
 const portrait = Object.values(portraitFiles)[0]?.default;
+
+const initials = profile.data.name
+  .split(" ")
+  .map((w) => w.charAt(0))
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
 
 // Group skills by category (lowercase stored, title-case at render)
 const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
@@ -53,27 +58,18 @@ function titleCase(s: string): string {
     .join(" ");
 }
 
-/** Skill names in one category, strongest first (for the spec panel). */
-function skillNames(category: string): string[] {
-  return (skillsByCategory[category] ?? [])
-    .slice()
-    .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))
-    .map((s) => s.data.name);
+// Flowing line-art for the hero background: a family of cubic curves whose
+// four points each drift by a fixed step per line, which reads as silk/waves.
+type Pt = [x: number, y: number, dx: number, dy: number];
+function wavePaths(count: number, p0: Pt, c1: Pt, c2: Pt, p3: Pt): string[] {
+  const at = (p: Pt, i: number) => `${(p[0] + p[2] * i).toFixed(1)} ${(p[1] + p[3] * i).toFixed(1)}`;
+  return Array.from({ length: count }, (_, i) =>
+    `M${at(p0, i)} C${at(c1, i)} ${at(c2, i)} ${at(p3, i)}`
+  );
 }
-
-const sinceYear = currentJob ? new Date(currentJob.data.startDate).getFullYear() : null;
-const specRows = [
-  { label: "Role", value: profile.data.title },
-  ...(currentJob ? [{ label: "Company", value: `${currentJob.data.company}${sinceYear ? ` · since ${sinceYear}` : ""}` }] : []),
-  { label: "Based in", value: profile.data.location },
-];
-const specLists = [
-  { label: "Platforms", items: skillNames("iot & communication") },
-  { label: "Protocols", items: skillNames("protocols") },
-  { label: "EDA & CAD", items: skillNames("pcb & eda") },
-].filter((l) => l.items.length > 0);
-
-const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company}` : profile.data.title;
+const wavesTop = wavePaths(42, [120, -40, 7, 0], [100, 280, 5, -4], [540, 400, -3, -7], [680, 60, 0, 6]);
+const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 7, -3], [560, 620, 5, 0]);
+const city = profile.data.location.split(",")[0];
 ---
 
 <BaseLayout
@@ -83,14 +79,50 @@ const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company
 >
   <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
   <section class="hero" aria-labelledby="hero-name">
-    <div class="hero__grid bg-grid" aria-hidden="true"></div>
+    <div class="hero__bg" aria-hidden="true">
+      <svg class="hero__waves hero__waves--top" viewBox="0 0 600 500" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="wave-top" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" style="stop-color: var(--hero-wave-a)" />
+            <stop offset="100%" style="stop-color: var(--hero-wave-b)" />
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#wave-top)" stroke-width="0.8">
+          {wavesTop.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
+        </g>
+      </svg>
+      <svg class="hero__waves hero__waves--bottom" viewBox="0 0 600 500" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="wave-bottom" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" style="stop-color: var(--hero-wave-c)" />
+            <stop offset="100%" style="stop-color: var(--hero-wave-d)" />
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#wave-bottom)" stroke-width="0.8">
+          {wavesBottom.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
+        </g>
+      </svg>
+    </div>
+
     <div class="container hero__inner">
       <div class="hero__content">
-        <p class="hero__eyebrow">{eyebrow}</p>
+        <p class="hero__greeting">Hello, I'm</p>
         <h1 class="hero__name" id="hero-name">{profile.data.name}</h1>
-        <p class="hero__pitch">
-          I design PCBs and embedded firmware for IoT products, with ESP32,
-          LoRaWAN and Modbus, from schematic to working board.
+
+        <p class="hero__badge">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="hero__badge-icon">
+            <rect x="6" y="6" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <rect x="9.5" y="9.5" width="5" height="5" rx="0.8" fill="currentColor" />
+            <path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          {profile.data.title}
+        </p>
+
+        <p class="hero__bio">
+          I design PCBs, write embedded firmware and build IoT products, taking
+          an idea from the <span class="u">first schematic</span> to a
+          <span class="u">working board</span>.
+          {currentJob && <>Currently at {currentJob.data.company} in {city}.</>}
         </p>
 
         <div class="hero__actions">
@@ -110,44 +142,22 @@ const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company
         )}
       </div>
 
-      <div class="hero__aside">
+      <div class="hero__portrait">
+        <div class="hero__portrait-glow" aria-hidden="true"></div>
         {portrait ? (
-          <figure class="hero__portrait">
-            <Image
-              src={portrait}
-              alt={`${profile.data.name}, ${profile.data.title}`}
-              widths={[320, 480, 640, 960]}
-              sizes="(max-width: 900px) 320px, 420px"
-              loading="eager"
-              fetchpriority="high"
-              class="hero__photo"
-            />
-          </figure>
+          <Image
+            src={portrait}
+            alt={`${profile.data.name}, ${profile.data.title}`}
+            widths={[360, 540, 720, 1080]}
+            sizes="(max-width: 900px) 340px, 600px"
+            loading="eager"
+            fetchpriority="high"
+            class="hero__photo"
+          />
         ) : (
-          <aside class="spec" aria-label="Quick spec">
-            <header class="spec__head">
-              <span class="spec__title">Quick spec</span>
-              <span class="spec__ref" aria-hidden="true">SM-01</span>
-            </header>
-            <dl class="spec__rows">
-              {specRows.map((r) => (
-                <div class="spec__row">
-                  <dt>{r.label}</dt>
-                  <dd>{r.value}</dd>
-                </div>
-              ))}
-              {specLists.map((l) => (
-                <div class="spec__row spec__row--list">
-                  <dt>{l.label}</dt>
-                  <dd>
-                    <ul class="spec__chips" role="list">
-                      {l.items.map((item) => <li>{item}</li>)}
-                    </ul>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </aside>
+          <div class="hero__monogram" role="img" aria-label={profile.data.name}>
+            <span>{initials}</span>
+          </div>
         )}
       </div>
     </div>
@@ -243,52 +253,122 @@ const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company
   /* ── Hero ────────────────────────────────────────────────────────────── */
   .hero {
     position: relative;
+    overflow: hidden;
     isolation: isolate;
-    /* Slide under the transparent sticky nav so the grid reaches the top */
+    /* Slide under the transparent sticky nav so the art fills the top edge */
     margin-top: calc(-1 * var(--nav-height));
-    padding-top: calc(var(--nav-height) + var(--space-16));
-    padding-bottom: var(--space-16);
+    padding-top: var(--nav-height);
+    min-height: min(100dvh, 860px);
+    display: flex;
+    align-items: stretch;
+    background:
+      radial-gradient(ellipse 60% 70% at 0% 100%, var(--hero-glow-pink), transparent 70%),
+      radial-gradient(ellipse 55% 60% at 100% 0%, var(--hero-glow-blue), transparent 70%),
+      var(--bg-base);
   }
 
-  .hero__grid {
+  .hero__bg {
     position: absolute;
     inset: 0;
     z-index: -1;
-    /* Grid fades out toward the bottom so sections below sit on a plain ground */
-    -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 55%, transparent 100%);
-    mask-image: linear-gradient(to bottom, var(--text-primary) 55%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .hero__waves {
+    position: absolute;
+    opacity: var(--hero-wave-opacity);
+  }
+
+  .hero__waves--top {
+    top: -6%;
+    right: -4%;
+    width: 58%;
+    height: 80%;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+
+  .hero__waves--bottom {
+    bottom: -14%;
+    left: -6%;
+    width: 50%;
+    height: 75%;
+    opacity: calc(var(--hero-wave-opacity) * 0.8);
+    animation: drift 22s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes drift {
+    from { transform: translate3d(0, 0, 0) rotate(0deg); }
+    to   { transform: translate3d(-14px, 10px, 0) rotate(-1.5deg); }
   }
 
   .hero__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    gap: var(--space-16);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-12);
     align-items: center;
   }
 
-  .hero__eyebrow {
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    color: var(--accent);
-    margin-bottom: var(--space-4);
+  .hero__content {
+    padding-block: var(--space-16);
+  }
+
+  .hero__greeting {
+    font-size: clamp(var(--fs-22), 3vw, 2rem);
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 0;
   }
 
   .hero__name {
-    font-size: clamp(var(--fs-40), 6vw, var(--fs-56));
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
+    font-size: clamp(var(--fs-40), 5.5vw, 4rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-6);
+    background: var(--gradient-name);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+  }
+
+  .hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.35rem 0.9rem 0.35rem 0.7rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+    background: color-mix(in srgb, var(--accent-2) 10%, transparent);
+    font-size: var(--fs-16);
+    font-weight: 500;
+    color: var(--text-primary);
     margin-bottom: var(--space-6);
   }
 
-  .hero__pitch {
-    font-size: clamp(var(--fs-18), 2vw, var(--fs-22));
-    line-height: 1.45;
+  .hero__badge-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+  }
+
+  .hero__bio {
+    font-size: var(--fs-18);
+    line-height: 1.85;
+    letter-spacing: 0.02em;
     color: var(--text-secondary);
-    max-width: 34ch;
+    max-width: 56ch;
     margin-bottom: var(--space-8);
+  }
+
+  /* Gradient underline on highlighted words */
+  .u {
+    color: var(--text-primary);
+    background-image: var(--gradient-accent);
+    background-size: 100% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    padding-bottom: 2px;
   }
 
   .hero__actions {
@@ -314,9 +394,8 @@ const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company
 
   .hero__stat dd {
     font-size: var(--fs-28);
-    font-weight: 700;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
   }
 
   .hero__stat dt {
@@ -325,105 +404,57 @@ const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company
     color: var(--text-muted);
   }
 
-  /* Headshot: cropped rectangle with a thin copper border */
+  /* Portrait — sits on the bottom edge and fades into the background */
   .hero__portrait {
-    justify-self: end;
-    max-width: 420px;
-    padding: var(--space-2);
-    border: 1px solid var(--accent);
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
+    position: relative;
+    align-self: end;
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero__portrait-glow {
+    position: absolute;
+    bottom: 12%;
+    left: 50%;
+    width: 85%;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 65%);
+    filter: blur(24px);
+    z-index: -1;
   }
 
   .hero__photo {
     display: block;
     width: 100%;
+    max-width: 600px;
     height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
+    /* any opaque token works here — a mask only reads alpha */
+    -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 80%, transparent 100%);
+    mask-image: linear-gradient(to bottom, var(--text-primary) 80%, transparent 100%);
   }
 
-  /* Spec panel — reads like the key-specs box on a component datasheet */
-  .spec {
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    overflow: hidden;
-  }
-
-  .spec__head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3) var(--space-6);
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-elevated);
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
-  }
-
-  .spec__title {
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-secondary);
-  }
-
-  .spec__ref {
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  .spec__rows {
+  .hero__monogram {
+    align-self: center;
+    margin-bottom: 18vh;
+    width: min(340px, 70vw);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 3px;
+    background: var(--gradient-accent);
     display: grid;
   }
 
-  .spec__row {
+  .hero__monogram span {
     display: grid;
-    grid-template-columns: 7.5rem minmax(0, 1fr);
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-6);
-    border-bottom: 1px solid var(--border-subtle);
-    align-items: baseline;
-  }
-
-  .spec__row:last-child {
-    border-bottom: 0;
-  }
-
-  .spec__row dt {
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    color: var(--text-muted);
-  }
-
-  .spec__row dd {
-    font-size: var(--fs-14);
-    font-weight: 500;
+    place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, var(--bg-elevated), var(--bg-base) 70%);
+    font-family: var(--font-script);
+    font-size: clamp(5rem, 12vw, 8rem);
+    line-height: 1;
     color: var(--text-primary);
-    min-width: 0;
-  }
-
-  .spec__chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    list-style: none;
-    padding: 0;
-  }
-
-  .spec__chips li {
-    margin: 0;
-    padding: 2px var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    font-weight: 400;
-    color: var(--text-secondary);
-    background: var(--bg-base);
   }
 
   /* Projects grid */
@@ -492,41 +523,37 @@ const eyebrow = currentJob ? `${profile.data.title} · ${currentJob.data.company
   .cta-actions {
     display: flex;
     gap: var(--space-3);
-    flex-shrink: 0;
+    flex: 0 1 auto;
+    min-width: 0;
     flex-wrap: wrap;
   }
 
-  /* Responsive — on narrow screens the name and pitch come first */
+  /* Responsive — on narrow screens the name and pitch come first, photo after */
   @media (max-width: 900px) {
     .hero {
-      padding-top: calc(var(--nav-height) + var(--space-8));
+      min-height: unset;
     }
 
     .hero__inner {
       grid-template-columns: 1fr;
-      gap: var(--space-12);
+      gap: 0;
     }
 
-    .hero__portrait {
-      justify-self: start;
-      max-width: 320px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .hero__portrait {
-      display: none;
+    .hero__content {
+      padding-block: var(--space-12) var(--space-8);
     }
 
-    .spec__row {
-      grid-template-columns: 1fr;
-      gap: var(--space-1);
-      padding-inline: var(--space-4);
+    .hero__photo {
+      max-width: 340px;
     }
 
-    .spec__head {
-      padding-inline: var(--space-4);
+    .hero__monogram {
+      margin-bottom: var(--space-12);
+      width: min(220px, 60vw);
     }
+
+    .hero__waves--top { width: 90%; height: 55%; }
+    .hero__waves--bottom { width: 90%; height: 45%; }
   }
 
   @media (max-width: 640px) {

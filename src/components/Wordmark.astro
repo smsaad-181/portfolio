@@ -1,49 +1,52 @@
 ---
 /**
- * Wordmark.astro — the one brand mark, used in the nav and footer.
- * A copper "SM" chip (same as the favicon) + the name in Inter.
+ * Wordmark.astro — the one brand mark, used in the nav and footer:
+ * a signature-style name between code brackets, < Sultan Mahmud />.
+ * The visible text is decorative; the parent link carries the accessible name.
  */
 export interface Props {
-  /** Hide the name below 400 px wide (nav only). */
+  /** Slightly smaller on phones (nav only). */
   compact?: boolean;
 }
 const { compact = true } = Astro.props;
 ---
 
-<span class:list={["wordmark", { "wordmark--compact": compact }]}>
-  <span class="wordmark__chip" aria-hidden="true">SM</span>
+<span class:list={["wordmark", { "wordmark--compact": compact }]} aria-hidden="true">
+  <span class="wordmark__bracket">&lt;</span>
   <span class="wordmark__name">Sultan Mahmud</span>
+  <span class="wordmark__bracket">/&gt;</span>
 </span>
 
 <style>
   .wordmark {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 0.35rem;
+    color: var(--text-primary);
+    white-space: nowrap;
   }
 
-  .wordmark__chip {
-    display: grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: var(--radius-sm);
-    background: var(--accent);
-    color: var(--text-on-accent);
-    font: 600 var(--fs-14) / 1 var(--font-mono);
-    letter-spacing: -0.02em;
+  .wordmark__bracket {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: var(--fs-18);
   }
 
   .wordmark__name {
-    font-size: var(--fs-16);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text-primary);
+    font-family: var(--font-script);
+    font-size: 1.9rem;
+    line-height: 1;
+    padding-inline: 0.1rem;
+    transform: translateY(2px);
   }
 
-  @media (max-width: 400px) {
+  @media (max-width: 420px) {
     .wordmark--compact .wordmark__name {
-      font-size: var(--fs-14);
+      font-size: 1.55rem;
+    }
+
+    .wordmark--compact .wordmark__bracket {
+      font-size: var(--fs-16);
     }
   }
 </style>

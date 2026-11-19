@@ -91,6 +91,15 @@ for (const theme of themes) {
       });
 
       await page.goto(url, { waitUntil: "networkidle" });
+
+      // The page must never scroll sideways (phones especially).
+      const overflow = await page.evaluate(() => {
+        const vw = document.documentElement.clientWidth;
+        const sw = document.documentElement.scrollWidth;
+        return sw > vw ? `${sw}px content in a ${vw}px viewport` : null;
+      });
+      if (overflow) problems.push({ label, kind: "horizontal overflow", detail: overflow });
+
       await page.addScriptTag({ path: AXE_PATH });
       const result = await page.evaluate(async () => {
         // @ts-ignore — injected global

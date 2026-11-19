@@ -1,6 +1,7 @@
 /* ─── Design tokens — the ONLY place colours, type sizes and spacing are set ──
-   Identity: engineering datasheet. Neutral near-black (or warm paper in
-   light), one accent — PCB copper — and a faint 24-px grid.
+   Identity (Saad's choice, 20 Nov 2026): deep violet-black with a signal
+   pink → violet → blue gradient, flowing line-art in the hero, Rubik for
+   text, JetBrains Mono for labels/specs, Mr Dafoe for the signature logo.
    Components must use these variables; no hex/rgb literals elsewhere
    (exception: src/pages/images/og-default.png.ts renders a PNG and keeps
    its own copy of these values — update both together).
@@ -15,41 +16,57 @@
   color-scheme: dark;
 
   /* Surfaces */
-  --bg-base: #0b0d10;
-  --bg-surface: #12151a;
-  --bg-elevated: #191d24;
-  --bg-overlay: #232831;
-  --border: #1f242c;
-  --border-subtle: #171b21;
-  --grid-line: rgba(255, 255, 255, 0.04);
+  --bg-base: #0b0614;
+  --bg-surface: #130b22;
+  --bg-elevated: #1c1230;
+  --bg-overlay: #2a1d44;
+  --border: #2a1d44;
+  --border-subtle: #1c1230;
+  --grid-line: rgba(255, 255, 255, 0.035);
 
-  /* Text */
-  --text-primary: #e8eaed;
-  --text-secondary: #a9b0ba;
-  --text-muted: #8a929d;
-  --text-inverse: #0b0d10;
+  /* Text (muted is ≥ 4.5:1 on --bg-base) */
+  --text-primary: #f1eaf9;
+  --text-secondary: #b3a6c6;
+  --text-muted: #8a7ca0;
+  --text-inverse: #0b0614;
 
-  /* Accent — PCB copper (one accent only) */
-  --accent: #d9822b;
-  --accent-dim: #e8964a;            /* hover: lighter on dark */
-  --accent-glow: rgba(217, 130, 43, 0.12);
-  --text-on-accent: #0b0d10;
+  /* Accent: signal pink, with a blue partner for gradients */
+  --accent: #ff5a8a;
+  --accent-dim: #ff7aa2;            /* hover: lighter on dark */
+  --accent-2: #5b8cff;
+  --accent-glow: rgba(255, 90, 138, 0.14);
+  --text-on-accent: #ffffff;
+  --gradient-accent: linear-gradient(90deg, #ff4f7b 0%, #c86bff 55%, #5b8cff 100%);
+  --gradient-name: linear-gradient(90deg, #ff4f7b 0%, #e2508f 50%, #c86bff 100%);
+  /* Darker stops so white button text stays ≥ 4.5:1 */
+  --gradient-button: linear-gradient(90deg, #d42a62 0%, #3a63d6 100%);
+  --button-shadow: 0 8px 24px -8px rgba(212, 42, 98, 0.6);
+
+  /* Hero atmosphere */
+  --hero-glow-pink: rgba(255, 60, 120, 0.22);
+  --hero-glow-blue: rgba(70, 90, 255, 0.18);
+  --hero-wave-a: #7b5cff;
+  --hero-wave-b: #3d5bff;
+  --hero-wave-c: #ff3d7f;
+  --hero-wave-d: #8a3dff;
+  --hero-wave-opacity: 0.55;
 
   /* Status — used ONLY inside status badges */
   --status-completed: #3fb950;
   --status-completed-bg: rgba(63, 185, 80, 0.12);
-  --status-in-progress: #d29922;
-  --status-in-progress-bg: rgba(210, 153, 34, 0.12);
-  --status-prototype: #58a6ff;
-  --status-prototype-bg: rgba(88, 166, 255, 0.12);
+  --status-in-progress: #e3b341;
+  --status-in-progress-bg: rgba(227, 179, 65, 0.12);
+  --status-prototype: #b388ff;
+  --status-prototype-bg: rgba(179, 136, 255, 0.12);
   --status-error: #ff7b72;
 
   /* Elevation */
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.35);
 
-  /* Type — two families: Inter (body/headings) + JetBrains Mono (labels/specs) */
-  --font-body: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Type */
+  --font-body: "Rubik Variable", "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-script: "Mr Dafoe", "Brush Script MT", cursive;
   --fs-14: 0.875rem;
   --fs-16: 1rem;
   --fs-18: 1.125rem;
@@ -57,7 +74,7 @@
   --fs-28: 1.75rem;
   --fs-40: 2.5rem;
   --fs-56: 3.5rem;
-  --lh-body: 1.5;
+  --lh-body: 1.6;
   --lh-heading: 1.15;
 
   /* Spacing — 4 px base: 4, 8, 12, 16, 24, 32, 48, 64, 96 */
@@ -73,9 +90,9 @@
 
   /* Radius */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 6px;          /* cards */
-  --radius-pill: 999px;      /* chips */
+  --radius-md: 8px;
+  --radius-lg: 12px;         /* cards */
+  --radius-pill: 999px;      /* chips, badges, buttons */
 
   /* Motion */
   --dur-fast: 150ms;
@@ -84,40 +101,46 @@
   --ease: cubic-bezier(0.2, 0, 0, 1);
 
   /* Layout */
-  --max-content: 1120px;
-  --nav-height: 64px;
+  --max-content: 1200px;
+  --nav-height: 72px;
   --grid-size: 24px;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg-base: #fafaf7;
+  --bg-base: #faf7fd;
   --bg-surface: #ffffff;
-  --bg-elevated: #f2f2ee;
-  --bg-overlay: #e8e8e3;
-  --border: #e4e4df;
-  --border-subtle: #efefea;
-  --grid-line: rgba(0, 0, 0, 0.045);
+  --bg-elevated: #f1ebf8;
+  --bg-overlay: #e4dbef;
+  --border: #e2d8ee;
+  --border-subtle: #efe8f6;
+  --grid-line: rgba(40, 0, 80, 0.045);
 
-  --text-primary: #16181c;
-  --text-secondary: #45494f;
-  --text-muted: #62676e;
+  --text-primary: #1a1028;
+  --text-secondary: #4a3d5e;
+  --text-muted: #6f6385;
   --text-inverse: #ffffff;
 
-  /* Darker copper so text and links stay ≥ 4.5:1 on paper */
-  --accent: #9a5512;
-  --accent-dim: #7e450e;
-  --accent-glow: rgba(154, 85, 18, 0.08);
-  --text-on-accent: #ffffff;
+  /* Darker than the dark-theme pink so it stays ≥ 4.5:1 on light tints */
+  --accent: #b8285d;
+  --accent-dim: #9c1f4d;
+  --accent-2: #3b6fe0;
+  --accent-glow: rgba(184, 40, 93, 0.08);
+  --gradient-accent: linear-gradient(90deg, #d6336c 0%, #9b4dd6 55%, #3b6fe0 100%);
+  --gradient-name: linear-gradient(90deg, #b8285d 0%, #a0307f 50%, #7a2fc0 100%);
+
+  --hero-glow-pink: rgba(255, 90, 140, 0.16);
+  --hero-glow-blue: rgba(90, 120, 255, 0.14);
+  --hero-wave-opacity: 0.35;
 
   --status-completed: #166a2e;
   --status-completed-bg: rgba(22, 106, 46, 0.1);
   --status-in-progress: #7d5300;
   --status-in-progress-bg: rgba(125, 83, 0, 0.1);
-  --status-prototype: #0b5cad;
-  --status-prototype-bg: rgba(11, 92, 173, 0.1);
+  --status-prototype: #6f3fd0;
+  --status-prototype-bg: rgba(111, 63, 208, 0.1);
   --status-error: #c62828;
 
-  --shadow-md: 0 8px 24px rgba(20, 20, 10, 0.08);
+  --shadow-md: 0 12px 32px rgba(40, 0, 80, 0.08);
 }

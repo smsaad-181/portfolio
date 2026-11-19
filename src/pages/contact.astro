@@ -186,6 +186,7 @@ const profile = await getProfile();
 
   .contact-card__content {
     flex: 1;
+    min-width: 0;
   }
 
   .contact-card__title {
@@ -195,6 +196,7 @@ const profile = await getProfile();
   }
 
   .contact-card__value {
+    overflow-wrap: anywhere; /* long email must wrap on phones */
     font-family: var(--font-mono);
     font-size: 0.85rem;
     color: var(--accent);

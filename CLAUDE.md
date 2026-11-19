@@ -12,8 +12,9 @@ hiring managers. Every page must be accurate, fast, and accessible.
 
 ## Stack & commands
 
-Astro 5 (`output: "static"`) · TinaCMS on Tina Cloud (form-based `/admin`) ·
-GitHub Actions → GitHub Pages · TypeScript strict · npm.
+Astro 7 (`output: "static"`, content collections in `src/content.config.ts`) ·
+TinaCMS 3 on Tina Cloud (form-based `/admin`) · GitHub Actions → GitHub Pages ·
+TypeScript strict · npm · Node ≥ 22.23.4 (`.nvmrc`).
 
 | Command | What it does |
 |---|---|
@@ -75,9 +76,14 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   (`profile/portrait.*`, `projects/<slug>/`).
 - Never show placeholder or admin text to the public ("upload via /admin",
   "if the link is broken…"). Hide the element instead.
-- Dark-first, one accent colour, two font families (sans + mono). WCAG AA
-  contrast in **both** themes. No hard-coded colours outside the token file
-  (`src/styles/tokens.css` from Phase 3).
+- Visual identity is **Saad's choice (20 Nov 2026), overriding the plan's
+  copper direction**: deep violet-black, pink → violet → blue gradient,
+  flowing line-art hero with his cut-out portrait, "Hello, I'm" + gradient
+  name + role pill. Fonts: Rubik (text), JetBrains Mono (labels), Mr Dafoe
+  (signature logo only). Don't redesign away from it without asking him.
+- WCAG AA contrast in **both** themes. No hard-coded colours outside
+  `src/styles/tokens.css` (exceptions: the OG image generator and the SVG
+  favicon, which keep their own copy of the values).
 - Respect `prefers-reduced-motion`.
 
 ### Secrets & deploy

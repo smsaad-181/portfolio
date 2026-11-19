@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- SM chip — same mark as the site wordmark (PCB copper on near-black) -->
-  <rect width="32" height="32" rx="5" fill="#d9822b"/>
-  <text x="16" y="21.5" text-anchor="middle" font-family="JetBrains Mono, Consolas, Menlo, monospace" font-size="14" font-weight="700" fill="#0b0d10" letter-spacing="-0.5">SM</text>
+  <!-- SM monogram on the site's pink → violet gradient (see src/styles/tokens.css) -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4f7b"/>
+      <stop offset="100%" stop-color="#7b5cff"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#g)"/>
+  <text x="16" y="21.5" text-anchor="middle" font-family="JetBrains Mono, Consolas, Menlo, monospace" font-size="14" font-weight="700" fill="#ffffff" letter-spacing="-0.5">SM</text>
 </svg>

@@ -1,7 +1,8 @@
 /* ─── Global base styles ────────────────────────────────────────────────────
    Every colour, size and space comes from tokens.css (imported first in
    BaseLayout). Fonts are self-hosted via @fontsource (no third-party
-   requests): Inter Variable for text, JetBrains Mono for labels and specs.
+   requests): Rubik Variable for text, JetBrains Mono for labels and specs,
+   Mr Dafoe for the signature logo only.
    ─────────────────────────────────────────────────────────────────────────── */
 
 /* ─── Reset & base ──────────────────────────────────────────────────────────── */
@@ -26,7 +27,6 @@ body {
   font-size: var(--fs-16);
   line-height: var(--lh-body);
   min-height: 100dvh;
-  font-feature-settings: "cv11", "ss01"; /* Inter: straight-sided 1, open digits */
   transition: background-color var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
 }
 
@@ -37,26 +37,26 @@ body {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: var(--fs-14);
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  font-size: var(--fs-16);
   text-decoration: none;
   white-space: nowrap;
   transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
 }
 
 .btn--primary {
-  background: var(--accent);
+  background: var(--gradient-button);
   color: var(--text-on-accent);
-  border: 1px solid var(--accent);
+  border: 1px solid transparent;
 }
 
 .btn--primary:hover {
-  background: var(--accent-dim);
-  border-color: var(--accent-dim);
   color: var(--text-on-accent);
   transform: translateY(-1px);
+  box-shadow: var(--button-shadow);
 }
 
 .btn--secondary {

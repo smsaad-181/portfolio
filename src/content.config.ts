@@ -115,7 +115,27 @@ const projects = defineCollection({
     // The URL slug is the entry id (file name without extension).
     summary: z.string(),
     coverImage: imageSchema,
-    gallery: z.array(imageSchema).default([]),
+    // Board renders, 2D views, schematics, photos — each with a kind + caption.
+    gallery: z
+      .array(
+        imageSchema.extend({
+          kind: z.enum(["render", "pcb", "2d", "schematic", "photo", "screenshot"]).default("photo"),
+          caption: z.string().optional(),
+        })
+      )
+      .default([]),
+    // Interactive 3D boards (GLB converted from the STEP file), one per board.
+    models: z
+      .array(
+        z.object({
+          label: z.string().min(1),
+          src: z.string().min(1), // e.g. /models/<slug>/board.glb (public/)
+          poster: z.string().optional(), // still image shown while the model loads
+        })
+      )
+      .default([]),
+    // Key specs for the page header: { label: "MCU", value: "ESP32-WROOM-32E" }.
+    specs: z.array(z.object({ label: z.string().min(1), value: z.string().min(1) })).default([]),
     tags: z.array(z.string()).default([]),
     status: z.enum(["completed", "in-progress", "prototype"]),
     role: z.string().optional(),
@@ -130,14 +150,6 @@ const projects = defineCollection({
     featured: z.boolean().default(false),
     order: z.number().int().default(0), // lower = higher on homepage
     draft: z.boolean().default(false), // draft: true → excluded from build
-    bomHighlights: z
-      .array(
-        z.object({
-          component: z.string(),
-          notes: z.string().optional(),
-        })
-      )
-      .optional(),
   }),
 });
 

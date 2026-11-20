@@ -1,16 +1,84 @@
 ---
-title: "Fingerprint V1.1"
-summary: "Fingerprint-based access/security board — first revision. Details to be filled in via /admin."
+title: "Fingerprint Sensor Board V1.1"
+summary: "ESP32-S carrier board with USB-C programming through a CH340C and labelled headers for a fingerprint sensor, an RFID reader and a display, powered from a 5 V DC jack."
 coverImage:
-  src: "/portfolio/images/placeholder.svg"
-  alt: "Fingerprint V1.1 — details coming soon"
-gallery: []
-tags: ["Fingerprint", "Security", "PCB Design"]
+  src: "/images/projects/fingerprint-v1-1/render3d.webp"
+  alt: "3D render of the Fingerprint Sensor Board V1.1 PCB"
+gallery:
+  - src: "/images/projects/fingerprint-v1-1/render3d.webp"
+    alt: "3D render of the Fingerprint Sensor Board V1.1 with ESP32-S module, CH340C, USB-C port, DC jack and fingerprint, RFID and display headers"
+    kind: "render"
+    caption: "3D render of the assembled board"
+  - src: "/images/projects/fingerprint-v1-1/pcb-top.webp"
+    alt: "Top-side PCB render of the Fingerprint Sensor Board V1.1"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/fingerprint-v1-1/pcb-bottom.webp"
+    alt: "Bottom-side PCB render of the Fingerprint Sensor Board V1.1"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/fingerprint-v1-1/top2d.webp"
+    alt: "2D top-side layout of the Fingerprint Sensor Board V1.1 showing silkscreen labels for the RFID, fingerprint and display headers"
+    kind: "2d"
+    caption: "2D layout, top side"
+  - src: "/images/projects/fingerprint-v1-1/bottom2d.webp"
+    alt: "2D bottom-side layout of the Fingerprint Sensor Board V1.1"
+    kind: "2d"
+    caption: "2D layout, bottom side"
+specs:
+  - label: "MCU"
+    value: "Ai-Thinker ESP32-S module, 2.4 GHz"
+  - label: "USB"
+    value: "USB Type-C with CH340C USB-to-UART bridge"
+  - label: "Power"
+    value: "5 V DC jack, AMS1117-3.3V regulator"
+  - label: "Interfaces"
+    value: "4-pin fingerprint UART header, 8-pin RFID header, 8-pin display header"
+  - label: "PCB"
+    value: "Mixed SMD and through-hole, 4 × M3 holes"
+tags: ["esp32", "fingerprint", "rfid", "pcb design", "easyeda"]
 status: "prototype"
-draft: true
+role: "Schematic & PCB layout"
 featured: false
-order: 99
-links: {}
+order: 16
+draft: false
 ---
 
-{/* [NEEDS INPUT] — Confirm scope and revision history with Saad. */}
+## Objective
+
+Fingerprint Sensor Board V1.1 is a carrier PCB for an Ai-Thinker ESP32-S module. It brings together the connectors needed for a fingerprint sensor, an RFID reader and a small display on one board, with USB-C programming and a 5 V supply built in.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| Ai-Thinker ESP32-S module | U9 | Main controller, 2.4 GHz wireless |
+| CH340C | U8 | USB-to-UART bridge for programming |
+| AMS1117-3.3V | U10 | 3.3 V regulator |
+| USB Type-C 16-pin receptacle | USB1 | USB connection for programming |
+| USBLC6-2SC6 | D5 | ESD protection on the USB lines |
+| BC847 NPN transistors | Q7, Q8 | Auto-reset and boot control from the USB bridge |
+| DC-005-2.5A-2.0 DC jack | 5V | 5 V DC input |
+| ZX-XH2.54-4PZZ 4-pin connector | CN1 | Fingerprint sensor header (3V3, GND, TX, RX) |
+| ZX-XH2.54-8PZZ 8-pin connectors | CN2, CN3 | RFID and display headers |
+| OMRON B3F-4055 12 mm switch | KEY1 | User push button |
+| 6 × 6 mm tact switches | SW1, SW2 | BOOT and RST buttons |
+| 5 mm LED | LED8 | Status indicator |
+| Test points | TP1, TP2 | Probe access |
+| Passives | R1, R20–R26, C1, C2, C12, C14–C17, C19 | Pull-ups, USB-C CC resistors, transistor base resistors, LED resistor and decoupling |
+
+## Features
+
+- Ai-Thinker ESP32-S module as the controller
+- USB-C programming through a CH340C bridge, with BC847 transistors for automatic reset and boot entry, plus manual BOOT and RST buttons
+- USBLC6-2SC6 ESD protection on the USB connection
+- 5 V DC jack input with an AMS1117-3.3V regulator for the 3.3 V rail
+- Silkscreen-labelled headers: fingerprint (3V3, GND, TX, RX), RFID (SDA, SCK, MOSI, MISO, GND, RST, 3V3) and display (LED, SCK, SDA, A0, RST, CS, GND, 3V3)
+- 12 mm OMRON push button and a status LED for user interaction
+- Test points TP1 and TP2 and four M3 mounting holes
+
+## Outcome
+
+- Fabrication files for the board: schematic PDF, EasyEDA Pro project, Gerbers, BOM (with a priced copy), pick-and-place file and PCB renders.
+- Firmware is not part of the project folder.
+- Followed by Fingerprint Sensor Board V1.2, which uses the same parts list on a reshaped board with a fifth mounting hole.

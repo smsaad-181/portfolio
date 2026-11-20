@@ -1,0 +1,109 @@
+---
+title: "ESP32 Fingerprint Voting Machine"
+summary: "Standalone biometric voting machine on a custom ESP32 PCB: R503 fingerprint matching, one vote per voter stored in NVS, four candidate buttons and a live Wi-Fi results dashboard."
+coverImage:
+  src: "/images/projects/fingerprint-voting-machine/render3d.webp"
+  alt: "3D render of the ESP32 Fingerprint Voting Machine PCB"
+gallery:
+  - src: "/images/projects/fingerprint-voting-machine/render3d.webp"
+    alt: "3D render of the Fingerprint Voting Machine V1.0 PCB"
+    kind: "render"
+    caption: "3D render generated from the board STEP model"
+  - src: "/images/projects/fingerprint-voting-machine/pcb-top.webp"
+    alt: "Top-side PCB render of the Fingerprint Voting Machine board"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/fingerprint-voting-machine/pcb-bottom.webp"
+    alt: "Bottom-side PCB render of the Fingerprint Voting Machine board"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/fingerprint-voting-machine/top2d.webp"
+    alt: "2D top-side layout of the Fingerprint Voting Machine PCB"
+    kind: "2d"
+    caption: "2D layout, top side"
+  - src: "/images/projects/fingerprint-voting-machine/bottom2d.webp"
+    alt: "2D bottom-side layout of the Fingerprint Voting Machine PCB"
+    kind: "2d"
+    caption: "2D layout, bottom side"
+models:
+  - label: "Fingerprint Voting Machine V1.0"
+    src: "/models/fingerprint-voting-machine/board.glb"
+    poster: "/images/projects/fingerprint-voting-machine/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "DOIT ESP32 DEVKIT V1 (dual-core 240 MHz, Wi-Fi)"
+  - label: "Biometrics"
+    value: "R503 capacitive fingerprint sensor, UART2 at 57600 baud, up to 200 templates"
+  - label: "Display"
+    value: "1.3-inch SH1106 OLED, 128 × 64, I²C 0x3C"
+  - label: "Inputs"
+    value: "4 candidate buttons (Omron B3F-4055) on GPIO 5, 18, 19, 23"
+  - label: "Storage"
+    value: "ESP32 NVS for voter profiles, voted flags and vote totals"
+  - label: "EDA"
+    value: "EasyEDA Pro"
+tags: ["esp32", "pcb design", "biometrics", "iot", "uart", "web dashboard"]
+status: "prototype"
+role: "Schematic, PCB layout & firmware"
+links:
+  github: "https://github.com/smsaad-181/Fingerprint-Voting-Machine-V1.0"
+featured: false
+order: 10
+draft: false
+---
+
+## Objective
+
+A standalone biometric voting system on a custom PCB: one finger, one vote, with live results over Wi-Fi. Each voter is identified by an R503 capacitive fingerprint sensor, and a matched voter who has not yet voted gets a 15-second window to press one of four candidate buttons. The vote is stored on the device and the voter is flagged, so a second attempt is rejected.
+
+The ESP32 runs everything itself, with no server, cloud service or phone app. It joins the local Wi-Fi network and serves a web dashboard where the administrator enrolls voters, watches live results, exports a CSV log and resets the election.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| DOIT ESP32 DEVKIT V1 | U1 | Microcontroller, voting logic, NVS storage and Wi-Fi web server |
+| SH1106 1.3-inch 128 × 64 I²C OLED module | U2 | Voter prompts and status, IP address at boot |
+| R503 capacitive fingerprint sensor | Off-board, via CN1 | Fingerprint enrollment and matching over UART2 |
+| BOOMELE XH-6A, 6-pin connector | CN1 | Connector for the R503 sensor |
+| Omron B3F-4055 tactile switches | KEY1–KEY4 | Candidate 1 to 4 buttons |
+| 10 kΩ resistors | R1–R4 | Button pull-ups |
+| DC-005 barrel jack, 5.5 × 2.0 mm | DC1 | 5 V supply input |
+| KEMET ESK106M025AC3AA, 10 µF electrolytic | C1, C4 | Bulk power filtering |
+| 100 nF ceramic, CC1H104MC1FD3F6C10MF | C2, C3, C15 | Decoupling |
+| M3 mounting holes | SCREW1–SCREW4 | Board mounting |
+
+## Features
+
+- Fingerprint match opens a 15-second vote window; if no button is pressed, no vote is counted and the voter is not marked as voted, so they can scan again.
+- Rejected scans (unknown finger or already voted) return the machine to idle; candidate buttons are ignored outside the vote window.
+- Matching uses `fingerSearch(1)` first with `fingerFastSearch()` as a fallback, at a configurable match security level.
+- Dashboard-only enrollment: two scans per finger, with a duplicate search on the first scan that aborts if the fingerprint is already enrolled.
+- Fingerprint templates (up to 200) live in the R503 flash; voter profiles, voted flags and vote totals live in ESP32 NVS and survive power loss.
+- Embedded single-page dashboard on port 80 with live results, CSV export of the event log and election reset; a standalone HTML preview runs the same dashboard on simulated data.
+- Voting keeps working offline when Wi-Fi is unavailable.
+- Firmware runs as one cooperative loop that is always in one of three modes: idle scan, enrolling or vote window.
+
+## Hardware Design
+
+### MCU and peripherals
+
+The DOIT ESP32 DEVKIT V1 talks to the R503 over UART2 (GPIO 16 RX, GPIO 17 TX) and to the OLED over I²C (GPIO 21 SDA, GPIO 22 SCL). The R503, the OLED and the buttons run from the 3.3 V rail.
+
+### Candidate buttons
+
+Four Omron B3F-4055 switches on GPIO 5, 18, 19 and 23 are active low. Each has a 10 kΩ pull-up on the PCB in addition to the ESP32's internal pull-up.
+
+### Power
+
+The board takes 5 V through the DC-005 jack or USB, with a regulated 5 V supply of at least 500 mA recommended. Two 10 µF electrolytics and three 100 nF ceramics provide filtering and decoupling.
+
+### Revision fix
+
+The OLED power pins were swapped in the first PCB design, with VCC on ground and GND on 3.3 V. V1.0 corrects them and updates the schematic, PCB, Gerber, BOM, pick-and-place and STEP files; the firmware is unchanged.
+
+## Outcome
+
+The GitHub repository contains the Arduino firmware with its embedded dashboard, a standalone dashboard preview, the schematic as PDF and EasyEDA Pro project (.epro2), Gerber ZIP, BOM, pick-and-place file, STEP model, and HTML and PDF documentation.
+
+Documented limitations: the BOM specifies an SH1106 OLED while the firmware uses the Adafruit SSD1306 library, which may cause shifted or garbled pixels. The vote log stores the voter's name with the chosen candidate, so the log and CSV must be treated as confidential. The event log is RAM-only and clears on reboot, the dashboard has no authentication, enrolling with all 200 slots full would overwrite slot 200, and votes stay counted after a voter is deleted.

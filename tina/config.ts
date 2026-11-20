@@ -248,7 +248,39 @@ const projectsCollection: Collection = {
       name: "gallery",
       label: "Gallery",
       list: true,
-      fields: imageFields("Gallery item"),
+      fields: [
+        ...imageFields("Gallery item"),
+        {
+          type: "string" as const,
+          name: "kind",
+          label: "Kind",
+          options: ["render", "pcb", "2d", "schematic", "photo", "screenshot"],
+        },
+        { type: "string" as const, name: "caption", label: "Caption" },
+      ],
+    },
+    {
+      type: "object" as const,
+      name: "models",
+      label: "3D models",
+      list: true,
+      description: "Interactive 3D boards (GLB converted from the STEP file), one per board.",
+      fields: [
+        { type: "string" as const, name: "label", label: "Board name", required: true },
+        { type: "string" as const, name: "src", label: "GLB path (e.g. /models/<slug>/board.glb)", required: true },
+        { type: "image" as const, name: "poster", label: "Poster image (shown while loading)" },
+      ],
+    },
+    {
+      type: "object" as const,
+      name: "specs",
+      label: "Key specs",
+      list: true,
+      description: "Shown in the project header, e.g. MCU / ESP32-WROOM-32E.",
+      fields: [
+        { type: "string" as const, name: "label", label: "Label", required: true },
+        { type: "string" as const, name: "value", label: "Value", required: true },
+      ],
     },
     {
       type: "string" as const,
@@ -308,29 +340,13 @@ const projectsCollection: Collection = {
         "Set to false when ready to publish.",
     },
     {
-      type: "object" as const,
-      name: "bomHighlights",
-      label: "Key Components (BOM Highlights)",
-      list: true,
-      description: "Optional list of key components shown in the sidebar of the project page.",
-      fields: [
-        { type: "string" as const, name: "component", label: "Component Name", required: true },
-        {
-          type: "string" as const,
-          name: "notes",
-          label: "Notes",
-          ui: { component: "textarea" as const },
-        },
-      ],
-    },
-    {
       type: "rich-text" as const,
       name: "body",
       label: "Write-up",
       isBody: true,
       description:
-        "Full project write-up in MDX. Structure: Motivation → Key Components → " +
-        "Challenges & How They Were Solved → Outcome / Links.",
+        "Full project write-up in MDX. Sections: Objective → Key Components → " +
+        "Features → Hardware Design (optional) → Outcome.",
     },
   ],
 };

@@ -1,16 +1,114 @@
 ---
-title: "IoT Activity Tracker"
-summary: "Accelerometer/gyroscope-based IoT activity tracker — details to be filled in via /admin."
+title: "IoT Activity Tracker with ESP32-S3 & BNO085"
+summary: "Wearable-style activity tracker PCB pairing an ESP32-S3 with a BNO085 9-DOF IMU, an OLED, Li-ion charging and a live Wi-Fi dashboard for steps, cadence and orientation."
 coverImage:
-  src: "/portfolio/images/placeholder.svg"
-  alt: "IoT Activity Tracker — details coming soon"
-gallery: []
-tags: ["IoT", "IMU", "Accelerometer", "PCB Design"]
+  src: "/images/projects/iot-activity-tracker/render3d.webp"
+  alt: "3D render of the IoT Activity Tracker with ESP32-S3 & BNO085 PCB"
+gallery:
+  - src: "/images/projects/iot-activity-tracker/render3d.webp"
+    alt: "3D render of the activity tracker board with ESP32-S3 module, OLED header and USB-C connector"
+    kind: "render"
+    caption: "3D render"
+  - src: "/images/projects/iot-activity-tracker/pcb-top.webp"
+    alt: "Top-side PCB view of the IoT Activity Tracker board"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/iot-activity-tracker/pcb-bottom.webp"
+    alt: "Bottom-side PCB view of the IoT Activity Tracker board"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/iot-activity-tracker/top2d.webp"
+    alt: "2D top-layer layout of the IoT Activity Tracker board"
+    kind: "2d"
+    caption: "2D top layer"
+  - src: "/images/projects/iot-activity-tracker/bottom2d.webp"
+    alt: "2D bottom-layer layout of the IoT Activity Tracker board"
+    kind: "2d"
+    caption: "2D bottom layer"
+models:
+  - label: "Activity Tracker V1.0"
+    src: "/models/iot-activity-tracker/board.glb"
+    poster: "/images/projects/iot-activity-tracker/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-S3-WROOM-1-N8"
+  - label: "IMU"
+    value: "CEVA BNO085 9-DOF"
+  - label: "Display"
+    value: "0.96-inch SSD1306 OLED, 128 × 64, I²C"
+  - label: "Power"
+    value: "USB-C, BQ24092 Li-ion charger, TPS63020 buck-boost"
+  - label: "Connectivity"
+    value: "Wi-Fi, browser dashboard"
+  - label: "EDA"
+    value: "EasyEDA Pro"
+tags: ["esp32", "imu", "wearable", "pcb design", "iot"]
 status: "prototype"
-draft: true
+role: "Schematic, PCB layout & firmware"
+links:
+  github: "https://github.com/smsaad-181/IoT-Activity-Tracker-Accelerometer-Gyroscope"
 featured: false
-order: 99
-links: {}
+order: 14
+draft: false
 ---
 
-{/* [NEEDS INPUT] — Confirm hardware and firmware scope with Saad. */}
+## Objective
+
+A compact, self-contained wearable activity tracker on a single custom PCB. It tracks steps, cadence, distance, calories, active time and orientation in real time, shows them on a 0.96-inch OLED, and streams them to a Wi-Fi dashboard that any browser on the same network can open.
+
+The board carries its own battery connector, USB-C charging and a one-button interface, so it needs no external modules or breadboard.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-S3-WROOM-1-N8 module | U4 | Main MCU: sensor processing, OLED UI and Wi-Fi web server |
+| CEVA BNO085 9-DOF IMU | U7 | Sensor fusion: rotation vector, linear acceleration, gyroscope and step counter |
+| DM-OLED096-636 0.96-inch OLED module | U1 | 128 × 64 SSD1306 display on I²C |
+| TI BQ24092DGQR | U3 | Single-cell LiPo/Li-ion charge management |
+| TI TPS63020DSJT | U2 | Buck-boost converter for the 3.3 V logic rail |
+| Coilcraft XFL4020-152MEC, 1.5 µH | L1 | Power inductor for the buck-boost converter |
+| Silicon Labs CP2104-F03-GMR | U5 | USB-to-UART bridge for flashing over USB-C |
+| Littelfuse 0603L100SLYR | U6 | Resettable PTC fuse |
+| TYPE-C-31-M-12 USB-C receptacle | USBC1 | Power input and programming port |
+| SK12D07VG3 slide switch | SW1 | Main power on/off |
+| 6 × 6 mm tactile switch | SW2 | One-button user interface |
+| HX-XH2.54-2PZZ 2-pin connector | CN1 | Battery connector |
+| 0603 red LEDs | LED1, LED2 | Charge and power indicators |
+| Passives | R1–R26, C1–C32 | Pull-ups, dividers, decoupling and bulk capacitors |
+
+## Features
+
+- Step counting from the BNO085's built-in hardware pedometer.
+- Automatic activity classification into STILL, MOVE, WALK and RUN, using cadence thresholds with hysteresis plus linear-acceleration and gyro thresholds for MOVE.
+- EMA-smoothed cadence in steps per minute; distance from per-step length (0.72 m walking, 0.90 m running).
+- Calorie estimate from total steps, cumulative active time and peak linear acceleration in g.
+- Roll, pitch and yaw from the BNO085 rotation vector, gyro magnitude in degrees per second, and live accuracy ratings (0–3) for each sensor report.
+- OLED UI with 4 pages refreshed every 120 ms.
+- One-button control: a short press moves to the next page, a press of 1.2 s or longer resets all stats; 40 ms debounce.
+- Wi-Fi dashboard served by the ESP32, with live charts that poll a JSON endpoint every 800 ms.
+- USB-C for power and firmware flashing, plus onboard Li-ion charging.
+
+## Hardware Design
+
+### Power
+
+USB-C supplies the board and charges a single-cell LiPo or Li-ion battery through the BQ24092 charge-management IC. A TPS63020 buck-boost converter with a 1.5 µH Coilcraft inductor generates the 3.3 V logic rail. A slide switch (SW1) turns the board on and off, and two LEDs show charge and power status.
+
+### Sensor and display bus
+
+The BNO085 IMU (address 0x4B) and the SSD1306 OLED (address 0x3C) share one I²C bus on ESP32-S3 GPIO 8 (SDA) and GPIO 9 (SCL), run at 400 kHz. The firmware enables four BNO085 reports: rotation vector every 100 ms, linear acceleration and gyroscope every 50 ms, and the step counter every 100 ms.
+
+### User interface
+
+The single tactile button (SW2) connects to GPIO 39 as an active-low input with an external 10 kΩ pull-up (R21) to 3.3 V. The OLED connects through a 4-pin top-edge header (GND, 3V3, SCL, SDA).
+
+### Programming
+
+A CP2104 USB-to-UART bridge connects the USB-C port to the ESP32-S3 for firmware upload from the Arduino IDE.
+
+## Outcome
+
+The GitHub repository holds the full design package: schematic PDF, editable EasyEDA Pro project, Gerber files, BOM, pick-and-place file and a 3D STEP model.
+
+Arduino firmware is included (main sketch plus a separate web-page header). It uses the SparkFun BNO080 library and the Adafruit SSD1306/GFX libraries, runs the ESP32-S3 in Wi-Fi station mode, and serves the dashboard page and a JSON data endpoint from the board. Calorie and distance figures are estimates from fixed constants in the firmware, not calibrated measurements. No test results are documented yet.

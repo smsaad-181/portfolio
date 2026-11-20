@@ -1,16 +1,127 @@
 ---
 title: "ESP32 Standalone Board"
-summary: "Custom ESP32 standalone development board — details to be filled in via /admin."
+summary: "Compact battery-powered ESP32-WROOM-32 board with a USB-C Li-ion charger, 3.3 V buck-boost regulator, auto-reset programming header and XH breakout connectors."
 coverImage:
-  src: "/portfolio/images/placeholder.svg"
-  alt: "ESP32 Standalone Board — details coming soon"
-gallery: []
-tags: ["ESP32", "PCB Design"]
+  src: "/images/projects/esp32-standalone-board/render3d.webp"
+  alt: "3D render of the ESP32 Standalone Board PCB"
+gallery:
+  - src: "/images/projects/esp32-standalone-board/render3d.webp"
+    alt: "3D render of the ESP32 Standalone Board with the ESP32-WROOM-32 module and XH connectors"
+    kind: "render"
+    caption: "3D render of the assembled board"
+  - src: "/images/projects/esp32-standalone-board/pcb-top.webp"
+    alt: "Top-side PCB layout of the ESP32 Standalone Board"
+    kind: "pcb"
+    caption: "PCB layout, top"
+  - src: "/images/projects/esp32-standalone-board/pcb-bottom.webp"
+    alt: "Bottom-side PCB layout of the ESP32 Standalone Board"
+    kind: "pcb"
+    caption: "PCB layout, bottom"
+  - src: "/images/projects/esp32-standalone-board/top2d.webp"
+    alt: "2D top-side view of the ESP32 Standalone Board"
+    kind: "2d"
+    caption: "2D top view"
+  - src: "/images/projects/esp32-standalone-board/bottom2d.webp"
+    alt: "2D bottom-side view of the ESP32 Standalone Board"
+    kind: "2d"
+    caption: "2D bottom view"
+  - src: "/images/projects/esp32-standalone-board/schematic-1.webp"
+    alt: "Schematic sheet 1 showing the ESP32-WROOM-32 module, decoupling and auto-reset transistors"
+    kind: "schematic"
+    caption: "Schematic sheet 1: ESP32 MCU"
+  - src: "/images/projects/esp32-standalone-board/schematic-2.webp"
+    alt: "Schematic sheet 2 showing the TPS63020 buck-boost converter, BQ24092 charger and battery sense divider"
+    kind: "schematic"
+    caption: "Schematic sheet 2: Power"
+  - src: "/images/projects/esp32-standalone-board/schematic-3.webp"
+    alt: "Schematic sheet 3 showing the USB-C input, programming header, expansion connectors and mounting holes"
+    kind: "schematic"
+    caption: "Schematic sheet 3: USB and connectors"
+models:
+  - label: "ESP32 Standalone Board V1.0"
+    src: "/models/esp32-standalone-board/board.glb"
+    poster: "/images/projects/esp32-standalone-board/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-WROOM-32-N4 (Wi-Fi + Bluetooth, 4 MB flash)"
+  - label: "Power"
+    value: "1-cell Li-ion, BQ24092 USB-C charger, TPS63020 buck-boost (3.28 V)"
+  - label: "Interfaces"
+    value: "I²C port, spare GPIO, 3.3 V out on 2.5 mm XH connectors"
+  - label: "Programming"
+    value: "6-pin header with DTR/RTS auto-reset"
+  - label: "PCB"
+    value: "62.9 × 33.0 mm, 2 layers, 1.6 mm"
+  - label: "EDA"
+    value: "EasyEDA Pro"
+tags: ["esp32", "pcb design", "power management", "iot"]
 status: "prototype"
-draft: true
+role: "Schematic & PCB layout"
+links:
+  github: "https://github.com/smsaad-181/ESP32-Standalone-Board-V1.0"
 featured: false
-order: 99
-links: {}
+order: 11
+draft: false
 ---
 
-{/* [NEEDS INPUT] — Scope unknown. To be confirmed with Saad. */}
+## Objective
+
+A compact, battery-powered ESP32 board for development and deployment. It combines an ESP32-WROOM-32-N4 module, a USB-C Li-ion charger, a 3.3 V buck-boost regulator, a 6-pin auto-reset programming header and a set of 2.5 mm XH breakout connectors on a single PCB.
+
+The board is meant as a standalone ESP32 node: plug in a battery, switch on, and use the connectors to attach I²C sensors, SPI or UART peripherals and other GPIO-driven modules.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-WROOM-32-N4 | U4 | Dual-core microcontroller module with Wi-Fi, Bluetooth and 4 MB flash |
+| BQ24092DGQR | U3 | Li-ion charger, current set by R13 and limited to the USB 500 mA level, 4.20 V |
+| TPS63020DSJT | U2 | Buck-boost regulator, 3.28 V set by R11/R12 |
+| XFL4020-152MEC | L1 | 1.5 µH buck-boost inductor |
+| 0603L100SLYR | U5 | 1 A resettable PTC fuse on USB VBUS |
+| BC847 | Q3, Q4 | Automatic reset and boot-mode circuit |
+| PZ254V-11-06P | H1 | 6-pin programming header for a 3.3 V USB-UART adapter |
+| TYPE-C 6P(073) | USB1 | Power-only USB-C input with 5.1 kΩ CC pull-downs |
+| SK12D07VG3 | SW1 | Power switch between VBAT and VIN |
+| ZX-XH2.54-4PZZ | CN1, CN3, CN4, CN6, CN7 | 4-pin XH connectors for I²C, spare GPIOs and 3.3 V out |
+| ZX-XH2.54-2PZZ | CN2 | Battery connector on the bottom side |
+| KT-0603R | LED2 | Red LED on the charger PG pin, lit while USB power is present |
+| Passives | R6–R20, C5–C18 | Pull-ups, feedback and charger setting, battery divider, decoupling |
+
+## Features
+
+- ESP32-WROOM-32-N4 with Wi-Fi and Bluetooth; the PCB antenna overhangs the top edge by about 5.6 mm.
+- 1-cell Li-ion/Li-Po on CN2, charged from USB-C by the BQ24092 at the USB 500 mA level, with 6.6 V input over-voltage protection.
+- TPS63020 buck-boost regulator producing 3.28 V above and below the battery voltage.
+- 1 A resettable PTC fuse on USB VBUS and 5.1 kΩ CC pull-downs for USB-C sink operation.
+- 6-pin programming header with a two-BC847 DTR/RTS auto-reset circuit, so uploads need no buttons.
+- I²C port on CN7 (GPIO21/22) and spare GPIOs on CN1 (VSPI pins), CN3 and CN4, plus 3.3 V output on CN6.
+- Battery sense divider (R19/R20, 100 kΩ each) to GPIO34, reading the cell while SW1 is on.
+- Slide switch between battery and regulator; the cell still charges when the board is off.
+- Four plated M3 mounting holes on GND.
+
+## Hardware Design
+
+### Power
+
+USB-C 5 V passes a 1 A PTC fuse to the BQ24092 charger, which charges the cell on CN2. SW1 connects the battery to the TPS63020, whose 1 MΩ / 180 kΩ feedback divider sets 3.28 V for the ESP32 and the CN6 and CN7 outputs. The USB-C port carries power only, with no data lines.
+
+### Microcontroller and programming
+
+Header H1 brings out DTR, TXD, RXD, 3V3, RTS and GND for a 3.3 V USB-UART adapter. BC847 transistors Q3 and Q4 drive GPIO0 and EN from DTR and RTS, giving automatic reset and download mode from the Arduino IDE, PlatformIO or ESP-IDF.
+
+### Expansion
+
+CN1 carries GPIO5, 18, 19 and 23 (VSPI), CN3 carries GPIO35, 25, 26 and 27, and CN4 carries GPIO14, 13 and GPIO2 through a 220 Ω series resistor. CN7 is the I²C port; it has no pull-ups on the board, so attached devices bring their own.
+
+### PCB
+
+The board is 62.9 × 33.0 mm, 2 layers, 1.6 mm thick, with 37 SMD placements on top and 9 hand-soldered parts.
+
+## Outcome
+
+- Full fabrication package in the GitHub repo: three-sheet schematic PDF and PNG exports, EasyEDA Pro project, Gerbers, BOM with LCSC numbers, pick-and-place file and STEP model.
+- Interactive HTML documentation covering every circuit block with its schematic, simulations, an ESP32 pin map, a board status preview and a 3D model made from the STEP file.
+- No firmware is included; the board is a general-purpose ESP32 platform programmed through H1.
+- Known V1.0 issue documented for the next revision: the TPS63020 EN, VINA and PS/SYNC pins are not connected to VIN, so the 3.3 V rail is not expected to start. A one-wire rework for built boards is described.
+- Further recommended changes include fixing the charger TS pin, adding a capacitor on the charger output, battery reverse-polarity protection, RESET/BOOT buttons and I²C pull-ups, and routing the charger status pins to free GPIOs.

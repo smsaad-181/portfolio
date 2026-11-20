@@ -1,0 +1,111 @@
+---
+title: "Component Tester V1.0"
+summary: "Through-hole Arduino Nano tester that identifies resistors, capacitors, inductors, diodes, transistors, FETs, thyristors and triacs, showing pin-out and values on an OLED."
+coverImage:
+  src: "/images/projects/component-tester/render3d.webp"
+  alt: "3D render of the Component Tester V1.0 PCB"
+gallery:
+  - src: "/images/projects/component-tester/render3d.webp"
+    alt: "3D render of the Component Tester V1.0 board with Arduino Nano, OLED, test header and rocker switch"
+    kind: "render"
+    caption: "3D render generated from the board STEP model"
+  - src: "/images/projects/component-tester/pcb-top.webp"
+    alt: "Top-side PCB render of the Component Tester V1.0 board"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/component-tester/pcb-bottom.webp"
+    alt: "Bottom-side PCB render of the Component Tester V1.0 board"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/component-tester/top2d.webp"
+    alt: "2D top-side layout of the Component Tester V1.0 PCB showing copper and silkscreen"
+    kind: "2d"
+    caption: "2D layout, top side"
+  - src: "/images/projects/component-tester/bottom2d.webp"
+    alt: "2D bottom-side layout of the Component Tester V1.0 PCB"
+    kind: "2d"
+    caption: "2D layout, bottom side"
+  - src: "/images/projects/component-tester/schematic-1.webp"
+    alt: "Schematic of the Component Tester V1.0: Arduino Nano, 680 ohm and 470 kilohm test resistor network, three-pin test header, I2C OLED, TEST button and DC power input with rocker switch"
+    kind: "schematic"
+    caption: "Schematic: Nano, test resistor network, OLED, TEST button and power input"
+models:
+  - label: "Component Tester V1.0"
+    src: "/models/component-tester/board.glb"
+    poster: "/images/projects/component-tester/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ATmega328P on Arduino Nano v3.x, 16 MHz"
+  - label: "Display"
+    value: "0.96-inch I²C OLED (SSD1306), SDA A4 / SCL A5"
+  - label: "Test terminals"
+    value: "3 (TP1–TP3 on A0–A2), each with 680 Ω and 470 kΩ drive resistors"
+  - label: "Power"
+    value: "5 V DC barrel jack with rocker switch, or USB via the Nano"
+  - label: "PCB"
+    value: "All through-hole, parts on top side only, 4 × M3 mounting holes"
+  - label: "EDA"
+    value: "EasyEDA Pro"
+tags: ["arduino", "atmega328p", "pcb design", "test equipment", "easyeda"]
+status: "prototype"
+role: "Schematic, PCB layout & firmware port"
+links:
+  github: "https://github.com/smsaad-181/Component-Tester-V1.0"
+featured: false
+order: 4
+draft: false
+---
+
+## Objective
+
+Component Tester V1.0 is a standalone instrument that identifies an unknown electronic part connected to a three-terminal test header and shows its type, pin-out and key electrical values on an OLED. The design is intended for makers and engineers who want to build, repair or modify their own tester.
+
+The board is built around a plug-in Arduino Nano (ATmega328P) and runs a port of the open-source Transistor Tester firmware by Karl-Heinz Kübbeler, adapted to an I²C OLED. Every part is through-hole, so it can be assembled with a basic soldering iron.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| Arduino Nano v3.x (ATmega328P) | A1 | Controller: drives the test resistors and reads the test terminals with its ADC |
+| HS96L03W2C03 0.96-inch OLED | U1 | I²C display for results |
+| MF254V-11-03-0743 3-pin female header | H1 | Test header, terminals TP1, TP2, TP3 |
+| 680 Ω resistors | R1, R5, R6 | Low-impedance drive for TP3, TP2, TP1 |
+| 470 kΩ resistors | R2, R3, R4 | High-impedance drive for TP3, TP2, TP1 |
+| SWPAD3 12 × 12 mm tact switch | SW1 | TEST button, read on A3 |
+| RS601A-1010011BB rocker switch | U2 | Power on/off between the jack and the switched rail |
+| DC-005-2.5A-2.0 barrel jack | DC1 | 5 V DC input |
+| 5 mm LED | LED1 | Power indicator |
+| M3 mounting holes | SCREW1–SCREW4 | Enclosure mounting, tied to GND |
+| Passives | R7, R8 | 10 kΩ TEST button pull-up and 330 Ω LED series resistor |
+
+## Features
+
+- Automatic detection of part type and pin-out on a 3-terminal test header, in any lead order for most parts
+- Identifies resistors, capacitors (with ESR and voltage loss), inductors, diodes, NPN/PNP transistors with hFE, enhancement and depletion MOSFETs, JFETs, thyristors and triacs
+- Flags a charged cell or battery on the terminals with a `Cell!` warning
+- One-button operation with results on a 0.96-inch I²C OLED
+- Plug-in Arduino Nano, re-programmable over USB
+- Through-hole parts and standard resistor values only
+- Firmware configured for automatic ADC reference scaling (`WITH_AUTO_REF`, `AUTOSCALE_ADC`)
+
+## Hardware Design
+
+### Measurement network
+
+Each test terminal is driven from two dedicated Nano pins: one through a 680 Ω resistor and one through a 470 kΩ resistor, on port B (D8 to D13). The terminal itself is read directly by an ADC input on A0, A1 or A2. By switching each terminal to +5 V, GND or high impedance and timing the resulting voltages, the firmware measures resistance, capacitance, junctions and inductance.
+
+### Power
+
+The DC1 barrel jack feeds the RS601A rocker switch U2, which supplies the switched rail to the Nano's VIN pin and to the power LED (LED1 with R8, 330 Ω). The Nano's own USB port can also power the board for programming.
+
+### Display and input
+
+The 0.96-inch OLED U1 connects over I²C with SCL on A5 and SDA on A4, using the Adafruit SSD1306 and GFX libraries. The TEST button SW1 is read on A3 with an external 10 kΩ pull-up (R7), so the MCU's internal pull-ups are disabled in firmware.
+
+## Outcome
+
+- Full design package in the GitHub repo: schematic (PDF and PNG), EasyEDA Pro project, Gerbers, BOM, pick-and-place file, 3D STEP model and a technical documentation file (Markdown and PDF).
+- Firmware: Arduino sketch based on Transistor Tester for Arduino v1.08a (derived from Kübbeler's v1.08k), configured for the I²C OLED, English language and the board's resistor values.
+- Status is prototype. Schematic, PCB design and the firmware port are done; prototype build, validation and accuracy characterisation are still open.
+- Documented limitations: measurement ranges and accuracy come from the original design and have not been characterised for this PCB; the 5 V test voltage may not recognise parts that need higher voltage; self-test and auto-calibration are disabled in the shipped configuration.
+- Roadmap: prototype validation, calibration with `AUTO_CAL` and self-test, an enclosure, and a V1.1 revision based on test results.

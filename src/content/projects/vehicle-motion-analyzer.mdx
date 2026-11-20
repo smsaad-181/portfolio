@@ -1,0 +1,127 @@
+---
+title: "ESP32 IoT Vehicle Motion Analyzer with MPU6050 & LIS3MDL"
+summary: "Custom ESP32-S3 board that detects harsh braking, acceleration and sharp turns, shows a tilt-compensated heading on an OLED and serves a live Wi-Fi dashboard with CSV trip logging."
+coverImage:
+  src: "/images/projects/vehicle-motion-analyzer/render3d.webp"
+  alt: "3D render of the ESP32 IoT Vehicle Motion Analyzer with MPU6050 & LIS3MDL PCB"
+gallery:
+  - src: "/images/projects/vehicle-motion-analyzer/render3d.webp"
+    alt: "3D render of the Vehicle Motion Analyzer board with the ESP32-S3 module and OLED display module"
+    kind: "render"
+    caption: "3D render of the assembled board"
+  - src: "/images/projects/vehicle-motion-analyzer/pcb-top.webp"
+    alt: "Top-side PCB view of the Vehicle Motion Analyzer board"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/vehicle-motion-analyzer/pcb-bottom.webp"
+    alt: "Bottom-side PCB view of the Vehicle Motion Analyzer board"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/vehicle-motion-analyzer/top2d.webp"
+    alt: "2D top copper layer of the Vehicle Motion Analyzer board"
+    kind: "2d"
+    caption: "2D top copper layer"
+  - src: "/images/projects/vehicle-motion-analyzer/bottom2d.webp"
+    alt: "2D bottom copper layer of the Vehicle Motion Analyzer board"
+    kind: "2d"
+    caption: "2D bottom copper layer"
+  - src: "/images/projects/vehicle-motion-analyzer/schematic-1.webp"
+    alt: "Schematic sheet showing the ESP32-S3 module, CP2104 USB-to-UART bridge, OLED and battery sensing"
+    kind: "schematic"
+    caption: "Schematic: ESP32-S3, CP2104, OLED and battery sensing"
+  - src: "/images/projects/vehicle-motion-analyzer/schematic-2.webp"
+    alt: "Schematic sheet showing the MPU6050 accelerometer and gyroscope and the LIS3MDL magnetometer"
+    kind: "schematic"
+    caption: "Schematic: MPU6050 and LIS3MDL sensors"
+  - src: "/images/projects/vehicle-motion-analyzer/schematic-3.webp"
+    alt: "Schematic sheet showing the USB-C input, BQ24092 charger, battery connector and TPS63020 buck-boost converter"
+    kind: "schematic"
+    caption: "Schematic: USB-C, charger, battery and buck-boost"
+models:
+  - label: "Vehicle Motion Analyzer V1.0"
+    src: "/models/vehicle-motion-analyzer/board.glb"
+    poster: "/images/projects/vehicle-motion-analyzer/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-S3-WROOM-1-N8 (Wi-Fi + Bluetooth LE, 8 MB flash)"
+  - label: "Sensors"
+    value: "MPU6050 accel + gyro, LIS3MDL magnetometer (I²C, 400 kHz)"
+  - label: "Display"
+    value: "0.96″ SSD1306 OLED, 128 × 64"
+  - label: "Power"
+    value: "1-cell Li-ion, BQ24092 USB-C charger, TPS63020 3.3 V buck-boost"
+  - label: "Programming"
+    value: "USB-C through CP2104 with automatic boot/reset"
+  - label: "PCB"
+    value: "59.4 × 49.9 mm, 2 layers, EasyEDA Pro"
+tags: ["esp32", "imu", "pcb design", "iot", "firmware"]
+status: "prototype"
+role: "Schematic, PCB layout & firmware"
+links:
+  github: "https://github.com/smsaad-181/ESP32-IoT-Vehicle-Motion-Analyzer-With-MPU6050-LIS3MDL-V1.0"
+featured: true
+order: 3
+draft: false
+---
+
+## Objective
+
+A self-contained IoT motion analyzer that sits inside a vehicle and continuously monitors driving dynamics. It detects harsh driving events in real time, shows live data on an onboard OLED and serves a web dashboard over Wi-Fi, so any phone on the same network can monitor the drive or download trip logs.
+
+Everything runs on one custom PCB: the ESP32-S3, an IMU, a magnetometer, the display, a Li-ion charger and a 3.3 V buck-boost supply. The dashboard is served by the ESP32-S3 itself, so no app or internet connection is needed.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-S3-WROOM-1-N8 | U2 | Microcontroller with Wi-Fi and 8 MB flash; runs the firmware and web dashboard |
+| MPU-6050 | U4 | Accelerometer and gyroscope for forward and lateral acceleration and yaw rate (I²C 0x68) |
+| LIS3MDLTR | U5 | 3-axis magnetometer for the compass heading (I²C 0x1E) |
+| DM-OLED096-636 | U1 | 0.96″ SSD1306 OLED module (I²C 0x3C) |
+| CP2104-F03-GMR | U3 | USB-to-UART bridge that programs and monitors the ESP32-S3 over USB-C |
+| MMBT2222A | Q1, Q2 | DTR/RTS auto-programmer driving GPIO0 and EN |
+| BQ24092DGQR | U6 | Single-cell Li-ion charger, up to 500 mA from USB |
+| 0603L100SLYR | U7 | Resettable PTC fuse in the USB input to the charger |
+| TPS63020DSJT | U10 | Buck-boost converter that makes the 3.3 V rail from the battery |
+| XFL4020-152MEC | L2 | 1.5 µH buck-boost inductor |
+| TYPE-C-31-M-12 | USBC1 | USB-C connector for charging and programming |
+| SK12D07VG3 | SW1 | Main power switch between the battery and the 3.3 V converter |
+| XH-2A | CN1 | 1-cell Li-ion / Li-Po battery connector |
+| Passives | R1–R20, C1–C31 | Pull-ups, battery divider, charger setting, decoupling and filtering |
+
+## Features
+
+- Harsh acceleration, harsh braking and sharp left/right turn detection with configurable thresholds (default 2.2 m/s², 2.8 m/s² and 25 °/s or 2.0 m/s² lateral, each sustained for 450 ms, with a 1200 ms gap between events).
+- Tilt-compensated compass heading with declination correction and circular smoothing.
+- Live OLED HUD showing heading, active event, forward and lateral acceleration, yaw rate and event counters.
+- Wi-Fi web dashboard served from the ESP32-S3, refreshing from /data five times a second, with a colour-coded event banner, G-force circle, compass dial, live readings and day/night theme.
+- Trip logging to a CSV file in LittleFS at 10 rows per second, with start, stop, clear and download from the dashboard.
+- Accelerometer and gyroscope bias calibration at boot, with magnetometer offset and scale calibration loaded from non-volatile storage.
+- Shared I²C bus at 400 kHz on GPIO8 and GPIO9 for the IMU, magnetometer and OLED.
+- Battery voltage divider (100 kΩ / 36 kΩ) to GPIO1, and sensor interrupt lines to GPIO12 and GPIO13, wired for future firmware use.
+
+## Hardware Design
+
+### Power
+
+USB-C feeds the BQ24092 charger through a resettable PTC fuse. ISET2 is tied high to cap the charge current at 500 mA, and two LEDs show power-good and charging. SW1 switches the battery to the TPS63020 buck-boost converter, which makes the 3.3 V rail.
+
+### Controller
+
+The ESP32-S3-WROOM-1-N8 sits at the top-left of the board with its antenna over a copper-free cut-out. A CP2104 bridges USB-C to UART0, and two MMBT2222A transistors driven by DTR and RTS put the module into download mode or reset it.
+
+### Sensors
+
+The MPU6050 and LIS3MDL share the I²C bus with the OLED at addresses 0x68, 0x1E and 0x3C. The MPU6050 sits in the lower-left corner and the LIS3MDL just below the ESP32-S3 module.
+
+### PCB
+
+A two-layer 59.4 × 49.9 mm board with ground pours on both sides and four grounded M3 mounting holes. The OLED module mounts above the board on the right.
+
+## Outcome
+
+- Full fabrication package in the project folder: schematic PDF, EasyEDA Pro project, Gerbers, BOM, pick-and-place file and STEP model.
+- Arduino firmware (main.ino) with the event detector, compass, OLED HUD, web server and CSV logging, plus the embedded dashboard page in webpage.h.
+- A build article published on GitHub Pages explains every circuit block with schematic crops, simulations of the charger, buck-boost, battery divider, auto-reset, event detector and compass, sensor viewers, an interactive 3D board model and firmware workflow drawings.
+- Documented issues for the next revision: MPU6050 VDD has no 3V3 connection, TPS63020 VINA, EN and PS/SYNC are not joined to VBAT-OUT, C11 is 220 pF where the datasheet specifies 2.2 nF, Q2 has collector and emitter swapped with no BOOT/RESET fallback, and the BQ24092 has no power path.
+- The battery voltage and the sensor interrupt pins are wired but not read by the current firmware.

@@ -16,6 +16,14 @@ export default defineConfig({
   // Astro 7 defaults to "jsx", which strips whitespace between inline
   // elements ("<a>x</a> <b>y</b>" → "xy"). Keep the pre-7 behaviour.
   compressHTML: true,
+  vite: {
+    build: {
+      // @google/model-viewer (three.js inside) is one ~1 MB chunk. It is
+      // dynamic-imported only on project pages that show a 3D board, so the
+      // size is expected — don't warn about it.
+      chunkSizeWarningLimit: 1100,
+    },
+  },
   integrations: [
     mdx(),
     sitemap({

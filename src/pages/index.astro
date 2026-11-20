@@ -10,6 +10,7 @@
  * background cut-out looks best. Optimised by Astro's <Image />.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
+import { formatTag } from "../lib/tags";
 import SectionHeading from "@components/SectionHeading.astro";
 import ProjectCard from "@components/ProjectCard.astro";
 import SkillBar from "@components/SkillBar.astro";
@@ -51,12 +52,6 @@ const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
   {}
 );
 
-function titleCase(s: string): string {
-  return s
-    .split(" ")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
 
 // Flowing line-art for the hero background: a family of cubic curves whose
 // four points each drift by a fixed step per line, which reads as silk/waves.
@@ -206,7 +201,7 @@ const city = profile.data.location.split(",")[0];
       <div class="skills-grid">
         {Object.entries(skillsByCategory).map(([category, skills]) => (
           <div class="skills-group">
-            <h3 class="skills-group__title">{titleCase(category)}</h3>
+            <h3 class="skills-group__title">{formatTag(category)}</h3>
             <div class="skills-group__list">
               {skills
                 .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))

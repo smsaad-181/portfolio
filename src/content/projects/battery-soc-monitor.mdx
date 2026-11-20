@@ -1,0 +1,104 @@
+---
+title: "IoT Battery State-of-Charge Monitor with ESP32"
+summary: "ESP32 node that reads a Li-ion cell through a resistor divider, converts voltage to state of charge with a 21-point OCV table and logs both to ThingSpeak between deep-sleep cycles."
+coverImage:
+  src: "/images/projects/battery-soc-monitor/render3d.webp"
+  alt: "3D render of the IoT Battery State-of-Charge Monitor with ESP32 PCB"
+gallery:
+  - src: "/images/projects/battery-soc-monitor/render3d.webp"
+    alt: "3D render of the battery SoC monitor board with ESP32-WROOM-32 module, USB-C and expansion connectors"
+    kind: "render"
+    caption: "3D render, top layer"
+  - src: "/images/projects/battery-soc-monitor/top2d.webp"
+    alt: "2D top-layer layout of the battery SoC monitor board"
+    kind: "2d"
+    caption: "2D top layer"
+  - src: "/images/projects/battery-soc-monitor/bottom2d.webp"
+    alt: "2D bottom-layer layout of the battery SoC monitor board"
+    kind: "2d"
+    caption: "2D bottom layer"
+models:
+  - label: "Battery SoC Monitor"
+    src: "/models/battery-soc-monitor/board.glb"
+    poster: "/images/projects/battery-soc-monitor/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-WROOM-32-N4"
+  - label: "Measurement"
+    value: "Cell voltage via 100 kΩ / 100 kΩ divider on IO34 (ADC1_CH6)"
+  - label: "Power"
+    value: "USB-C; BQ24092 charger and TPS63020 buck-boost on board"
+  - label: "Cloud"
+    value: "ThingSpeak over Wi-Fi (HTTP)"
+  - label: "Duty cycle"
+    value: "Deep sleep with 30 s timer wake-up"
+  - label: "PCB"
+    value: "2-layer, ENIG, EasyEDA"
+tags: ["esp32", "battery monitoring", "iot", "pcb design", "low power"]
+status: "prototype"
+role: "Schematic, PCB layout & firmware"
+links:
+  github: "https://github.com/smsaad-181/IoT-based-Battery-SoC-Monitoring-System-with-ESP32"
+featured: false
+order: 17
+draft: false
+---
+
+## Objective
+
+A compact, low-power IoT node for monitoring a Li-ion battery. It measures the cell's terminal voltage, derives the state of charge (SoC) and uploads both values to ThingSpeak over Wi-Fi. Between measurements the ESP32 sits in deep sleep to keep current draw low, which suits battery-powered field deployments.
+
+The hardware is a purpose-designed PCB with USB-C power input, onboard regulation, decoupling, a status LED, I²C and GPIO expansion headers and a dedicated UART programming header.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-WROOM-32-N4 module | U4 | MCU: ADC measurement, SoC calculation, Wi-Fi upload |
+| 100 kΩ resistors | R19, R20 | Battery-sense divider into IO34 |
+| TI BQ24092DGQR | U3 | Single-cell Li-ion charger |
+| TI TPS63020DSJT | U2 | Buck-boost regulator for the 3.3 V rail |
+| Coilcraft XFL4020-152MEC, 1.5 µH | L1 | Power inductor for the buck-boost converter |
+| Littelfuse 0603L100SLYR | U5 | Resettable PTC fuse |
+| USB-C 6-pin receptacle, TYPE-C 6P(073) | USB1 | Power input |
+| PZ254V-11-06P 6-pin header | H1 | UART programming header (GND, RTS, 3V3, RXD, TXD, DTR) |
+| BC847 NPN transistors | Q3, Q4 | Auto-reset from RTS and DTR |
+| ZX-XH2.54-4PZZ 4-pin connectors | CN1, CN3, CN4, CN6, CN7 | I²C and GPIO expansion |
+| ZX-XH2.54-2PZZ 2-pin connector | CN2 | Battery input |
+| Green 0603 LED | LED1 | Status indicator |
+| Passives | R6–R20, C5–C18 | Divider, pull-ups, decoupling and bulk capacitors |
+
+## Features
+
+- Battery voltage measured on IO34 (ADC1_CH6) through a 100 kΩ / 100 kΩ divider that halves the cell voltage.
+- 32 times oversampling with the eFuse-calibrated `analogReadMilliVolts()`, plus an optional piecewise ADC calibration table and a global offset.
+- SoC from piecewise-linear interpolation of a 21-point Li-ion open-circuit-voltage curve, clamped to 1–100 % before upload.
+- ThingSpeak upload over HTTP: field 1 is battery voltage (V), field 2 is SoC (%).
+- ESP32 deep sleep with a 30 s timer wake-up (configurable), safely above ThingSpeak's 15 s minimum update interval.
+- Wi-Fi connection retried up to 5 times at 1 s intervals; on failure the node skips the upload and sleeps again instead of hanging.
+- Wi-Fi and Bluetooth shut down before every sleep.
+- UART programming header with RTS and DTR for auto-reset, I²C header and GPIO breakouts (IO34, IO35, IO27, IO26, IO25, IO18, IO5, IO14, IO13, IO2).
+
+## Hardware Design
+
+### Battery sense
+
+The cell connects through a 100 kΩ / 100 kΩ divider, so the ADC pin sees half the battery voltage. With the ADC set to 11 dB attenuation the pin can read up to about 3.9 V, which keeps a fully charged 4.2 V cell (2.1 V at the pin) well inside the range. IO34 is an input-only pin on ADC1 (channel 6).
+
+### Power
+
+USB-C is the power input. The BOM fits a BQ24092 single-cell charger and a TPS63020 buck-boost converter with a 1.5 µH Coilcraft inductor for the 3.3 V rail, and a resettable PTC fuse.
+
+### Programming and expansion
+
+A 6-pin header carries GND, RTS, 3V3, RXD, TXD and DTR for an external USB-to-UART adapter, with RTS and DTR available for automatic reset. A 4-pin I²C header (SDA, SCL, 3V3, GND) and several GPIO breakout connectors expose spare pins for additional sensors.
+
+### Firmware cycle
+
+Each wake-up follows the same sequence: sample the ADC, convert voltage to SoC, connect to Wi-Fi, post to ThingSpeak, switch the radios off, and return to deep sleep. The battery is measured before Wi-Fi starts to keep the awake time short.
+
+## Outcome
+
+The GitHub repository holds the full package: schematic PDF, editable EasyEDA project, Gerber files, BOM, pick-and-place file, 3D STEP model, a project documentation PDF and the Arduino firmware (`SoC.ino`).
+
+The firmware implements the complete wake, measure, upload and sleep cycle. The SoC estimate depends only on voltage: the OCV table describes a typical single cell at about 25 °C, and the ADC calibration table ships as an identity mapping for the user to fill in with multimeter readings. No measured accuracy or battery-life results are documented yet.

@@ -1,0 +1,113 @@
+---
+title: "ECG Monitor with ADS1292R & ESP32 TFT Display"
+summary: "Custom ESP32 carrier PCB for an ADS1292R front end and a 3.5-inch TFT that shows live ECG and respiration waveforms, heart rate, R-R interval and breathing rate without a PC."
+coverImage:
+  src: "/images/projects/ecg-monitor-ads1292r/render3d.webp"
+  alt: "3D render of the ECG Monitor with ADS1292R & ESP32 TFT Display PCB"
+gallery:
+  - src: "/images/projects/ecg-monitor-ads1292r/render3d.webp"
+    alt: "3D render of the ECG Monitor V1.0 PCB"
+    kind: "render"
+    caption: "3D render generated from the board STEP model"
+  - src: "/images/projects/ecg-monitor-ads1292r/pcb-top.webp"
+    alt: "Top-side PCB render of the ECG Monitor board"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/ecg-monitor-ads1292r/pcb-bottom.webp"
+    alt: "Bottom-side PCB render of the ECG Monitor board"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/ecg-monitor-ads1292r/top2d.webp"
+    alt: "2D top-side layout of the ECG Monitor PCB showing copper and silkscreen"
+    kind: "2d"
+    caption: "2D layout, top side"
+  - src: "/images/projects/ecg-monitor-ads1292r/bottom2d.webp"
+    alt: "2D bottom-side layout of the ECG Monitor PCB"
+    kind: "2d"
+    caption: "2D layout, bottom side"
+  - src: "/images/projects/ecg-monitor-ads1292r/schematic-1.webp"
+    alt: "Full schematic of the ECG Monitor: ESP32 DevKit, ADS1292R ECG module with 22 ohm series resistors, ILI9488 TFT display and DC power input"
+    kind: "schematic"
+    caption: "Schematic: ESP32 board, ADS1292R module, TFT display and DC supply"
+models:
+  - label: "ECG Monitor V1.0"
+    src: "/models/ecg-monitor-ads1292r/board.glb"
+    poster: "/images/projects/ecg-monitor-ads1292r/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-WROOM-32 DevKit (dual-core, 240 MHz)"
+  - label: "ECG front end"
+    value: "ProtoCentral ADS1292R module (TI ADS1292R)"
+  - label: "Display"
+    value: "3.5-inch ILI9488 TFT, 480 × 320, SPI"
+  - label: "Acquisition"
+    value: "500 Hz, CH1 respiration + CH2 ECG Lead-II, gain ×6"
+  - label: "Power"
+    value: "5 V DC barrel jack, 5.5 × 2.0 mm"
+  - label: "PCB"
+    value: "2 layers, 110.1 × 112.1 mm, all through-hole, EasyEDA Pro"
+tags: ["esp32", "pcb design", "biomedical", "spi", "embedded firmware"]
+status: "prototype"
+role: "Schematic, PCB layout & firmware"
+links:
+  github: "https://github.com/smsaad-181/ECG-Monitor-with-ADS1292R-ESP32-TFT-Display-V1.0"
+featured: true
+order: 2
+draft: false
+---
+
+## Objective
+
+A real-time, single-lead ECG and respiration monitor built on a custom PCB. The board pairs an ESP32-WROOM-32 DevKit with the ADS1292R bio-potential analog front end and a 3.5-inch ILI9488 TFT, so live waveforms, heart rate, R-R interval and respiratory rate are rendered directly on the screen with no PC attached.
+
+The ADS1292R sits on a ProtoCentral breakout, which keeps the layout-sensitive electrode-side circuitry on a tested board. The carrier PCB only handles power and the digital lines, which keeps the custom design simple and all through-hole.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-WROOM-32 DevKit (30-pin) | ESP1 | Microcontroller; drives both SPI buses, runs signal processing and the UI |
+| ProtoCentral ADS1292R module | U2 | Two-channel 24-bit bio-potential front end: CH1 respiration, CH2 ECG |
+| 3.5-inch ILI9488 TFT module, 480 × 320 | U3 | Live waveform and vitals display on VSPI |
+| DC-005 barrel jack, 5.5 × 2.0 mm | DC1 | 5 V DC input, center positive |
+| KEMET ESK106M025AC3AA, 10 µF electrolytic | C1, C2, C4, C6 | Bulk decoupling at VIN, 3V3, ADS VDD and TFT VCC |
+| 100 nF ceramic, CC1H104MC1FD3F6C10MF | C3, C5, C7, C15 | High-frequency decoupling beside each electrolytic |
+| 22 Ω resistors | R1–R12, R14 | Series damping on every SPI and control line |
+| 1 kΩ resistor | R13 | TFT backlight resistor to 3.3 V |
+| 10 kΩ resistors | R15, R16 | Pull-ups on the TFT chip-select and reset lines |
+| M3 mounting holes | SCREW1–SCREW4 | Board mounting |
+
+## Features
+
+- Single-lead ECG (Lead-II) on CH2 and impedance respiration on CH1, both at gain ×6, sampled at 500 Hz.
+- On-screen heart rate (BPM), R-R interval and respiratory rate next to a live scrolling waveform on the 480 × 320 display.
+- Two independent SPI buses: HSPI (GPIO 13/14/35) for the ADS1292R and VSPI (GPIO 18/19/23) for the TFT, with no shared lines.
+- ADS1292R data-ready on input-only GPIO 34, with START and PWDN/RESET driven from GPIO 25 and 26; the AFE runs from its internal 512 kHz oscillator.
+- Digital filtering in firmware: 0.5 Hz high-pass, 50 Hz or 60 Hz notch selected at compile time with `NOTCH_HZ`, and 40 Hz low-pass on the ECG channel; 0.05 to 0.8 Hz band on respiration.
+- Firmware ADC self-test at start-up, lead-off detection, periodic register audit and a bounded automatic recovery (up to 3 per boot).
+- Serial console at 115200 baud: `R` restarts and re-runs the self-test, `S` stops acquisition.
+- Self-contained driver: no ProtoCentral library dependency, display handled through TFT_eSPI.
+
+## Hardware Design
+
+### Power
+
+A regulated 5 V supply enters through a 5.5 × 2.0 mm barrel jack onto the +5V net, which feeds the ESP32 DevKit VIN and the ADS1292R module VDD. The DevKit's on-board 3.3 V regulator supplies the ESP32, the TFT, the backlight resistor and the pull-ups. Each load has a 10 µF electrolytic for bulk decoupling with a 100 nF ceramic beside it.
+
+### ECG front end
+
+The ADS1292R provides two 24-bit ADC channels with programmable gain, lead-off detection, a right-leg drive amplifier and a built-in respiration impedance circuit. It connects to the ESP32 over HSPI, and all seven signal lines pass through 22 Ω series resistors (R1–R7) for EMI damping. Its CLK, GPIO1 and GPIO2 pins are left unconnected.
+
+### Display interface
+
+The ILI9488 TFT uses the VSPI bus plus chip-select (GPIO 33), data/command (GPIO 32) and reset (GPIO 4). Its lines pass through R8–R14, and 10 kΩ pull-ups on chip-select and reset keep the display quiet during boot. The touch and SD-card pins of the module are not used.
+
+### Pin planning
+
+GPIO 34 and 35 are input-only on the ESP32 and are used for DRDY and MISO, which only need to be read. The ESP32 strapping pins GPIO 2, 5, 12 and 15 are left unconnected, so nothing on the board can change how the chip boots.
+
+## Outcome
+
+The GitHub repository holds the full design package: schematic PDF, editable EasyEDA Pro project (.epro2), Gerber ZIP, BOM, pick-and-place file and STEP model, plus the Arduino firmware and an HTML documentation book with an interactive 3D model, circuit-block simulations, firmware workflows, build steps and a pre-order checklist.
+
+The firmware is prototype firmware intended for use with an ECG and impedance-respiration simulator only. It has not been clinically validated and is not for patient monitoring or diagnosis. The power input has no fuse or reverse-polarity protection, so the board must be run from a regulated 5 V adapter.

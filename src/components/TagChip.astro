@@ -1,27 +1,20 @@
 ---
 /**
  * TagChip.astro
- * Renders a single tag as a small pill. Normalises casing to title-case for
- * display (content stores tags lowercase; we format them at render time per
- * content-model.md).
+ * Renders a single tag as a small pill. Content stores tags lowercase;
+ * formatTag() restores acronyms and part numbers ("iot" → "IoT",
+ * "esp32" → "ESP32", "pcb design" → "PCB Design").
  */
+import { formatTag } from "../lib/tags";
+
 export interface Props {
   tag: string;
-  /** If provided, wraps the chip in a button/link for filtering. */
+  /** If provided, wraps the chip in a link. */
   href?: string;
 }
 
 const { tag, href } = Astro.props;
-
-/** Title-case a tag: "pcb design" → "PCB Design" */
-function toDisplayCase(raw: string): string {
-  return raw
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
-const displayTag = toDisplayCase(tag);
+const displayTag = formatTag(tag);
 ---
 
 {href ? (

@@ -1,0 +1,129 @@
+---
+title: "ESP32 MLX90640 IR Thermal Camera"
+summary: "Battery-powered Wi-Fi thermal camera: an ESP32 reads a 32 × 24 MLX90640 infrared array and streams temperatures to a live browser viewer from its own access point, with no app needed."
+coverImage:
+  src: "/images/projects/ir-thermal-camera/render3d.webp"
+  alt: "3D render of the ESP32 MLX90640 IR Thermal Camera PCB"
+gallery:
+  - src: "/images/projects/ir-thermal-camera/render3d.webp"
+    alt: "3D render of the IR Thermal Camera board with the ESP32-WROOM-32 module and XH connectors"
+    kind: "render"
+    caption: "3D render of the assembled board"
+  - src: "/images/projects/ir-thermal-camera/pcb-top.webp"
+    alt: "Top-side PCB layout of the IR Thermal Camera board"
+    kind: "pcb"
+    caption: "PCB layout, top"
+  - src: "/images/projects/ir-thermal-camera/pcb-bottom.webp"
+    alt: "Bottom-side PCB layout of the IR Thermal Camera board"
+    kind: "pcb"
+    caption: "PCB layout, bottom"
+  - src: "/images/projects/ir-thermal-camera/top2d.webp"
+    alt: "2D top-side view of the IR Thermal Camera board"
+    kind: "2d"
+    caption: "2D top view"
+  - src: "/images/projects/ir-thermal-camera/bottom2d.webp"
+    alt: "2D bottom-side view of the IR Thermal Camera board"
+    kind: "2d"
+    caption: "2D bottom view"
+  - src: "/images/projects/ir-thermal-camera/schematic-1.webp"
+    alt: "Schematic sheet 1 showing the ESP32-WROOM-32 module, decoupling, and the EN and GPIO0 auto-reset circuit"
+    kind: "schematic"
+    caption: "Schematic sheet 1: ESP32 MCU"
+  - src: "/images/projects/ir-thermal-camera/schematic-2.webp"
+    alt: "Schematic sheet 2 showing the TPS63020 buck-boost converter, BQ24092 battery charger and battery sense divider"
+    kind: "schematic"
+    caption: "Schematic sheet 2: Power"
+  - src: "/images/projects/ir-thermal-camera/schematic-3.webp"
+    alt: "Schematic sheet 3 showing the USB-C input, programming header, power and output connectors and mounting holes"
+    kind: "schematic"
+    caption: "Schematic sheet 3: USB and connectors"
+models:
+  - label: "IR Thermal Camera V1.0"
+    src: "/models/ir-thermal-camera/board.glb"
+    poster: "/images/projects/ir-thermal-camera/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-WROOM-32-N4 (Wi-Fi + Bluetooth, 4 MB flash)"
+  - label: "Sensor"
+    value: "Melexis MLX90640, 32 × 24 IR array, I²C at 800 kHz"
+  - label: "Connectivity"
+    value: "Wi-Fi access point with browser viewer at 192.168.4.1"
+  - label: "Power"
+    value: "1-cell Li-ion, BQ24092 USB-C charger, TPS63020 buck-boost (3.28 V)"
+  - label: "PCB"
+    value: "55.0 × 49.6 mm, 2 layers, 1.6 mm"
+  - label: "EDA"
+    value: "EasyEDA Pro"
+tags: ["esp32", "thermal imaging", "pcb design", "wi-fi", "firmware"]
+status: "prototype"
+role: "Schematic, PCB layout & firmware"
+links:
+  github: "https://github.com/smsaad-181/ESP32-MLX90640-IR-Thermal-Camera-V1.0"
+featured: false
+order: 7
+draft: false
+---
+
+## Objective
+
+A battery-powered Wi-Fi thermal camera. An ESP32-WROOM-32-N4 reads a Melexis MLX90640 far-infrared array, turns its 768 pixels into temperatures and serves a live thermal viewer from its own Wi-Fi access point to any phone or laptop browser.
+
+The camera is meant to work anywhere: plug in a battery, switch on, join the camera's Wi-Fi and open the viewer. The ESP32 only sends temperatures; the browser handles interpolation, colour palettes, contrast and markers.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-WROOM-32-N4 | U4 | Dual-core microcontroller module with Wi-Fi, Bluetooth and 4 MB flash |
+| MLX90640 module | CN7 | 32 × 24 far-infrared array on a plug-in module (not on the BOM), I²C address 0x33 |
+| BQ24092DGQR | U3 | Li-ion charger, current set by R13 and limited to the USB 500 mA level, 4.20 V |
+| TPS63020DSJT | U2 | Buck-boost regulator, 3.28 V set by R11/R12 |
+| XFL4020-152MEC | L1 | 1.5 µH buck-boost inductor |
+| 0603L100SLYR | U5 | 1 A resettable PTC fuse on USB VBUS |
+| BC847 | Q3, Q4 | Automatic reset and boot-mode circuit |
+| PZ254V-11-06P | H1 | 6-pin programming header for a 3.3 V USB-UART adapter |
+| TYPE-C 6P(073) | USB1 | Power-only USB-C input with 5.1 kΩ CC pull-downs |
+| SK12D07VG3 | SW1 | Power switch between VBAT and VIN |
+| ZX-XH2.54-4PZZ | CN1, CN3, CN4, CN6, CN7 | 4-pin XH connectors for the sensor, spare GPIOs and 3.3 V out |
+| ZX-XH2.54-2PZZ | CN2 | Battery connector on the bottom side |
+| LED_0603-R | LED2 | Red LED on the charger PG pin, lit while USB power is present |
+| Passives | R6–R20, C5–C18 | Pull-ups, feedback and charger setting, battery divider, decoupling |
+
+## Features
+
+- MLX90640 configured at 8 Hz per subpage and 18-bit resolution; two subpages per image give about 4 full images per second over an 800 kHz I²C bus.
+- Per-pixel object temperature calculated on the ESP32 with emissivity 0.95, plus minimum, maximum, average and centre values.
+- Own Wi-Fi access point (MLX90640-Camera, channel 1, up to 4 clients) with the viewer at 192.168.4.1; a compile-time option joins an existing network instead.
+- Browser viewer renders a 512 × 384 image with palettes, smoothing, auto-contrast and markers.
+- HTTP endpoints for the viewer page, a JSON frame at /data, a 24 × 32 CSV frame at /csv and a plain-text status at /health.
+- 1-cell Li-ion/Li-Po on CN2 charged from USB-C by the BQ24092, with 6.6 V input over-voltage protection.
+- TPS63020 buck-boost regulator that works above and below the battery voltage.
+- 6-pin programming header with a two-transistor DTR/RTS auto-reset circuit, so uploads need no buttons.
+- Battery sense divider (R19/R20, 100 kΩ each) to GPIO34.
+- Expansion through 4-pin XH connectors for spare GPIOs (including the VSPI pins) and a 3.3 V output, plus four plated M3 mounting holes on GND.
+
+## Hardware Design
+
+### Power
+
+USB-C 5 V passes a 1 A PTC fuse to the BQ24092 charger, which charges the cell on CN2. SW1 connects the battery to the TPS63020, whose 1 MΩ / 180 kΩ feedback divider sets 3.28 V for the ESP32, the sensor connector and CN6. The USB-C port carries power only, with no data lines.
+
+### Microcontroller and programming
+
+The ESP32-WROOM-32-N4 uses its PCB antenna over a cut-out in the board edge. Header H1 brings out DTR, TXD, RXD, 3V3, RTS and GND, and BC847 transistors Q3 and Q4 drive GPIO0 and EN from DTR and RTS for automatic download mode.
+
+### Sensor interface
+
+The MLX90640 module plugs into CN7 (GND, 3V3, SCL on GPIO22, SDA on GPIO21). The board has no I²C pull-ups, so the module must carry them.
+
+### PCB
+
+The board is 55.0 × 49.6 mm, 2 layers, 1.6 mm thick with 3.5 mm corner radii, 37 SMD and 13 through-hole placements and 80 vias.
+
+## Outcome
+
+- Full fabrication package in the GitHub repo: three-sheet schematic PDF, EasyEDA Pro project, Gerbers, BOM with LCSC numbers, pick-and-place file and STEP model.
+- ESP32 firmware for the access point, web server and MLX90640 readout, with the browser thermal viewer embedded in webpage.h. The Melexis MLX90640 driver files are not included in the repository.
+- Interactive HTML documentation covering every circuit block, simulations, an ESP32 pin map, the web viewer running on simulated sensor data and a 3D model made from the STEP file.
+- Known V1.0 issues documented for the next revision: the TPS63020 EN, VINA and PS/SYNC pins are not connected to VIN, so the 3.3 V rail is not expected to start (a one-wire rework is described), and R15 pulls the charger TS pin to VBAT, which disables charge termination, the safety timer and the temperature check.
+- Further recommended changes include I²C pull-ups, a capacitor on the charger output, battery reverse-polarity protection, RESET/BOOT buttons and a charge-status LED. The battery voltage is wired to GPIO34 but not read by the current firmware.

@@ -4,6 +4,7 @@
  * Full bio + experience timeline, education, certifications, skills.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
+import { formatTag } from "../lib/tags";
 import SectionHeading from "@components/SectionHeading.astro";
 import SkillBar from "@components/SkillBar.astro";
 import { getCollection } from "astro:content";
@@ -36,9 +37,6 @@ const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
   {}
 );
 
-function titleCase(s: string): string {
-  return s.split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
@@ -168,7 +166,7 @@ function formatDate(iso: string): string {
       <div class="skills-grid">
         {Object.entries(skillsByCategory).map(([category, skills]) => (
           <div class="skills-group">
-            <h3 class="skills-group__title">{titleCase(category)}</h3>
+            <h3 class="skills-group__title">{formatTag(category)}</h3>
             <div class="skills-group__list">
               {skills
                 .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))

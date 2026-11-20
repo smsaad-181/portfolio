@@ -1,0 +1,109 @@
+---
+title: "Acqua Node V1.2 Water Monitoring IoT Node"
+summary: "Mains-powered ESP32-S3 SuperMini carrier board for tank water monitoring: HLK-PM01 AC-DC supply, optocoupler-isolated relay output, ultrasonic sensor header and status LEDs."
+coverImage:
+  src: "/images/projects/acqua-node/render3d.webp"
+  alt: "3D render of the Acqua Node V1.2 Water Monitoring IoT Node PCB"
+gallery:
+  - src: "/images/projects/acqua-node/render3d.webp"
+    alt: "3D render of the Acqua Node V1.2 board with ESP32-S3 SuperMini, HLK-PM01 module, relay and screw terminals"
+    kind: "render"
+    caption: "3D render generated from the board STEP model"
+  - src: "/images/projects/acqua-node/pcb-top.webp"
+    alt: "Top-side PCB render of the Acqua Node V1.2 board"
+    kind: "pcb"
+    caption: "PCB top view"
+  - src: "/images/projects/acqua-node/pcb-bottom.webp"
+    alt: "Bottom-side PCB render of the Acqua Node V1.2 board"
+    kind: "pcb"
+    caption: "PCB bottom view"
+  - src: "/images/projects/acqua-node/top2d.webp"
+    alt: "2D top-side layout of the Acqua Node V1.2 PCB showing component placement and silkscreen"
+    kind: "2d"
+    caption: "2D layout, top side"
+  - src: "/images/projects/acqua-node/bottom2d.webp"
+    alt: "2D bottom-side layout of the Acqua Node V1.2 PCB"
+    kind: "2d"
+    caption: "2D layout, bottom side"
+models:
+  - label: "Acqua Node V1.2"
+    src: "/models/acqua-node/board.glb"
+    poster: "/images/projects/acqua-node/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "ESP32-S3 SuperMini (Wi-Fi, Bluetooth 5, USB-C)"
+  - label: "Power"
+    value: "HLK-PM01 isolated AC-DC module, 100–240 V AC to 5 V DC"
+  - label: "Output"
+    value: "SPDT relay driven through PC817C optocoupler and 2N2222A"
+  - label: "Interfaces"
+    value: "4-pin HC-SR04 ultrasonic header, DPDT signal input, RGB and status LEDs"
+  - label: "PCB"
+    value: "2 layers, parts on top side, 4 × M3 holes"
+  - label: "EDA"
+    value: "EasyEDA Pro"
+tags: ["esp32-s3", "iot", "pcb design", "water monitoring", "relay", "easyeda"]
+status: "prototype"
+role: "Schematic & PCB layout"
+links:
+  github: "https://github.com/smsaad-181/Acqua_Node_v1.2"
+featured: false
+order: 6
+draft: false
+---
+
+## Objective
+
+Acqua Node V1.2 is a compact, mains-powered control board for water monitoring. It measures tank water level with an HC-SR04 ultrasonic sensor, switches a pump or valve through an isolated relay, and shows system status on RGB and discrete LEDs.
+
+The board runs directly from 220 V AC through a Hi-Link HLK-PM01 module, so no external 5 V adapter is needed. It is a carrier PCB: the ESP32-S3 SuperMini plugs into headers, and the carrier handles power distribution, the relay drive chain and LED current limiting.
+
+## Key Components
+
+| Component | Ref | Role |
+|---|---|---|
+| ESP32-S3 SuperMini | U6 | Main controller with Wi-Fi, Bluetooth 5 and native USB-C |
+| HLK-PM01 | U5 | Isolated AC-DC module, 100–240 V AC to 5 V DC |
+| PC817C optocoupler | U1 | Isolates the relay drive from the GPIO |
+| 2N2222A NPN transistor | Q1 | Relay coil driver |
+| SRD-24VDC-SL-C relay | RLY1 | SPDT load-switching relay |
+| 1N4007 | D1 | Flyback diode across the relay coil |
+| 100 µF electrolytic | C2 | Bulk filter on the 5 V rail |
+| PZ254V-11-04P 4-pin header | H1 | Ultrasonic sensor connection (5 V, Trig, Echo, GND) |
+| 2-pin header | H2 | DPDT signal input |
+| WJ500V-5.08-2P and DB128L-5.08-3P-GN-S screw terminals | DPDT, DPDT1, InputPowerandload | Mains input, relay load and DPDT wiring |
+| RGB LED | U4 | Colour status indicator |
+| 5 mm LEDs | LED1, LED3, LED4, LED5 | Discrete status indicators |
+| Passives | R1–R10 | 220 Ω LED current limiting, 470 Ω optocoupler and base resistors, 10 kΩ pull-up |
+
+## Features
+
+- ESP32-S3 SuperMini controller with Wi-Fi, Bluetooth 5 and USB-C programming
+- Direct mains operation through the HLK-PM01, 100–240 V AC in, 5 V DC out
+- Relay output with optical isolation: GPIO IO7 drives a PC817C, which drives a 2N2222A and the relay coil, with a 1N4007 flyback clamp
+- 4-pin HC-SR04-compatible ultrasonic header for water level, Trig on IO5 and Echo on IO6
+- RGB LED on IO9, IO12 and IO13 plus discrete status LEDs, all with 220 Ω current limiting
+- DPDT screw terminal with a dedicated signal input on IO3
+- Mains terminals grouped on one edge, away from the low-voltage logic and sensor header
+- 4 × M3 corner mounting holes
+
+## Hardware Design
+
+### Power
+
+220 V AC enters the N and L screw terminals and feeds the HLK-PM01, an isolated flyback module. Its 5 V output passes the 100 µF bulk capacitor C2 to the 5 V rail, which powers the ESP32-S3 SuperMini (its onboard regulator makes 3.3 V for the logic) and the relay coil.
+
+### Relay drive
+
+When firmware sets IO7 high, current through R2 (470 Ω) lights the PC817C's internal LED, and its phototransistor feeds the 2N2222A base through R3 (470 Ω). Q1 then pulls the relay coil to ground. The two-stage drive is used because the optocoupler alone cannot sink the coil current; D1 clamps the reverse spike when the coil switches off.
+
+### Layout
+
+The two-layer board separates the high-voltage area (HLK-PM01, relay and mains terminals on the right) from the low-voltage logic (ESP32-S3, sensor header and LED headers on the left and bottom). The ESP32-S3's USB-C connector faces the board edge so it can be programmed inside an enclosure.
+
+## Outcome
+
+- Full fabrication package in the GitHub repo: schematic PDF, EasyEDA Pro project, Gerbers, BOM (with a priced copy), pick-and-place file, 3D STEP model and an HTML documentation page.
+- Firmware is not included in the project folder. The documentation describes the intended control loop: read the sensor, decide the relay state, update the LEDs and publish over Wi-Fi, with the relay forced off on any sensor fault.
+- Status is prototype hardware; the documentation states it is not safety-certified.
+- Documented items for the next revision: add a voltage divider or level shifter on the 5 V Echo line before it reaches the 3.3 V ESP32-S3 input, add input protection (there is no fuse between the mains terminals and the HLK-PM01), and add a 100 nF ceramic capacitor beside C2.

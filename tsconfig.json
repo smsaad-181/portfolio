@@ -4,12 +4,12 @@
   // of JS — type-checking it exhausts memory); dist/ is build output.
   "exclude": ["dist", "public/admin", "node_modules"],
   "compilerOptions": {
-    "baseUrl": ".",
+    // No baseUrl: deprecated in TypeScript 6. Paths resolve from this file.
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@layouts/*": ["src/layouts/*"],
-      "@content/*": ["src/content/*"],
-      "@styles/*": ["src/styles/*"]
+      "@components/*": ["./src/components/*"],
+      "@layouts/*": ["./src/layouts/*"],
+      "@content/*": ["./src/content/*"],
+      "@styles/*": ["./src/styles/*"]
     }
   }
 }

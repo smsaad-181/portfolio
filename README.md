@@ -1,200 +1,68 @@
 # Sultan Mahmud — Portfolio
 
-Static portfolio site for Sultan Mahmud ("Saad"), a Hardware Engineer specialising in PCB design, embedded systems, and IoT product development.
+Static portfolio for Sultan Mahmud ("Saad"), a Hardware Engineer working on PCB
+design, embedded firmware and IoT (ESP32, LoRaWAN, Modbus, MQTT).
 
 **Live site:** https://smsaad-181.github.io/portfolio/
-**CMS admin:** https://smsaad-181.github.io/portfolio/admin/
-
----
+**CMS admin:** https://smsaad-181.github.io/portfolio/admin/ (after Tina Cloud setup)
 
 ## Stack
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Astro 5 (`output: static`) |
-| CMS | Tina CMS + Tina Cloud (form-based `/admin`) |
-| Hosting | GitHub Pages (project site at `/portfolio`) |
+| Framework | Astro 7 (`output: "static"`, content collections) |
+| CMS | TinaCMS 3 + Tina Cloud (form-based `/admin`) |
+| Hosting | GitHub Pages, project site under `/portfolio` |
 | CI/CD | GitHub Actions → `actions/deploy-pages` |
-| Language | TypeScript (strict mode) |
-
----
-
-## One-time setup (manual steps Kiro cannot do)
-
-### 1. GitHub Pages source
-
-In the GitHub repo:
-
-> **Settings → Pages → Build and deployment → Source → GitHub Actions**
-
-Not "Deploy from a branch" — that will not work with this workflow.
-
-### 2. Tina Cloud account
-
-1. Go to [app.tina.io](https://app.tina.io) and sign in with your GitHub account.
-2. Click **Add project** and select the `smsaad-181/portfolio` repository.
-3. From the project settings, copy:
-   - **Client ID** (starts with a UUID-like string)
-   - **Read-only token**
-
-### 3. GitHub Actions secrets
-
-In the GitHub repo:
-
-> **Settings → Secrets and variables → Actions → New repository secret**
-
-Add two secrets:
-
-| Secret name | Value |
-|------------|-------|
-| `TINA_CLIENT_ID` | The Client ID from Tina Cloud |
-| `TINA_TOKEN` | The read-only token from Tina Cloud |
-
-### 4. Verify social links and profile URLs
-
-The seeded `src/content/profile/saad.json` uses placeholder URLs for GitHub, LinkedIn, and OSHWLab. **Verify these are correct before the first deploy:**
-
-```json
-"socialLinks": {
-  "github": "https://github.com/smsaad-181",
-  "linkedin": "https://linkedin.com/in/sultan-mahmud-saad",
-  "oshwlab": "https://oshwlab.com/smsaad181"
-}
-```
-
-Update via the CMS `/admin` → Profile, or edit the file directly.
-
-### 5. Upload resume PDF
-
-Upload your CV as a PDF via `/admin` → Profile → Resume PDF field. Or drop the file into `public/resume/` and update the `resume` field in `src/content/profile/saad.json` to match the filename.
-
-### 6. Add project cover images
-
-The 6 fully-written projects reference cover images at paths like:
-```
-src/content/projects/home-automation-v2.mdx
-  coverImage.src: ../../public/images/projects/home-automation-v2/cover.jpg
-```
-
-Either:
-- **Via CMS:** log into `/admin` → Projects, open each project, and upload a cover image using the image field.
-- **Manually:** drop images into `public/images/projects/<slug>/cover.jpg` and commit.
-
-### 7. OG default image
-
-`public/images/og-default.svg` is provided as a source file.
-Export it to `public/images/og-default.png` (1200×630 px) before launch — Twitter/X does not render SVG OG images. Any image editor or `inkscape --export-png` works.
-
-### 8. Complete draft projects
-
-7 projects are seeded as `draft: true` stubs. After the first successful deploy, log into `/admin` → Projects and fill in the details for each:
-
-- Acqua Node V1.2
-- ESP32 IoT Vehicle Motion Analyzer
-- ESP32 MLX90640 IR Thermal Camera
-- ESP32 Standalone Board
-- Fingerprint V1.1
-- Fingerprint V1.2
-- IoT Activity Tracker
-
-Set `draft: false` once a project is ready to publish. Each save triggers a deploy automatically.
-
----
+| 3D boards | `@google/model-viewer`, GLB files converted from each project's STEP |
+| Language | TypeScript (strict) · Node 22 (`.nvmrc`) |
 
 ## Local development
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Copy env file and fill in Tina credentials (or leave blank for local-only mode)
-cp .env.example .env
-
-# 3. Start dev server (Tina + Astro together)
-npm run dev
+cp .env.example .env      # Tina credentials go here; never commit .env
+npm run dev               # http://localhost:4321/portfolio/  (CMS: /portfolio/admin/)
 ```
 
-The dev server starts at `http://localhost:4321/portfolio/`.
-The local Tina admin is at `http://localhost:4321/portfolio/admin/`.
+| Command | What it does |
+|---|---|
+| `npm run build` | `tinacms build && astro build` → `dist/` (needs Tina Cloud credentials) |
+| `npm run build:site` | Site only (`astro build`), for local use without Tina Cloud |
+| `npm run check` | `astro check` type-check, must be 0 errors / 0 warnings |
+| `npm run check:links` | After a build: every internal link resolves under `/portfolio` |
+| `npm run check:drafts` | After a build: no `draft: true` project reaches `dist/` |
+| `npm run preview` | Serve `dist/` locally |
+| `npm run audit:pages` | With `preview` running: every page × both themes × 1440/375 px — console errors, failed requests, AA contrast |
 
-> **Note:** In local dev, Tina runs in "local" mode (reads/writes files directly on disk, no Tina Cloud auth required). Cloud auth only applies on the deployed site.
+## One-time setup (manual)
 
----
+1. **GitHub Pages:** Settings → Pages → Source → **GitHub Actions** (done).
+2. **Tina Cloud:** sign in at [app.tina.io](https://app.tina.io), add the
+   `smsaad-181/portfolio` project, copy the **Client ID** and **read-only token**
+   into `.env`.
+3. **GitHub secrets:** add `TINA_CLIENT_ID` and `TINA_TOKEN`
+   (Settings → Secrets and variables → Actions). Until these exist the deploy
+   workflow stops at the Tina build step and the live site is not updated.
+4. **CV:** put the PDF at `public/resume/sultan-mahmud-cv.pdf`.
+5. **Social links:** confirm the URLs in `src/content/profile/saad.json`.
 
-## Build
+## Content
 
-```bash
-npm run build
-# Equivalent to: tinacms build && astro check && astro build
-```
+- Projects: `src/content/projects/*.mdx`. Images in
+  `public/images/projects/<slug>/`, 3D boards in `public/models/<slug>/`.
+- Profile, experience, education, certifications, skills: JSON in `src/content/`.
+- Schemas: `src/content.config.ts` (zod), mirrored in `tina/config.ts`. Change both together.
+- Facts must come from `.claude/skills/portfolio-content-seed/references/`;
+  open questions are tracked in `docs/FACT-CHECK.md`.
 
-Output goes to `dist/`. The CI workflow runs this exact sequence as three separate steps so Tina schema errors are easy to distinguish from Astro build errors in the Actions log.
+After Tina Cloud is set up, edits saved in `/admin` commit to `main` and
+GitHub Actions redeploys automatically.
 
----
+## Docs
 
-## Content editing (after launch)
-
-1. Go to `https://smsaad-181.github.io/portfolio/admin/`
-2. Log in with your GitHub account (via Tina Cloud OAuth)
-3. Edit any collection (Projects, Profile, Skills, Experience, etc.)
-4. Click **Save** — Tina commits the change directly to `main`
-5. GitHub Actions triggers automatically, rebuilds, and redeploys (~2 min)
-
-**No local dev tools needed to update content.**
-
----
-
-## Post-launch: Lighthouse audit
-
-After the first successful deploy, run a Lighthouse audit:
-
-1. Open `https://smsaad-181.github.io/portfolio/` in Chrome
-2. DevTools → Lighthouse → Desktop + Mobile → Analyze page load
-3. Target: Performance ≥ 90, Accessibility ≥ 95, SEO ≥ 95, Best Practices ≥ 95
-
-Common issues to check:
-- Missing project cover images (will fail LCP)
-- Missing OG PNG (social sharing)
-- All project `alt` text is descriptive (checked at build time by Zod schema)
-
----
-
-## Adding new content types (future)
-
-To add a blog/notes section:
-1. Add a new collection to `src/content.config.ts` (follow the `projects` pattern)
-2. Mirror it in `tina/config.ts` (same fields, same path)
-3. Create a `src/pages/notes/` directory with `index.astro` and `[slug].astro`
-
-No schema migration required — the free-text tag/category pattern means new tags and categories are addable without code changes.
-
----
-
-## Project structure
-
-```
-portfolio/
-├── .github/workflows/deploy.yml   # CI/CD: build + deploy on push to main
-├── public/
-│   ├── favicon.svg
-│   ├── robots.txt
-│   ├── images/                    # Project photos, OG image
-│   └── resume/                    # CV PDF (Tina-managed)
-├── src/
-│   ├── components/                # Nav, Footer, ProjectCard, StatusBadge, TagChip, …
-│   ├── content/                   # All content files (JSON + MDX)
-│   │   ├── config.ts              # Zod schemas — single source of truth
-│   │   ├── profile/saad.json
-│   │   ├── experience/
-│   │   ├── education/
-│   │   ├── certifications/
-│   │   ├── skills/
-│   │   └── projects/              # 14 MDX files (6 published, 7 drafts, 1 in-progress)
-│   ├── layouts/BaseLayout.astro   # Global <head>, nav, footer
-│   ├── lib/projects.ts            # getPublishedProjects() — draft filter helper
-│   ├── pages/                     # /, /about, /projects, /contact, /resume, /404
-│   └── styles/global.css          # CSS custom properties, dark theme
-├── tina/config.ts                 # Tina CMS schema (mirrors src/content.config.ts)
-├── astro.config.mjs
-└── package.json
-```
+- `docs/PLAN-v2.md`: current implementation plan (phase by phase)
+- `docs/spec/`: requirements, design and tasks
+- `docs/SECURITY.md`: dependency advisories and accepted risks
+- `docs/FACT-CHECK.md`: claims for Saad to confirm
+- `CLAUDE.md`: project rules

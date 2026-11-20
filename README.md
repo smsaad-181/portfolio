@@ -14,7 +14,7 @@ design, embedded firmware and IoT (ESP32, LoRaWAN, Modbus, MQTT).
 | CMS | TinaCMS 3 + Tina Cloud (form-based `/admin`) |
 | Hosting | GitHub Pages, project site under `/portfolio` |
 | CI/CD | GitHub Actions → `actions/deploy-pages` |
-| 3D boards | `@google/model-viewer`, GLB files converted from each project's STEP |
+| 3D boards | three.js viewer; GLBs converted from each project's STEP (one node per part, BOM data, 2D layout texture) |
 | Language | TypeScript (strict) · Node 22 (`.nvmrc`) |
 
 ## Local development

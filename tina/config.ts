@@ -276,6 +276,7 @@ const projectsCollection: Collection = {
           name: "kind",
           label: "Kind",
           options: ["render", "pcb", "2d", "schematic", "photo", "screenshot", "dashboard"],
+          description: "Shown on the project page: render → Board renders, dashboard → Outcome. Other kinds are kept but not displayed.",
         },
         { type: "string" as const, name: "caption", label: "Caption" },
       ],
@@ -336,7 +337,7 @@ const projectsCollection: Collection = {
       name: "links",
       label: "External Links",
       fields: [
-        { type: "string" as const, name: "github", label: "GitHub URL" },
+        { type: "string" as const, name: "github", label: "GitHub URL", description: "Not shown on the project page (the repositories are private)." },
         { type: "string" as const, name: "oshwlab", label: "OSHWLab URL" },
         { type: "string" as const, name: "liveDemo", label: "Live Demo URL" },
       ],

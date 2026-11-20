@@ -12,26 +12,42 @@
  * click-to-select and an info line for the selected part.
  *
  * three.js is self-hosted (npm) and loaded only when the viewer scrolls near.
+ * Until then (and if WebGL is unavailable) the board's 3D render is shown.
  */
 import { statSync } from "node:fs";
+import path from "node:path";
+import { Image } from "astro:assets";
 import { assetUrl, publicFileExists } from "../lib/urls";
+import { publicImageSize } from "../lib/images";
 
 export interface Props {
-  models: { label: string; src: string }[];
+  models: { label: string; src: string; poster?: string | undefined }[];
   title: string;
 }
 
 const { models, title } = Astro.props;
+// Resolve like publicFileExists(): from the project root, so it also works
+// when this code runs from the bundled build output.
 const mb = (src: string) => {
   try {
-    return (statSync(new URL(`../../public/${src.replace(/^\//, "")}`, import.meta.url)).size / 1048576).toFixed(1);
+    return (statSync(path.join(process.cwd(), "public", src.replace(/^\/+/, ""))).size / 1048576).toFixed(1);
   } catch {
     return null;
   }
 };
-const boards = models
-  .filter((m) => publicFileExists(m.src))
-  .map((m) => ({ label: m.label, src: assetUrl(m.src), size: mb(m.src) }));
+const boards = await Promise.all(
+  models
+    .filter((m) => publicFileExists(m.src))
+    .map(async (m) => {
+      const size = m.poster ? await publicImageSize(m.poster) : null;
+      return {
+        label: m.label,
+        src: assetUrl(m.src),
+        size: mb(m.src),
+        poster: m.poster && size ? { src: assetUrl(m.poster), ...size } : null,
+      };
+    }),
+);
 const first = boards[0];
 ---
 
@@ -40,9 +56,9 @@ const first = boards[0];
     <div class="bv__head">
       <h2 class="bv__title" id="bv-heading">Interactive 3D board</h2>
       {boards.length > 1 && (
-        <div class="bv__tabs" role="tablist" aria-label="Choose a board">
+        <div class="bv__tabs" role="group" aria-label="Choose a board">
           {boards.map((b, i) => (
-            <button type="button" role="tab" class="bv__tab" aria-selected={i === 0 ? "true" : "false"} data-src={b.src} data-size={b.size} data-label={b.label}>
+            <button type="button" class="bv__tab" aria-pressed={i === 0 ? "true" : "false"} data-src={b.src} data-size={b.size} data-label={b.label}>
               {b.label}
             </button>
           ))}
@@ -53,18 +69,18 @@ const first = boards[0];
     <div class="bv__frame">
       <div class="bv__bar">
         <div class="bv__group" role="group" aria-label="Camera view">
-          <button type="button" class="bv__btn" data-view="iso">3D</button>
-          <button type="button" class="bv__btn" data-view="top">Top</button>
-          <button type="button" class="bv__btn" data-view="bottom">Bottom</button>
-          <button type="button" class="bv__btn" data-view="front">Front</button>
+          <button type="button" class="bv__btn" data-view="iso" disabled>3D</button>
+          <button type="button" class="bv__btn" data-view="top" disabled>Top</button>
+          <button type="button" class="bv__btn" data-view="bottom" disabled>Bottom</button>
+          <button type="button" class="bv__btn" data-view="front" disabled>Front</button>
         </div>
         <div class="bv__group" role="group" aria-label="Zoom">
-          <button type="button" class="bv__btn bv__btn--icon" data-zoom="in" aria-label="Zoom in">+</button>
-          <button type="button" class="bv__btn bv__btn--icon" data-zoom="out" aria-label="Zoom out">−</button>
+          <button type="button" class="bv__btn bv__btn--icon" data-zoom="in" aria-label="Zoom in" disabled>+</button>
+          <button type="button" class="bv__btn bv__btn--icon" data-zoom="out" aria-label="Zoom out" disabled>−</button>
         </div>
         <label class="bv__explode">
           <span>Explode</span>
-          <input type="range" min="0" max="1" step="0.01" value="0" data-explode />
+          <input type="range" min="0" max="1" step="0.01" value="0" data-explode disabled />
         </label>
         <label class="bv__find">
           <span>Find part</span>
@@ -75,6 +91,18 @@ const first = boards[0];
       </div>
 
       <div class="bv__stage" data-stage data-src={first.src} data-size={first.size}>
+        {boards.map((b, i) => b.poster && (
+          <Image
+            src={b.poster.src}
+            alt=""
+            width={b.poster.width}
+            height={b.poster.height}
+            class="bv__poster"
+            data-poster-for={b.src}
+            hidden={i !== 0}
+            loading="lazy"
+          />
+        ))}
         <div class="bv__tip" data-tip aria-hidden="true"></div>
         <p class="bv__load" data-load>
           The 3D model loads when you scroll here{first.size && ` (${first.size} MB)`}.
@@ -82,7 +110,8 @@ const first = boards[0];
         <p class="bv__hint" aria-hidden="true">Drag: rotate · Ctrl + wheel / pinch: zoom · Right-drag: pan · Click: select</p>
       </div>
 
-      <p class="bv__info" data-info aria-live="polite">
+      <p class="sr-only" data-live aria-live="polite"></p>
+      <p class="bv__info" data-info>
         Hover or click a component to identify it. Use <em>Bottom</em> or the explode slider to see the parts on the back.
       </p>
     </div>
@@ -105,6 +134,11 @@ const first = boards[0];
     const cap = host.querySelector<HTMLElement>("[data-cap]")!;
     const find = host.querySelector<HTMLSelectElement>("[data-find]")!;
     const explode = host.querySelector<HTMLInputElement>("[data-explode]")!;
+    const live = host.querySelector<HTMLElement>("[data-live]")!;
+    const ctrlEls = host.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>("[data-view], [data-zoom], [data-explode], [data-find]");
+    const enable = (on: boolean) => ctrlEls.forEach((c) => { c.disabled = !on; });
+    const showPoster = (src: string | null) =>
+      host.querySelectorAll<HTMLElement>("[data-poster-for]").forEach((p) => { p.hidden = p.dataset.posterFor !== src; });
     const DEFAULT_INFO = info.innerHTML;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let api: Awaited<ReturnType<typeof start>> | null = null;
@@ -114,7 +148,9 @@ const first = boards[0];
       (es) => {
         if (es.some((e) => e.isIntersecting)) {
           io.disconnect();
-          start().then((a) => { api = a; a?.load(current); });
+          start()
+            .then((a) => { api = a; a?.load(current); })
+            .catch(() => { load.textContent = "The 3D model could not be loaded."; });
         }
       },
       { rootMargin: "400px" },
@@ -123,9 +159,10 @@ const first = boards[0];
 
     host.querySelectorAll<HTMLButtonElement>(".bv__tab").forEach((tab) =>
       tab.addEventListener("click", () => {
-        host.querySelectorAll(".bv__tab").forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
+        host.querySelectorAll(".bv__tab").forEach((t) => t.setAttribute("aria-pressed", String(t === tab)));
         current = tab.dataset.src!;
         explode.value = "0";
+        if (!api) showPoster(current);
         if (api) api.load(current);
       }),
     );
@@ -157,19 +194,23 @@ const first = boards[0];
       const pmrem = new THREE.PMREMGenerator(renderer);
       scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
       scene.environmentIntensity = 0.55;
-      const key = new THREE.DirectionalLight(0xffffff, 1.6);
+      const css = (name: string) => getComputedStyle(host).getPropertyValue(name).trim();
+      const key = new THREE.DirectionalLight(css("--viewer-light"), 1.6);
       key.position.set(1, 2, 1.4);
-      scene.add(key, new THREE.HemisphereLight(0xffffff, 0x404050, 0.6));
+      scene.add(key, new THREE.HemisphereLight(css("--viewer-light"), css("--viewer-ground"), 0.6));
 
       const cam = new THREE.PerspectiveCamera(35, 1, 0.001, 50);
       const controls = new OrbitControls(cam, renderer.domElement);
       controls.enableDamping = !reduce;
       controls.dampingFactor = 0.08;
       controls.zoomSpeed = 0.8;
+      // OrbitControls sets touch-action: none; keep vertical swipes scrolling
+      // the page on phones (horizontal drag still turns the board).
+      renderer.domElement.style.touchAction = "pan-y";
       // Plain wheel scrolls the page; Ctrl/⌘ + wheel zooms the board.
       stage.addEventListener("wheel", (e) => { if (!e.ctrlKey && !e.metaKey) e.stopPropagation(); }, { capture: true });
 
-      const accent = new THREE.Color(getComputedStyle(host).getPropertyValue("--accent").trim() || "#ff5a8a");
+      const accent = new THREE.Color();
       const loader = new GLTFLoader();
       let model: InstanceType<typeof THREE.Object3D> | null = null;
       let parts = new Map<string, { obj: InstanceType<typeof THREE.Object3D>; data: PartData; base: number; mats: any[] }>();
@@ -189,12 +230,13 @@ const first = boards[0];
       type View = keyof typeof VIEWS;
 
       const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
-      const partName = (d: PartData) => d.bom?.mpn || d.bom?.name || d.bom?.value || "";
+      const partName = (d: PartData) => { const b = clean(d.bom); return b.mpn || b.name || b.value || ""; };
       const label = (d: PartData) => [d.ref, partName(d), d.side === "bottom" ? "bottom side" : ""].filter(Boolean).join(" · ");
       // BOM manufacturer names are often Chinese-only (LCSC); show Latin names only.
-      const latin = (s?: string) => (s && /[A-Za-z]/.test(s) ? s.replace(/[　-鿿（）]+/g, "").replace(/\(\s*\)/g, "").trim() : "");
+      const latin = (s?: string | null) => (s && !/^(null|undefined|-)$/i.test(s.trim()) && /[A-Za-z0-9]/.test(s) ? s.replace(/[-]?[　-鿿（）]+/g, "").replace(/\(\s*\)/g, "").trim() : "");
+      const clean = (b?: Bom): Bom => ({ name: latin(b?.name), value: latin(b?.value), footprint: b?.footprint ?? "", mpn: latin(b?.mpn), maker: latin(b?.maker) });
       const describe = (d: PartData) => {
-        const b = { ...d.bom, maker: latin(d.bom?.maker) };
+        const b = clean(d.bom);
         const bits = [
           b.name && b.name !== b.mpn ? esc(b.name) : "",
           b.value && b.value !== b.name ? `value ${esc(b.value)}` : "",
@@ -237,7 +279,8 @@ const first = boards[0];
       async function loadModel(src: string) {
         load.hidden = false;
         load.textContent = "Loading 3D model…";
-        find.disabled = true;
+        enable(false);
+        showPoster(src);
         let gltf;
         try {
           gltf = await loader.loadAsync(src);
@@ -293,18 +336,21 @@ const first = boards[0];
           });
           find.append(og);
         });
-        find.disabled = parts.size === 0;
 
         const mm = model.userData?.boardMm ?? model.children[0]?.userData?.boardMm;
         diagMm = mm ? Math.hypot(mm[0], mm[1]) : 100;
-        cap.textContent = `Converted from the project's STEP file: ${parts.size} placed parts${mm ? `, board ${mm[0]} × ${mm[1]} × ${mm[2]} mm` : ""}.`;
+        cap.textContent = `Converted from the project's STEP file: ${parts.size} placed parts.`;
         info.innerHTML = DEFAULT_INFO;
         frame();
         setExplode(0);
         load.hidden = true;
+        showPoster(null);
+        enable(true);
+        find.disabled = parts.size === 0;
       }
 
       function paint() {
+        accent.set(css("--accent")); // re-read: the theme may have changed
         parts.forEach((p, r) => {
           const on = selected.has(r), hov = r === hovered;
           p.mats.forEach((m) => {
@@ -340,6 +386,7 @@ const first = boards[0];
         if (p && p.data.side === "bottom") goTo("bottom");
         paint();
         showInfo();
+        live.textContent = p ? info.textContent ?? "" : "Selection cleared.";
       }
 
       // Toolbar
@@ -457,13 +504,18 @@ const first = boards[0];
     transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
   }
 
+  .bv__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .bv__tab:hover,
-  .bv__btn:hover {
+  .bv__btn:hover:not(:disabled) {
     color: var(--text-primary);
     border-color: var(--accent);
   }
 
-  .bv__tab[aria-selected="true"] {
+  .bv__tab[aria-pressed="true"] {
     color: var(--text-on-accent);
     background: var(--gradient-button);
     border-color: transparent;
@@ -552,6 +604,21 @@ const first = boards[0];
 
   .bv__stage :global(canvas:active) {
     cursor: grabbing;
+  }
+
+  .bv__poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: var(--space-8);
+    object-fit: contain;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .bv__poster[hidden] {
+    display: none;
   }
 
   .bv__load {

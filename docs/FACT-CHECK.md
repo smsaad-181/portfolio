@@ -30,6 +30,7 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 16 | Fingerprint Voting Machine | `dashboard.h` line 462 (also `Code/Dashboard/dashboard.html`): the CSV header string in `exportVotesCsv()` contains a literal line break, so the page's only `<script>` does not parse and **none of the dashboard's JavaScript runs on the device**. | The Outcome screenshot shows the page exactly as the firmware serves it (static layout). Worth fixing in the firmware. |
 | 17 | IoT Activity Tracker | Folder name says "Accelerometer-Gyroscope"; the dashboard subtitle and firmware say **BNO085**. | Site uses BNO085 (from firmware). |
 | 18 | Fingerprint V1.1 | `3D Step File/` folder is empty. | No interactive 3D board on that page until a STEP file is added. |
+| 19 | Vehicle Motion Analyzer | Spec card says the PCB is **59.4 × 49.9 mm**; the board outline in the STEP file (and the 2D layout's aspect ratio) is **55.5 × 49.9 mm**. | Spec card unchanged; the 3D caption no longer states a size. **Which is right?** |
 
 ### Confirmed by Saad — 21 Nov 2026
 - Email on the site: **smsaad181@gmail.com** (the CV's [CV email — not published] is not used).

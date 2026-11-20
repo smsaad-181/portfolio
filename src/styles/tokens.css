@@ -63,6 +63,10 @@
   /* Elevation */
   --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.35);
 
+  /* 3D board viewer lighting (WebGL reads these at runtime) */
+  --viewer-light: #ffffff;
+  --viewer-ground: #404050;
+
   /* Type */
   --font-body: "Rubik Variable", "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;

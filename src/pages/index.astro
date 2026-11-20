@@ -21,14 +21,14 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { getFeaturedProjects, getPublishedProjects } from "../lib/projects";
 import { getProfile } from "../lib/profile";
-import { pageUrl, projectUrl } from "../lib/urls";
+import { pageUrl, projectUrl, publicFileExists } from "../lib/urls";
 
 const profile = await getProfile();
 const featured = await getFeaturedProjects();
 const allSkills = await getCollection("skills");
 const currentJob = (await getCollection("experience")).find((e) => e.data.current);
 const published = await getPublishedProjects();
-const boardCount = published.reduce((n, p) => n + p.data.models.length, 0);
+const boardCount = published.reduce((n, p) => n + p.data.models.filter((m) => publicFileExists(m.src)).length, 0);
 // Real counts from the content unless Saad has entered his own stats.
 const stats = profile.data.stats?.length
   ? profile.data.stats
@@ -190,9 +190,9 @@ const city = profile.data.location.split(",")[0];
           <Image
             src={portrait}
             alt={`${profile.data.name}, ${profile.data.title}`}
-            widths={[400, 600, 800, 1000, 1200]}
+            widths={[400, 560, 800, 1120]}
             sizes="(max-width: 900px) 340px, 560px"
-            quality={90}
+            quality={80}
             loading="eager"
             fetchpriority="high"
             class="hero__photo"
@@ -243,7 +243,7 @@ const city = profile.data.location.split(",")[0];
           label="// selected work"
           title="Featured Projects"
           id="featured-heading"
-          description="Boards I designed in EasyEDA Pro. Open any project to turn the PCB around in 3D and identify every part."
+          description="Boards I designed in EasyEDA. Most projects include an interactive 3D board where you can identify each placed part."
         />
         <div class="projects-grid">
           {featured.map((project) => (

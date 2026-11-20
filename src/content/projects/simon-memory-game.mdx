@@ -9,42 +9,10 @@ gallery:
     alt: "3D render of the game-controller-shaped Simon V1.0 board with OLED, four LEDs and four keys"
     kind: "render"
     caption: "Simon V1.0: 3D render"
-  - src: "/images/projects/simon-memory-game/v1-0-pcb-top.webp"
-    alt: "Top-side PCB view of the Simon V1.0 board"
-    kind: "pcb"
-    caption: "Simon V1.0: PCB top view"
-  - src: "/images/projects/simon-memory-game/v1-0-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the Simon V1.0 board"
-    kind: "pcb"
-    caption: "Simon V1.0: PCB bottom view"
-  - src: "/images/projects/simon-memory-game/v1-0-top2d.webp"
-    alt: "2D top-layer layout of the Simon V1.0 board"
-    kind: "2d"
-    caption: "Simon V1.0: 2D top layer"
-  - src: "/images/projects/simon-memory-game/v1-0-bottom2d.webp"
-    alt: "2D bottom-layer layout of the Simon V1.0 board"
-    kind: "2d"
-    caption: "Simon V1.0: 2D bottom layer"
   - src: "/images/projects/simon-memory-game/v1-2-render3d.webp"
     alt: "3D render of the game-controller-shaped Simon V1.2 board with OLED, four LEDs and keys"
     kind: "render"
     caption: "Simon V1.2: 3D render"
-  - src: "/images/projects/simon-memory-game/v1-2-pcb-top.webp"
-    alt: "Top-side PCB view of the Simon V1.2 board"
-    kind: "pcb"
-    caption: "Simon V1.2: PCB top view"
-  - src: "/images/projects/simon-memory-game/v1-2-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the Simon V1.2 board"
-    kind: "pcb"
-    caption: "Simon V1.2: PCB bottom view"
-  - src: "/images/projects/simon-memory-game/v1-2-top2d.webp"
-    alt: "2D top-layer layout of the Simon V1.2 board"
-    kind: "2d"
-    caption: "Simon V1.2: 2D top layer"
-  - src: "/images/projects/simon-memory-game/v1-2-bottom2d.webp"
-    alt: "2D bottom-layer layout of the Simon V1.2 board"
-    kind: "2d"
-    caption: "Simon V1.2: 2D bottom layer"
 models:
   - label: "Simon V1.0"
     src: "/models/simon-memory-game/v1-0.glb"
@@ -73,28 +41,11 @@ order: 13
 draft: false
 ---
 
-## Objective
+## Overview
 
 Simon is a classic electronic memory game: the board flashes a sequence of coloured LEDs with matching tones, and the player repeats it on the buttons. Each successful round adds one step, and a wrong press resets the game.
 
 This project turns the game into a single custom PCB shaped like a game controller. An ESP32 module handles game logic, display output and audio, a 0.96-inch OLED shows score and status, and a battery connector allows portable play. The board went through two revisions, V1.0 and V1.2.
-
-## Key Components
-
-| Component | Ref | Role |
-|---|---|---|
-| ESP32-WROOM-32E-N8 module | U4 (V1.0) | Main MCU: game logic, display and audio |
-| Ai-Thinker ESP32-S module | U9 (V1.2) | Main MCU on V1.2 |
-| CH340C USB-to-UART | U3 (V1.0), U8 (V1.2) | USB flashing and serial |
-| AMS1117 LDO regulator | U2 (V1.0), U10 (V1.2) | Regulated 3.3 V rail |
-| 0.96-inch OLED module, 4-pin | OLED1 | Score and status display over I²C |
-| Omron B3F-4055 12 mm tactile switch | KEY1–KEY4 | Player input buttons |
-| 5 mm through-hole LEDs | LED1–LED4 | Colour-sequence display |
-| QMB-09B-03 2.7 kHz buzzer | BUZZER1 | Audio feedback |
-| S9013 and BC847 NPN transistors | Q1–Q3 (V1.0); Q1, Q7, Q8 (V1.2) | Transistor switching stages |
-| USB connector | USB1 | Power and programming: Mini-B (V1.0), USB-C 16-pin (V1.2) |
-| ZX-XH2.54-2PZZ 2-pin connector | CN1 | Battery connector |
-| Passives | R1–R16, C1–C5 | Pull-up and series resistors, decoupling and bulk capacitors |
 
 ## Features
 
@@ -106,31 +57,3 @@ This project turns the game into a single custom PCB shaped like a game controll
 - Onboard CH340C USB-to-UART, so the board flashes over USB without an external adapter.
 - 2-pin battery connector for portable use.
 - Breakout headers: V1.0 has an 8-pin header with UART, input pins and 3V3; V1.2 has a 4-pin 3V3, GND, RX, TX programming header.
-
-## Hardware Design
-
-### MCU and I/O
-
-In V1.0 the four LEDs connect to IO25, IO23, IO15 and IO16 through series resistors (R6–R9), and the four keys read on IO34, IO35, IO36 and IO39. The OLED shares the I²C bus on IO21/IO22, and the buzzer, on the bottom side, is driven from a GPIO PWM output.
-
-### Programming
-
-The CH340C converts USB to UART for flashing. V1.0 provides EN and BOOT buttons for entering flash mode (hold BOOT, then press EN) plus a separate Reset key. V1.2 has two through-hole 6 × 6 mm switches (SW1, SW2) and adds a 4-pin UART header for an external USB-to-TTL adapter at 3.3 V logic.
-
-### Revision differences
-
-| | Simon V1.0 | Simon V1.2 |
-|---|---|---|
-| ESP32 module | ESP32-WROOM-32E-N8 (U4) | Ai-Thinker ESP32-S (U9) |
-| USB connector | Mini-B | USB-C 16-pin |
-| Small tactile switches | BOOT and EN, SMD 6 × 6 mm | SW1 and SW2, through-hole 6 × 6 mm |
-| 12 mm keys | KEY1–KEY4 plus Reset | KEY1–KEY5 |
-| Breakout headers | Four 4-pin headers (H1, H2, H3, H5) | One 4-pin header (H3) |
-| 100 nF decoupling | 1 (C3) | 5 (C1–C5) |
-| Bulk capacitors | 4.7 µF and 10 µF 0603 ceramics | Three 10 µF Nichicon SMD capacitors |
-
-## Outcome
-
-Both revisions have a fabrication package in their project folders: schematic PDF, editable EasyEDA project, Gerber files, BOM, pick-and-place file and a 3D STEP model. The V1.0 documentation recommends 2 layers, 1.6 mm thickness, HASL-LF or ENIG finish and 0.2 mm minimum trace and space.
-
-Firmware is not yet in either project folder; the V1.0 documentation lists the code as coming soon. The game flow described above is the intended behaviour from the documentation, not a tested result.

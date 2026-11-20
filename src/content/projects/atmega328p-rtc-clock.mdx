@@ -9,26 +9,6 @@ gallery:
     alt: "3D render of the Digital Clock PCB with four 1-inch 7-segment digits, ATmega328P, DS1307 and LM7805 supply"
     kind: "render"
     caption: "3D render generated from the board STEP model"
-  - src: "/images/projects/atmega328p-rtc-clock/pcb-top.webp"
-    alt: "Top-side PCB render of the Digital Clock board"
-    kind: "pcb"
-    caption: "PCB top view"
-  - src: "/images/projects/atmega328p-rtc-clock/pcb-bottom.webp"
-    alt: "Bottom-side PCB render of the Digital Clock board with segment resistors and coin-cell holder"
-    kind: "pcb"
-    caption: "PCB bottom view"
-  - src: "/images/projects/atmega328p-rtc-clock/top2d.webp"
-    alt: "2D top-side layout of the Digital Clock PCB showing copper and silkscreen"
-    kind: "2d"
-    caption: "2D layout, top side"
-  - src: "/images/projects/atmega328p-rtc-clock/bottom2d.webp"
-    alt: "2D bottom-side layout of the Digital Clock PCB"
-    kind: "2d"
-    caption: "2D layout, bottom side"
-  - src: "/images/projects/atmega328p-rtc-clock/schematic-1.webp"
-    alt: "Schematic of the Digital Clock: LM7805 power supply, ATmega328P with 16 MHz crystal, DS1307 RTC with battery, 2N3904 digit drivers and four 7-segment displays"
-    kind: "schematic"
-    caption: "Schematic: power supply, ATmega328P, DS1307, digit drivers and displays"
 models:
   - label: "Clock PCB"
     src: "/models/atmega328p-rtc-clock/board.glb"
@@ -49,37 +29,17 @@ specs:
 tags: ["atmega328p", "rtc", "7-segment", "pcb design", "embedded firmware"]
 status: "prototype"
 role: "Schematic, PCB layout & firmware"
-links:
-  github: "https://github.com/smsaad-181/Clock-with-ATmega328P-and-RTC-"
+links: {}
 featured: false
 order: 5
 draft: false
 ---
 
-## Objective
+## Overview
 
 A microcontroller on its own is a poor clock: its 16 MHz crystal is not made for timekeeping, and it forgets the time as soon as power drops. This board puts a standalone ATmega328P together with a DS1307 real-time clock and a CR2032 backup cell, so the time is correct again the moment power returns.
 
 The result is a complete clock on one PCB, with no plug-in modules: supply, microcontroller, RTC and four large 1-inch digits that show the time in 12-hour format with a blinking seconds dot.
-
-## Key Components
-
-| Component | Ref | Role |
-|---|---|---|
-| ATMEGA328P-PU | U1 | Microcontroller: reads the RTC and multiplexes the display |
-| DS1307+ | U12 | I²C real-time clock with battery backup |
-| X49SD16MSD2SC 16 MHz crystal | X1 | ATmega328P clock |
-| KDS DT-38 32.768 kHz crystal | X2 | DS1307 timekeeping crystal |
-| BS-2-1 CR2032 holder | B1 | Backup battery for the DS1307, on the bottom side |
-| FJ11001BH 1-inch 7-segment | LED3–LED6 | Clock face, common anode, multiplexed |
-| 2N3904G-T92-B | Q1–Q4 | Emitter-follower drivers for each digit anode |
-| LM7805T | U5 | 5 V linear regulator |
-| 1N4007 | U3 | Series reverse-polarity protection |
-| DC-005 2.0 DC jack | 9V-12V | 9–12 V input, 5.5 × 2.0 mm, centre positive |
-| SK12D07VG3 slide switch | SW2 | Power on/off |
-| TS-1102-4316 tact switch | SW1 | Reset button |
-| 3 mm LEDs | LED1, LED2 | Green status LED and red power indicator |
-| Passives | R1–R6, U8–U11, U13–U19, C1–C4, U4, U6 | Segment, base and pull-up resistors, crystal load, decoupling and 220 µF reservoir capacitors |
 
 ## Features
 
@@ -90,27 +50,3 @@ The result is a complete clock on one PCB, with no plug-in modules: supply, micr
 - Reverse-polarity diode, on/off slide switch and red power LED
 - All through-hole parts; segment resistors, base resistors and the coin cell sit on the back, behind the digits
 - Three Arduino sketches: the clock, a one-time set-the-time sketch and an I²C scanner
-
-## Hardware Design
-
-### Power
-
-A 9–12 V adapter enters through the DC jack and the SW2 slide switch, then passes the 1N4007 series diode into the LM7805, which makes the 5 V rail. U4 and U6 (220 µF, 25 V) are the input and output reservoirs and C3 (100 nF) handles fast transients. The total load is around 25 to 30 mA, so the regulator runs without a heat sink.
-
-### Microcontroller
-
-The ATmega328P-PU is fitted as a bare DIP-28 with a 16 MHz crystal, 22 pF load capacitors, a 10 kΩ reset pull-up and a reset button. With the Uno bootloader it runs normal Arduino sketches, using D2 to D9 for segments and D10 to D13 for the digit drivers.
-
-### RTC
-
-The DS1307+ connects to A4 and A5 over I²C with 10 kΩ pull-ups (R4, R5) and keeps time from its 32.768 kHz crystal. When the 5 V rail is gone it runs from the CR2032 in holder B1.
-
-### Display drive
-
-All four digits share seven segment lines, each with one 150 Ω resistor, and the decimal points share a 6.8 kΩ resistor. Each common anode is switched from the 5 V rail by a 2N3904 emitter follower, so the microcontroller pins only supply base current. Segments are active low, and a digit is on while its D10 to D13 pin is high.
-
-## Outcome
-
-- Full design package in the GitHub repo: schematic PDF, EasyEDA Pro project, Gerbers, BOM, pick-and-place file, 3D STEP model and an interactive HTML build document.
-- Firmware: `Digital_Clock.ino` reads the DS1307 with the RTClib library, converts to 12-hour format and lights each digit for 5 ms, refreshing the display about 47 times a second. Companion sketches set the RTC time and scan the I²C bus.
-- The documentation review lists improvements for the next revision: lower the 100 kΩ digit base resistors (about 1 kΩ suggested) for usable brightness, add a programming header (the chip currently has to be programmed in an Uno and moved), add time-setting buttons, and re-annotate the schematic so its designators match the BOM.

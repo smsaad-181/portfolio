@@ -18,7 +18,7 @@ export default defineConfig({
   compressHTML: true,
   vite: {
     build: {
-      // @google/model-viewer (three.js inside) is one ~1 MB chunk. It is
+      // three.js (the 3D board viewer) is one large chunk. It is
       // dynamic-imported only on project pages that show a 3D board, so the
       // size is expected — don't warn about it.
       chunkSizeWarningLimit: 1100,

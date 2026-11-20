@@ -9,66 +9,10 @@ gallery:
     alt: "3D render of the LoRa GPS Tracker transmitter board with the ESP32-S3 module, E22 LoRa module and ATGM336H GPS breakout"
     kind: "render"
     caption: "Transmitter: 3D render with the GPS module fitted"
-  - src: "/images/projects/lora-gps-tracker/receiver-pcb-top.webp"
-    alt: "Top-side PCB view of the LoRa GPS Tracker transmitter board"
-    kind: "pcb"
-    caption: "Transmitter: PCB top view"
-  - src: "/images/projects/lora-gps-tracker/receiver-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the LoRa GPS Tracker transmitter board"
-    kind: "pcb"
-    caption: "Transmitter: PCB bottom view"
-  - src: "/images/projects/lora-gps-tracker/receiver-top2d.webp"
-    alt: "2D top-layer layout of the LoRa GPS Tracker transmitter board"
-    kind: "2d"
-    caption: "Transmitter: 2D top layer"
-  - src: "/images/projects/lora-gps-tracker/receiver-bottom2d.webp"
-    alt: "2D bottom-layer layout of the LoRa GPS Tracker transmitter board"
-    kind: "2d"
-    caption: "Transmitter: 2D bottom layer"
-  - src: "/images/projects/lora-gps-tracker/transmitter-schematic-1.webp"
-    alt: "Transmitter schematic sheet 1 showing the MCP73831 charger, TPS63020 buck-boost converter, USB-C input, battery connector and protection"
-    kind: "schematic"
-    caption: "Transmitter: schematic sheet 1, USB, charger, protection and buck-boost"
-  - src: "/images/projects/lora-gps-tracker/transmitter-schematic-2.webp"
-    alt: "Transmitter schematic sheet 2 showing the ESP32-S3 module, CH340C USB-to-UART bridge, auto-programmer, reset and headers"
-    kind: "schematic"
-    caption: "Transmitter: schematic sheet 2, ESP32-S3, CH340C and auto-programmer"
-  - src: "/images/projects/lora-gps-tracker/transmitter-schematic-3.webp"
-    alt: "Transmitter schematic sheet 3 showing the E22-900M22S LoRa module and the ATGM336H GPS module"
-    kind: "schematic"
-    caption: "Transmitter: schematic sheet 3, LoRa and GPS modules"
   - src: "/images/projects/lora-gps-tracker/transmitter-render3d.webp"
     alt: "3D render of the LoRa GPS Tracker receiver board with the ESP32-S3 module and E22 LoRa module"
     kind: "render"
     caption: "Receiver: 3D render"
-  - src: "/images/projects/lora-gps-tracker/transmitter-pcb-top.webp"
-    alt: "Top-side PCB view of the LoRa GPS Tracker receiver board"
-    kind: "pcb"
-    caption: "Receiver: PCB top view"
-  - src: "/images/projects/lora-gps-tracker/transmitter-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the LoRa GPS Tracker receiver board"
-    kind: "pcb"
-    caption: "Receiver: PCB bottom view"
-  - src: "/images/projects/lora-gps-tracker/transmitter-top2d.webp"
-    alt: "2D top-layer layout of the LoRa GPS Tracker receiver board"
-    kind: "2d"
-    caption: "Receiver: 2D top layer"
-  - src: "/images/projects/lora-gps-tracker/transmitter-bottom2d.webp"
-    alt: "2D bottom-layer layout of the LoRa GPS Tracker receiver board"
-    kind: "2d"
-    caption: "Receiver: 2D bottom layer"
-  - src: "/images/projects/lora-gps-tracker/receiver-schematic-1.webp"
-    alt: "Receiver schematic sheet 1 showing the MCP73831 charger, TPS63020 buck-boost converter, USB-C input, battery connector and protection"
-    kind: "schematic"
-    caption: "Receiver: schematic sheet 1, USB, charger, protection and buck-boost"
-  - src: "/images/projects/lora-gps-tracker/receiver-schematic-2.webp"
-    alt: "Receiver schematic sheet 2 showing the ESP32-S3 module, CH340C USB-to-UART bridge, auto-programmer, reset and headers"
-    kind: "schematic"
-    caption: "Receiver: schematic sheet 2, ESP32-S3, CH340C and auto-programmer"
-  - src: "/images/projects/lora-gps-tracker/receiver-schematic-3.webp"
-    alt: "Receiver schematic sheet 3 showing the E22-900M22S LoRa module"
-    kind: "schematic"
-    caption: "Receiver: schematic sheet 3, LoRa module"
 models:
   - label: "Transmitter"
     src: "/models/lora-gps-tracker/receiver.glb"
@@ -92,37 +36,17 @@ specs:
 tags: ["esp32", "lora", "gps", "pcb design", "iot"]
 status: "prototype"
 role: "Schematic & PCB layout"
-links:
-  github: "https://github.com/smsaad-181/ESP32-LoRa-GPS-Tracker-V1.0"
+links: {}
 featured: true
 order: 1
 draft: false
 ---
 
-## Objective
+## Overview
 
 A two-board LoRa GPS tracker built on the ESP32-S3. A battery-powered transmitter reads its position from a GPS module and sends it over 915 MHz LoRa. A receiver base station acknowledges each report and shows the track on a live map in any browser on the local Wi-Fi.
 
 The system is designed to work without a SIM card, mobile coverage or a cloud service, so position tracking stays on a private radio link and a local network.
-
-## Key Components
-
-| Component | Ref | Role |
-|---|---|---|
-| ESP32-S3-WROOM-1-N8R8 | U4 | Microcontroller module with 8 MB flash and 8 MB PSRAM |
-| EBYTE E22-900M22S | U6 | Semtech SX1262 LoRa module (22 dBm) on SPI, IPEX antenna |
-| ATGM336H | GPS1 | GPS + BeiDou breakout on UART with PPS time pulse (transmitter only) |
-| MCP73831T-2DCI/OT | U1 | Single-cell Li-ion charger, 500 mA from USB-C |
-| TPS63020DSJT | U3 | Buck-boost converter for the 3.28 V rail |
-| XFL4020-152MEC | L1 | 1.5 µH buck-boost inductor |
-| CH340C | U8 | USB-to-UART bridge for programming and serial monitor |
-| S8050 | Q2, Q3 | DTR/RTS auto-reset and boot-mode transistors |
-| AO3401A | Q1 | Battery reverse-polarity switch |
-| SMDJ30CA | D1 | TVS diode on the battery input |
-| MMSZ5240A_R1_00001 | D2 | 10 V Zener clamp on the Q1 gate |
-| SS12D00G3 | U2 | Main power slide switch |
-| B2B-PH-SM4-TB(LF)(SN) | CN2 | JST PH battery connector |
-| Passives | R1–R30, C1–C28 | Pull-ups, series resistors, decoupling and filtering |
 
 ## Features
 
@@ -135,29 +59,3 @@ The system is designed to work without a SIM card, mobile coverage or a cloud se
 - USB-C with CH340C and DTR/RTS auto-reset, plus a 6-pin programming header.
 - I2C expansion header (XH 4-pin) on both boards.
 - Antenna clearance for the ESP32-S3 module: a board cut-out on the transmitter and a keep-out area on the receiver.
-
-## Hardware Design
-
-### Power
-
-USB-C supplies 5 V to the MCP73831 charger, which charges the cell at 500 mA set by a 2 kΩ PROG resistor. The battery passes through the AO3401A reverse-polarity switch and the SS12D00G3 slide switch to the TPS63020, which produces the 3.28 V rail set by a 1 MΩ / 180 kΩ feedback divider.
-
-### Microcontroller and programming
-
-Both boards use the ESP32-S3-WROOM-1-N8R8 with the same GPIO assignment. A CH340C bridges USB to UART0, and two S8050 transistors driven by DTR and RTS pull EN and GPIO0 for automatic reset and download mode.
-
-### Radio and GPS
-
-The E22-900M22S connects over SPI on GPIO10 to GPIO13, with DIO1 on GPIO5, BUSY on GPIO15, reset on GPIO16 and the RF switch on GPIO6 and GPIO7. On the transmitter, the ATGM336H sends NMEA data to GPIO17, takes commands from GPIO18 and delivers PPS to GPIO14; these three pins are free on the receiver.
-
-### PCB
-
-The transmitter is 72.8 × 42.8 mm with a cut-out under the ESP32 antenna, and the receiver is 60.7 × 45.0 mm with an antenna keep-out. Both are 2-layer, 1.6 mm boards with four M3 mounting holes.
-
-## Outcome
-
-- For each board, the project folder holds the schematic PDF, the EasyEDA Pro project, Gerbers, BOM, pick-and-place file and STEP model.
-- Interactive documentation for each board is published on GitHub Pages: schematic crops with circuit-flow walkthroughs, simulations of the charger, protection, buck-boost, auto-programmer, LoRa link budget and battery life, module viewers, a searchable BOM, an ESP32-S3 pin map, a 3D board model and workflow drawings. The public repository carries the documentation only.
-- Firmware is not written yet. The documentation describes the planned firmware: the transmitter packs each fix into a 21-byte packet and waits for an ACK, while the receiver logs positions with RSSI and SNR to LittleFS and serves a map at tracker.local.
-- The design review found that revision V1.0 does not power up as drawn: on both boards the TPS63020 VINA, EN and PS/SYNC pins connect only to C8, so the 3.3 V rail never starts. A single wire from the C8 pad to the C7 pad fixes assembled boards.
-- Other documented items for the next revision: CH340C V3 pin should be tied to VCC at 3.3 V, no USB power path, a lower-voltage TVS suited to the 4.2 V rail, a smaller EN delay capacitor, and battery-voltage and USB-present sensing.

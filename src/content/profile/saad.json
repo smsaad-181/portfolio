@@ -13,5 +13,39 @@
     "linkedin": "https://linkedin.com/in/sultan-mahmud-saad",
     "oshwlab": "https://oshwlab.com/smsaad181"
   },
-  "resume": "/resume/sultan-mahmud-cv.pdf"
+  "resume": "/resume/sultan-mahmud-cv.pdf",
+  "about": [
+    {
+      "label": "Currently working on",
+      "value": "Circuit design, hardware engineering and PCB design"
+    },
+    {
+      "label": "Currently learning",
+      "value": "Embedded systems, ROS (Robot Operating System) and IoT protocols"
+    },
+    {
+      "label": "Open to collaborate on",
+      "value": "Open-source hardware, PCB design and robotics projects"
+    },
+    {
+      "label": "Ask me about",
+      "value": "Arduino, Raspberry Pi, circuit design, PCB layout and embedded C/C++"
+    }
+  ],
+  "tools": [
+    "C",
+    "ESP-IDF",
+    "KiCad",
+    "Arduino IDE",
+    "Raspberry Pi",
+    "ROS",
+    "Home Assistant",
+    "Mosquitto",
+    "Grafana",
+    "MySQL",
+    "MongoDB",
+    "HTML5",
+    "Git",
+    "LaTeX"
+  ]
 }

@@ -27,6 +27,16 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 13 | Fingerprint Voting Machine | R503 sensor not in the BOM (connects off-board via CN1). | Shown as an off-board part. |
 | 14 | All 17 | No file says any board was fabricated or tested. | Every page is "Prototype" and makes no build/test claim. **Tell me which boards you built and tested** — they can become "Completed" with results. |
 | 15 | Component Tester | Firmware is a port of Karl-Heinz Kübbeler's open-source Transistor Tester. | Role "Schematic, PCB layout & firmware port" with credit. |
+| 16 | Fingerprint Voting Machine | `dashboard.h` line 462 (also `Code/Dashboard/dashboard.html`): the CSV header string in `exportVotesCsv()` contains a literal line break, so the page's only `<script>` does not parse and **none of the dashboard's JavaScript runs on the device**. | The Outcome screenshot shows the page exactly as the firmware serves it (static layout). Worth fixing in the firmware. |
+| 17 | IoT Activity Tracker | Folder name says "Accelerometer-Gyroscope"; the dashboard subtitle and firmware say **BNO085**. | Site uses BNO085 (from firmware). |
+| 18 | Fingerprint V1.1 | `3D Step File/` folder is empty. | No interactive 3D board on that page until a STEP file is added. |
+
+### Confirmed by Saad — 21 Nov 2026
+- Email on the site: **smsaad181@gmail.com** (the CV's [CV email — not published] is not used).
+- Employer name: **SIOT Solutions — Southern Innovation of Technology** (the CV says "Southern IoT Limited").
+- Home page shows professional links only (LinkedIn, GitHub, OSHWLab, email) — not Facebook/Instagram.
+- Dashboards with no screenshot are rendered from the firmware's own HTML with no data (no invented readings). Vehicle Motion Analyzer uses Saad's own screenshots from its Documentation folder.
+- GitHub links removed from project pages (the repos are private).
 
 ## 2. Every claim, by project
 

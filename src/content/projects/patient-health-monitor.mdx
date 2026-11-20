@@ -9,22 +9,10 @@ gallery:
     alt: "3D render of the Patient Health Monitor V1.0 PCB"
     kind: "render"
     caption: "3D render generated from the board STEP model"
-  - src: "/images/projects/patient-health-monitor/pcb-top.webp"
-    alt: "Top-side PCB render of the Patient Health Monitor board"
-    kind: "pcb"
-    caption: "PCB top view"
-  - src: "/images/projects/patient-health-monitor/pcb-bottom.webp"
-    alt: "Bottom-side PCB render of the Patient Health Monitor board"
-    kind: "pcb"
-    caption: "PCB bottom view"
-  - src: "/images/projects/patient-health-monitor/top2d.webp"
-    alt: "2D top-side layout of the Patient Health Monitor PCB"
-    kind: "2d"
-    caption: "2D layout, top side"
-  - src: "/images/projects/patient-health-monitor/bottom2d.webp"
-    alt: "2D bottom-side layout of the Patient Health Monitor PCB"
-    kind: "2d"
-    caption: "2D layout, bottom side"
+  - src: "/images/projects/patient-health-monitor/dashboard.webp"
+    alt: "MedMonitor patient care web dashboard with a sidebar (Vitals Monitor, Patient Record, Data Logging, Alerts), live vitals cards for heart rate, blood oxygen, body temperature, room temperature and humidity, and an ECG waveform grid panel (Lead I, 1 mV/div, 25 mm/s)"
+    kind: "dashboard"
+    caption: "Web dashboard served by the firmware, shown before any data arrives"
 models:
   - label: "Patient Health Monitor V1.0"
     src: "/models/patient-health-monitor/board.glb"
@@ -50,27 +38,11 @@ order: 9
 draft: false
 ---
 
-## Objective
+## Overview
 
 An ESP32-based patient vitals monitor that reads an ECG waveform and heart rate, blood oxygen (SpO₂), body temperature and room conditions, and presents them on a live web dashboard. The dashboard is served straight from the ESP32 over Wi-Fi, so no cloud service, phone app or external server is involved.
 
 The hardware is a custom through-hole carrier PCB that brings together the ESP32 DevKit, an ECG front end, a pulse oximeter, a 16-bit ADC and an environmental sensor. It is an educational prototype, not a certified medical device.
-
-## Key Components
-
-| Component | Ref | Role |
-|---|---|---|
-| ESP32-WROOM DevKit (30-pin) | ESP1 | Microcontroller, I²C host and Wi-Fi web server |
-| AD8232 ECG module | U2 | ECG front end; output to ADS1115 A0, lead-off to GPIO 18/19, shutdown from GPIO 5 |
-| MAX30102 module (Maxim Integrated) | U3 | SpO₂ and finger detection, I²C address 0x57 |
-| ADS1115 breakout | P1 | 16-bit ADC: A0 ECG, A1 body temperature; I²C address 0x48 |
-| BME280 module | U1 | Room temperature and humidity, I²C address 0x76 |
-| Semitec 103AT-2, 10 kΩ NTC | R1 | Body temperature sensor, lower leg of the divider |
-| 10 kΩ resistor | R2 | Upper leg of the NTC divider, to 3V3 |
-| DC-005 barrel jack, 5.5 × 2.0 mm | DC1 | Supply input onto the +5 V net |
-| KEMET ESK106M025AC3AA, 10 µF electrolytic | C1 | Bulk capacitor on the 5 V rail |
-| 100 nF ceramic, CC1H104MC1FD3F6C10MF | C2–C7 | 5 V and 3.3 V rail decoupling, plus one per sensor module |
-| M3 mounting holes | SCREW1–SCREW4 | Enclosure mounting |
 
 ## Features
 
@@ -82,27 +54,3 @@ The hardware is a custom through-hole carrier PCB that brings together the ESP32
 - Web server on port 80; the browser polls two JSON endpoints and draws everything client-side.
 - Patient record kept in browser storage: name, ID, bed, ward, age, blood group, gender, contact and notes.
 - Data logging at a 2 s to 60 s interval, up to 500 rows, with Excel (.xls) export, plus rule-based alerts with suggestions.
-
-## Hardware Design
-
-### Power
-
-A 5 V to 9 V supply enters through DC1 onto the +5 V net, which feeds the ESP32 VIN pin. C1 (10 µF) and C2 (100 nF) sit on the 5 V rail and C3 on the 3.3 V rail. All sensors run from the DevKit's on-board 3.3 V regulator, each with its own 100 nF decoupling capacitor (C4 BME280, C5 AD8232, C6 ADS1115, C7 MAX30102).
-
-### ECG path
-
-The AD8232 output pin feeds ADS1115 A0, while its LO+ and LO− lead-off outputs go directly to GPIO 18 and GPIO 19. Its shutdown pin is driven from GPIO 5 and held high to enable the chip. GPIO 5 is an ESP32 strapping pin, but it is only driven as an output after boot. Electrodes (RA, LA and RL reference) connect through the AD8232 module's 3.5 mm jack.
-
-### Body temperature
-
-R2 (10 kΩ) from 3V3 and the 10 kΩ NTC (R1) to ground form a divider whose midpoint, TEMP_SENSE, goes to ADS1115 A1. Firmware converts the voltage to NTC resistance and then to temperature in °C.
-
-### PCB
-
-Two-layer through-hole board designed in EasyEDA Pro with all components on the top side. The outline is 88.5 × 72.3 mm, with four M3 holes spaced about 82.6 × 66.4 mm for enclosure mounting. No SMT assembly is needed.
-
-## Outcome
-
-The project folder contains the schematic PDF, editable EasyEDA Pro project (.epro2), Gerber ZIP, BOM, pick-and-place file and STEP model, along with the Arduino firmware (sketch plus embedded dashboard page) and a full documentation book as PDF and HTML. The Gerber ZIP includes top and bottom copper, solder mask, silkscreen, board outline, drill files and a flying-probe test file.
-
-Documented limitations: the sketch requests 125 Hz ECG sampling, but single-shot ADS1115 conversions on an I²C bus shared with the MAX30102 make the real rate lower and uneven, which is adequate for heart-rate display but not for diagnostic ECG morphology. Heart rate uses a simple threshold detector, body temperature is an uncalibrated contact reading, the web server has no authentication or HTTPS, and Wi-Fi credentials are hard-coded. Listed next steps are WiFiManager provisioning, MQTT or cloud publishing, flash storage for logs, battery power with charging, and an enclosure.

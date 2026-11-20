@@ -9,22 +9,10 @@ gallery:
     alt: "3D render of the Air Quality Monitor V1.0 PCB"
     kind: "render"
     caption: "3D render generated from the board STEP model"
-  - src: "/images/projects/air-quality-monitor/pcb-top.webp"
-    alt: "Top-side PCB render of the Air Quality Monitor board"
-    kind: "pcb"
-    caption: "PCB top view"
-  - src: "/images/projects/air-quality-monitor/pcb-bottom.webp"
-    alt: "Bottom-side PCB render of the Air Quality Monitor board"
-    kind: "pcb"
-    caption: "PCB bottom view"
-  - src: "/images/projects/air-quality-monitor/top2d.webp"
-    alt: "2D top-side layout of the Air Quality Monitor PCB"
-    kind: "2d"
-    caption: "2D layout, top side"
-  - src: "/images/projects/air-quality-monitor/bottom2d.webp"
-    alt: "2D bottom-side layout of the Air Quality Monitor PCB"
-    kind: "2d"
-    caption: "2D layout, bottom side"
+  - src: "/images/projects/air-quality-monitor/dashboard.webp"
+    alt: "AeroSense IoT PM and Air Quality Monitoring web dashboard with a sidebar (Dashboard, PM Readings, Environment, History, Alerts), a circular indoor air quality gauge, tiles for PM1.0, PM2.5, PM10, temperature, humidity, CO2 and VOC, and a device status row for the PMS7003 and BME680"
+    kind: "dashboard"
+    caption: "Web dashboard served by the firmware, shown before any data arrives"
 models:
   - label: "Air Quality Monitor V1.0"
     src: "/models/air-quality-monitor/board.glb"
@@ -45,32 +33,17 @@ specs:
 tags: ["esp32", "iot", "pcb design", "air quality", "i2c", "uart"]
 status: "prototype"
 role: "Schematic, PCB layout & firmware"
-links:
-  github: "https://github.com/smsaad-181/IoT-Based-PM-Air-Quality-Monitoring-System-V1.0"
+links: {}
 featured: false
 order: 8
 draft: false
 ---
 
-## Objective
+## Overview
 
 A standalone IoT air-quality monitor built around an ESP32-WROOM DevKit on a custom PCB. It measures airborne particulate matter and indoor environmental conditions, and shows the readings in two places: a 1.3-inch 128 × 64 OLED on the board and a web dashboard that the ESP32 serves over Wi-Fi from its own web server.
 
 Particulate matter (PM1.0, PM2.5, PM10) comes from a Plantower PMS7003 laser particle counter. Temperature, humidity, an indoor air quality (IAQ) index, CO₂ equivalent and breath-VOC equivalent come from a Bosch BME680 processed by the Bosch BSEC library.
-
-## Key Components
-
-| Component | Ref | Role |
-|---|---|---|
-| ESP32-WROOM DevKit (30-pin) | ESP1 | Microcontroller, I²C and UART2 host, Wi-Fi web server |
-| Environmental sensor module (BME680 in firmware) | U1 | Temperature, humidity, IAQ, CO₂ and VOC equivalents over I²C |
-| SH1106 1.3-inch 128 × 64 I²C OLED module | U2 | Local two-page readout, I²C address 0x3C |
-| Megastar ZX-XH2.54-4PZZ, 4-pin XH header | CN1 | Connector for the off-board PMS7003: 5 V, GND and UART2 |
-| Plantower PMS7003 | Off-board, via CN1 | Laser particle counter for PM1.0, PM2.5 and PM10 |
-| DC-005 barrel jack, 5.5 × 2.0 mm | DC1 | 5 V supply input |
-| KEMET ESK106M025AC3AA, 10 µF electrolytic | C1, C6 | Bulk decoupling |
-| 100 nF ceramic, CC1H104MC1FD3F6C10MF | C2, C4, C5, C7 | Module decoupling |
-| Mounting holes | SCREW1 (M2), SCREW2–SCREW4 (M3) | Board mounting |
 
 ## Features
 
@@ -81,23 +54,3 @@ Particulate matter (PM1.0, PM2.5, PM10) comes from a Plantower PMS7003 laser par
 - IAQ status levels: Good, Moderate, Poor, Unhealthy, Very Unhealthy and Hazardous.
 - Dashboard warnings with editable thresholds, saved in the browser's local storage.
 - Readings logged to the serial port at 115200 baud every 3 seconds; the on-board LED on GPIO 2 blinks if the sensor reports an error.
-
-## Hardware Design
-
-### Power
-
-A single DC-005 barrel jack feeds the +5 V rail, which goes straight to the PMS7003 and the ESP32 VIN pin with no regulator in between. Because the PMS7003 is rated for 4.5 to 5.5 V, the board needs a regulated 5 V supply. The ESP32 DevKit's 3.3 V output powers the OLED and the environmental sensor, and the board can also be powered from the DevKit's USB port while flashing.
-
-### Sensor buses
-
-The OLED and the environmental sensor share one I²C bus on GPIO 21 (SDA) and GPIO 22 (SCL). The PMS7003 connects to UART2 through the 4-pin XH header CN1. The CN1 silkscreen names the ESP32 side of each line, so the sensor's TX goes to the pad marked RX and its RX to the pad marked TX. The PMS7003's own 1.27 mm 10-pin connector needs an adapter cable to this 2.5 mm XH header.
-
-### Layout
-
-The PCB is a two-layer, 94.5 × 52.1 mm board with 3.5 mm rounded corners and all parts through-hole on the top side. It has one M2 and three M3 mounting holes, plus five unplated 3.0 mm holes for mounting the OLED and sensor modules.
-
-## Outcome
-
-The GitHub repository contains the Arduino firmware with its web dashboard, the schematic PDF and editable EasyEDA Pro project (.epro2), Gerber files, BOM, pick-and-place file and STEP model, and a technical documentation book in HTML and PDF.
-
-The documentation includes a design review that lists open issues for the next revision. U1 is labeled "BME280, 0x76" on the schematic and BOM while the firmware drives a BME680 at 0x77, so the part and label must match. The silkscreen reads "5v-9v DC" although the 5 V rail is unregulated, and there is no reverse-polarity, over-current or ESD protection on the input. On the firmware side, the SH1106 panel is driven with an SSD1306 library, BSEC calibration is lost at every reset, the original BSEC library is deprecated in favor of BSEC2, and the Wi-Fi connection has no time-out.

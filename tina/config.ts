@@ -106,6 +106,27 @@ const profileCollection: Collection = {
         { type: "string" as const, name: "label", label: "Label", required: true },
       ],
     },
+    {
+      type: "object" as const,
+      name: "about",
+      label: "About me (home page)",
+      list: true,
+      description: "Up to 6 short cards on the home page, e.g. Currently learning / Embedded systems, ROS and IoT protocols.",
+      ui: {
+        itemProps: (item: { label?: string }) => ({ label: item?.label || "New card" }),
+      },
+      fields: [
+        { type: "string" as const, name: "label", label: "Heading", required: true },
+        { type: "string" as const, name: "value", label: "Text", required: true },
+      ],
+    },
+    {
+      type: "string" as const,
+      name: "tools",
+      label: "Tools & platforms",
+      list: true,
+      description: "Shown as chips under Skills on the home page (no skill level).",
+    },
   ],
 };
 
@@ -254,7 +275,7 @@ const projectsCollection: Collection = {
           type: "string" as const,
           name: "kind",
           label: "Kind",
-          options: ["render", "pcb", "2d", "schematic", "photo", "screenshot"],
+          options: ["render", "pcb", "2d", "schematic", "photo", "screenshot", "dashboard"],
         },
         { type: "string" as const, name: "caption", label: "Caption" },
       ],

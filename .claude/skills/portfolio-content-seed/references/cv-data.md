@@ -4,14 +4,16 @@
 - Name: Sultan Mahmud (goes by "Saad")
 - Title: Hardware Engineer
 - Location: Dhaka, Bangladesh (Uttara)
-- Email: [CV email — not published]
+- Email: smsaad181@gmail.com (Saad's choice, 21 Nov 2026; the CV lists
+  [CV email — not published] — do not use that one on the site)
 - Summary basis: hardware engineer focused on PCB design, embedded systems,
   and IoT product development.
 - Social links: LinkedIn, GitHub, OSHWLab — **get exact URLs from Saad before
   publishing**, do not guess a username/URL.
 
 ## Experience
-**Assistant Officer, Southern IoT Limited** — Jan 14, 2025–Present (`current: true`)
+**Assistant Officer, SIOT Solutions — Southern Innovation of Technology** — Jan 14, 2025–Present (`current: true`)
+(Saad confirmed this company name on 21 Nov 2026; the CV says "Southern IoT Limited" — do not use that on the site.)
 - Circuit/schematic design, PCB design, sensor integration, embedded
   debugging, hardware documentation
 - LoRaWAN, gateways, Raspberry Pi Pico for IoT
@@ -53,3 +55,20 @@
 
 This list is a starting point, not a ceiling — the skills schema accepts new
 entries and new categories without any code change (see content-model.md).
+
+## GitHub profile (github.com/smsaad-181, read 21 Nov 2026)
+Usable on the site; email and company confirmed by Saad the same day.
+- Bio: "Studied Electrical and Electronics Engineer, Embedded systems Engineer, PCB Designer"
+- Location: Uttara 14, Dhaka, Bangladesh
+- Currently working on: circuit design, hardware engineering and PCB design
+- Currently learning: embedded systems, ROS (Robot Operating System) and IoT protocols
+- Open to collaborate on: open-source hardware projects, PCB design and robotics
+- Ask him about: Arduino, Raspberry Pi, circuit design, PCB layout, embedded C/C++
+- Tech stack listed: C, C++, HTML5, Django, Next.js, LaTeX · Arduino, Raspberry Pi,
+  ROS, ESP-IDF · Arduino IDE, EasyEDA, KiCad, Fusion 360 · Home Assistant,
+  Mosquitto, Grafana, MongoDB, MySQL · Git, GitHub, Figma, Notion
+- Socials on GitHub: LinkedIn https://www.linkedin.com/in/sultan-mahmud-saad
+  (same as the site), plus Facebook and Instagram — Saad chose to show only the
+  professional links (LinkedIn, GitHub, OSHWLab, email) on the site.
+- Do not use on the site: the "Fun fact", "looking for help with FPGA" and
+  "Pronouns" lines (informal), GitHub stats cards.

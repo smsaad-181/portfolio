@@ -50,6 +50,13 @@ const profile = defineCollection({
       .array(z.object({ value: z.string().min(1), label: z.string().min(1) }))
       .max(4)
       .optional(),
+    // Home "About me" cards, e.g. { label: "Currently learning", value: "…" }.
+    about: z
+      .array(z.object({ label: z.string().min(1), value: z.string().min(1) }))
+      .max(6)
+      .optional(),
+    // Extra tools/platforms shown as chips under Skills (no proficiency).
+    tools: z.array(z.string().min(1)).optional(),
   }),
 });
 
@@ -115,11 +122,12 @@ const projects = defineCollection({
     // The URL slug is the entry id (file name without extension).
     summary: z.string(),
     coverImage: imageSchema,
-    // Board renders, 2D views, schematics, photos — each with a kind + caption.
+    // Images, each with a kind + caption. The project page shows "render"
+    // images under "Board renders" and "dashboard" images under "Outcome".
     gallery: z
       .array(
         imageSchema.extend({
-          kind: z.enum(["render", "pcb", "2d", "schematic", "photo", "screenshot"]).default("photo"),
+          kind: z.enum(["render", "pcb", "2d", "schematic", "photo", "screenshot", "dashboard"]).default("photo"),
           caption: z.string().optional(),
         })
       )

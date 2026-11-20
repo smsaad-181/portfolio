@@ -1,0 +1,647 @@
+---
+/**
+ * BoardViewer.astro — interactive 3D PCB, modelled on the viewer in Saad's
+ * own project documentation (D:\SAAD\PCB\Clock\Documentation).
+ *
+ * The GLB is converted from the project's STEP file at import time: every
+ * placed part is a node named by its reference designator with its BOM line
+ * in `extras`, and the bare board carries the real top/bottom 2D layout as a
+ * texture. The viewer adds: camera presets (3D / Top / Bottom / Front),
+ * zoom buttons (+ Ctrl/⌘ + wheel, pinch on touch), an explode slider that
+ * separates top- and bottom-side parts, a "Find part" list, hover tooltips,
+ * click-to-select and an info line for the selected part.
+ *
+ * three.js is self-hosted (npm) and loaded only when the viewer scrolls near.
+ */
+import { statSync } from "node:fs";
+import { assetUrl, publicFileExists } from "../lib/urls";
+
+export interface Props {
+  models: { label: string; src: string }[];
+  title: string;
+}
+
+const { models, title } = Astro.props;
+const mb = (src: string) => {
+  try {
+    return (statSync(new URL(`../../public/${src.replace(/^\//, "")}`, import.meta.url)).size / 1048576).toFixed(1);
+  } catch {
+    return null;
+  }
+};
+const boards = models
+  .filter((m) => publicFileExists(m.src))
+  .map((m) => ({ label: m.label, src: assetUrl(m.src), size: mb(m.src) }));
+const first = boards[0];
+---
+
+{first && (
+  <section class="bv" aria-labelledby="bv-heading" data-bv data-title={title}>
+    <div class="bv__head">
+      <h2 class="bv__title" id="bv-heading">Interactive 3D board</h2>
+      {boards.length > 1 && (
+        <div class="bv__tabs" role="tablist" aria-label="Choose a board">
+          {boards.map((b, i) => (
+            <button type="button" role="tab" class="bv__tab" aria-selected={i === 0 ? "true" : "false"} data-src={b.src} data-size={b.size} data-label={b.label}>
+              {b.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="bv__frame">
+      <div class="bv__bar">
+        <div class="bv__group" role="group" aria-label="Camera view">
+          <button type="button" class="bv__btn" data-view="iso">3D</button>
+          <button type="button" class="bv__btn" data-view="top">Top</button>
+          <button type="button" class="bv__btn" data-view="bottom">Bottom</button>
+          <button type="button" class="bv__btn" data-view="front">Front</button>
+        </div>
+        <div class="bv__group" role="group" aria-label="Zoom">
+          <button type="button" class="bv__btn bv__btn--icon" data-zoom="in" aria-label="Zoom in">+</button>
+          <button type="button" class="bv__btn bv__btn--icon" data-zoom="out" aria-label="Zoom out">−</button>
+        </div>
+        <label class="bv__explode">
+          <span>Explode</span>
+          <input type="range" min="0" max="1" step="0.01" value="0" data-explode />
+        </label>
+        <label class="bv__find">
+          <span>Find part</span>
+          <select data-find disabled>
+            <option value="">Select a component…</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="bv__stage" data-stage data-src={first.src} data-size={first.size}>
+        <div class="bv__tip" data-tip aria-hidden="true"></div>
+        <p class="bv__load" data-load>
+          The 3D model loads when you scroll here{first.size && ` (${first.size} MB)`}.
+        </p>
+        <p class="bv__hint" aria-hidden="true">Drag: rotate · Ctrl + wheel / pinch: zoom · Right-drag: pan · Click: select</p>
+      </div>
+
+      <p class="bv__info" data-info aria-live="polite">
+        Hover or click a component to identify it. Use <em>Bottom</em> or the explode slider to see the parts on the back.
+      </p>
+    </div>
+    <p class="bv__cap" data-cap></p>
+  </section>
+)}
+
+<script>
+  type Bom = { name?: string; value?: string; footprint?: string; mpn?: string; maker?: string };
+  type PartData = { ref: string; side: "top" | "bottom"; h: number; bom?: Bom };
+
+  const host = document.querySelector<HTMLElement>("[data-bv]");
+  if (host) initViewer(host);
+
+  function initViewer(host: HTMLElement) {
+    const stage = host.querySelector<HTMLElement>("[data-stage]")!;
+    const load = host.querySelector<HTMLElement>("[data-load]")!;
+    const tip = host.querySelector<HTMLElement>("[data-tip]")!;
+    const info = host.querySelector<HTMLElement>("[data-info]")!;
+    const cap = host.querySelector<HTMLElement>("[data-cap]")!;
+    const find = host.querySelector<HTMLSelectElement>("[data-find]")!;
+    const explode = host.querySelector<HTMLInputElement>("[data-explode]")!;
+    const DEFAULT_INFO = info.innerHTML;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let api: Awaited<ReturnType<typeof start>> | null = null;
+    let current = stage.dataset.src!;
+
+    const io = new IntersectionObserver(
+      (es) => {
+        if (es.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          start().then((a) => { api = a; a?.load(current); });
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    io.observe(stage);
+
+    host.querySelectorAll<HTMLButtonElement>(".bv__tab").forEach((tab) =>
+      tab.addEventListener("click", () => {
+        host.querySelectorAll(".bv__tab").forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
+        current = tab.dataset.src!;
+        explode.value = "0";
+        if (api) api.load(current);
+      }),
+    );
+
+    async function start() {
+      load.textContent = "Loading 3D model…";
+      const [THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }] = await Promise.all([
+        import("three"),
+        import("three/addons/loaders/GLTFLoader.js"),
+        import("three/addons/controls/OrbitControls.js"),
+        import("three/addons/environments/RoomEnvironment.js"),
+      ]);
+
+      let renderer: InstanceType<typeof THREE.WebGLRenderer>;
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      } catch {
+        load.textContent = "This browser cannot show WebGL 3D.";
+        return null;
+      }
+      renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+      renderer.toneMapping = THREE.NeutralToneMapping;
+      renderer.toneMappingExposure = 1.05;
+      renderer.domElement.setAttribute("role", "img");
+      renderer.domElement.setAttribute("aria-label", `Interactive 3D model of the ${host.dataset.title} PCB`);
+      stage.prepend(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+      scene.environmentIntensity = 0.55;
+      const key = new THREE.DirectionalLight(0xffffff, 1.6);
+      key.position.set(1, 2, 1.4);
+      scene.add(key, new THREE.HemisphereLight(0xffffff, 0x404050, 0.6));
+
+      const cam = new THREE.PerspectiveCamera(35, 1, 0.001, 50);
+      const controls = new OrbitControls(cam, renderer.domElement);
+      controls.enableDamping = !reduce;
+      controls.dampingFactor = 0.08;
+      controls.zoomSpeed = 0.8;
+      // Plain wheel scrolls the page; Ctrl/⌘ + wheel zooms the board.
+      stage.addEventListener("wheel", (e) => { if (!e.ctrlKey && !e.metaKey) e.stopPropagation(); }, { capture: true });
+
+      const accent = new THREE.Color(getComputedStyle(host).getPropertyValue("--accent").trim() || "#ff5a8a");
+      const loader = new GLTFLoader();
+      let model: InstanceType<typeof THREE.Object3D> | null = null;
+      let parts = new Map<string, { obj: InstanceType<typeof THREE.Object3D>; data: PartData; base: number; mats: any[] }>();
+      let pickables: InstanceType<typeof THREE.Object3D>[] = [];
+      let D = 0.15;
+      let diagMm = 100;
+      let selected = new Set<string>();
+      let hovered: string | null = null;
+      let fly: { from: any; to: any; t0: number; tgt: any } | null = null;
+      // Board frame: +Y = up from the top side, −Z = top edge of the 2D layout.
+      const VIEWS = {
+        iso: [0.38, 0.62, 0.72],
+        top: [0, 0.985, 0.02],
+        bottom: [0, -0.985, -0.02],
+        front: [0, 0.16, 1],
+      } satisfies Record<string, [number, number, number]>;
+      type View = keyof typeof VIEWS;
+
+      const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+      const partName = (d: PartData) => d.bom?.mpn || d.bom?.name || d.bom?.value || "";
+      const label = (d: PartData) => [d.ref, partName(d), d.side === "bottom" ? "bottom side" : ""].filter(Boolean).join(" · ");
+      // BOM manufacturer names are often Chinese-only (LCSC); show Latin names only.
+      const latin = (s?: string) => (s && /[A-Za-z]/.test(s) ? s.replace(/[　-鿿（）]+/g, "").replace(/\(\s*\)/g, "").trim() : "");
+      const describe = (d: PartData) => {
+        const b = { ...d.bom, maker: latin(d.bom?.maker) };
+        const bits = [
+          b.name && b.name !== b.mpn ? esc(b.name) : "",
+          b.value && b.value !== b.name ? `value ${esc(b.value)}` : "",
+          b.mpn ? `part <code>${esc(b.mpn)}</code>${b.maker ? ` (${esc(b.maker)})` : ""}` : "",
+          b.footprint ? `footprint <code>${esc(b.footprint)}</code>` : "",
+          `${d.side} side`,
+        ].filter(Boolean);
+        return `<b>${esc(d.ref)}</b> — ${bits.join(" · ")}`;
+      };
+      const category = (ref: string) => {
+        const p = ref.replace(/[^A-Za-z].*$/, "").toUpperCase();
+        if (/^(U|IC|MOD|M|GPS|ESP|OLED|LCD|TFT)$/.test(p)) return "ICs and modules";
+        if (/^(R|RN|C|L|FB)$/.test(p)) return "Resistors, capacitors, inductors";
+        if (/^(D|LED|Q|ZD|TVS|F)$/.test(p)) return "Diodes, LEDs, transistors";
+        if (/^(J|CN|P|USB|H|HDR|CON|JP|BAT|B)$/.test(p)) return "Connectors and battery";
+        if (/^(SW|K|KEY|BTN|S|BUZ|BZ)$/.test(p)) return "Switches and buzzers";
+        if (/^(X|Y|XTAL)$/.test(p)) return "Crystals";
+        return "Other parts";
+      };
+
+      function dispose(o: InstanceType<typeof THREE.Object3D>) {
+        o.traverse((c: any) => {
+          c.geometry?.dispose();
+          [].concat(c.material ?? []).forEach((m: any) => { m.map?.dispose(); m.dispose(); });
+        });
+      }
+
+      function frame() {
+        const box = new THREE.Box3().setFromObject(model!);
+        const size = box.getSize(new THREE.Vector3());
+        // Step back further on narrow (phone) stages so the whole board fits.
+        D = (Math.hypot(size.x, size.z) * 0.95 + size.y * 0.6) * Math.max(1, 1.7 / (cam.aspect || 1.7));
+        cam.near = D / 200; cam.far = D * 20; cam.updateProjectionMatrix();
+        controls.target.set(0, 0, 0);
+        controls.minDistance = D * 0.15; controls.maxDistance = D * 3;
+        cam.position.set(...(VIEWS.iso.map((v) => v * D) as [number, number, number]));
+        controls.update();
+      }
+
+      async function loadModel(src: string) {
+        load.hidden = false;
+        load.textContent = "Loading 3D model…";
+        find.disabled = true;
+        let gltf;
+        try {
+          gltf = await loader.loadAsync(src);
+        } catch {
+          load.textContent = "The 3D model could not be loaded.";
+          return;
+        }
+        if (src !== current) return; // a different tab was chosen meanwhile
+        if (model) { scene.remove(model); dispose(model); }
+        model = gltf.scene;
+        // Centre the board on the origin (the STEP keeps EasyEDA's coordinates).
+        const pcb = model.getObjectByName("Board") ?? model;
+        const c = new THREE.Box3().setFromObject(pcb).getCenter(new THREE.Vector3());
+        model.position.sub(c);
+        scene.add(model);
+
+        parts = new Map(); pickables = []; selected = new Set(); hovered = null;
+        const seen = new Set<unknown>();
+        model.traverse((o: any) => {
+          if (o.userData?.ref && !parts.has(o.userData.ref)) {
+            const mats: any[] = [];
+            o.traverse((m: any) => {
+              if (m.isMesh) {
+                m.material = m.material.clone();   // own material so highlight is per part
+                mats.push(m.material);
+                pickables.push(m);
+                seen.add(m);
+              }
+            });
+            parts.set(o.userData.ref, { obj: o, data: o.userData as PartData, base: o.position.z, mats });
+          } else if (o.isMesh && !seen.has(o)) {
+            // bare-board meshes are pickable too, for the "Bare PCB" tooltip
+            pickables.push(o);
+            seen.add(o);
+          }
+        });
+
+        // Find-part list grouped by kind, natural order.
+        find.innerHTML = '<option value="">Select a component…</option>';
+        const groups = new Map<string, string[]>();
+        [...parts.keys()].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).forEach((r) => {
+          const g = category(r);
+          groups.set(g, [...(groups.get(g) ?? []), r]);
+        });
+        [...groups.entries()].sort().forEach(([g, refs]) => {
+          const og = document.createElement("optgroup");
+          og.label = g;
+          refs.forEach((r) => {
+            const op = document.createElement("option");
+            op.value = r;
+            op.textContent = label(parts.get(r)!.data);
+            og.append(op);
+          });
+          find.append(og);
+        });
+        find.disabled = parts.size === 0;
+
+        const mm = model.userData?.boardMm ?? model.children[0]?.userData?.boardMm;
+        diagMm = mm ? Math.hypot(mm[0], mm[1]) : 100;
+        cap.textContent = `Converted from the project's STEP file: ${parts.size} placed parts${mm ? `, board ${mm[0]} × ${mm[1]} × ${mm[2]} mm` : ""}.`;
+        info.innerHTML = DEFAULT_INFO;
+        frame();
+        setExplode(0);
+        load.hidden = true;
+      }
+
+      function paint() {
+        parts.forEach((p, r) => {
+          const on = selected.has(r), hov = r === hovered;
+          p.mats.forEach((m) => {
+            if (!m.emissive) return;
+            m.emissive.copy(accent).multiplyScalar(on ? 0.55 : hov ? 0.22 : 0);
+          });
+        });
+      }
+
+      function showInfo(r?: string | null) {
+        const list = r ? [r] : [...selected];
+        info.innerHTML = list.length ? list.map((x) => describe(parts.get(x)!.data)).join("<br>") : DEFAULT_INFO;
+      }
+
+      function setExplode(k: number) {
+        // Part nodes live in the board's own frame (mm, Z = up from the top side).
+        parts.forEach((p) => {
+          const lift = diagMm * 0.14 + (p.data.h ?? 2) * 0.9;
+          p.obj.position.z = p.base + (p.data.side === "bottom" ? -1 : 1) * k * lift;
+        });
+      }
+
+      function goTo(view: View) {
+        const to = new THREE.Vector3(...VIEWS[view]).multiplyScalar(D);
+        if (reduce) { cam.position.copy(to); controls.target.set(0, 0, 0); controls.update(); return; }
+        fly = { from: cam.position.clone(), to, t0: performance.now(), tgt: controls.target.clone() };
+      }
+
+      function select(r: string | null) {
+        selected = r ? new Set([r]) : new Set();
+        find.value = r ?? "";
+        const p = r ? parts.get(r) : null;
+        if (p && p.data.side === "bottom") goTo("bottom");
+        paint();
+        showInfo();
+      }
+
+      // Toolbar
+      host.querySelectorAll<HTMLButtonElement>("[data-view]").forEach((b) => b.addEventListener("click", () => goTo(b.dataset.view as View)));
+      const zoom = (f: number) => {
+        const d = cam.position.clone().sub(controls.target);
+        d.setLength(Math.min(controls.maxDistance, Math.max(controls.minDistance, d.length() * f)));
+        cam.position.copy(controls.target).add(d);
+        controls.update();
+      };
+      host.querySelector("[data-zoom=in]")!.addEventListener("click", () => zoom(1 / 1.25));
+      host.querySelector("[data-zoom=out]")!.addEventListener("click", () => zoom(1.25));
+      explode.addEventListener("input", () => setExplode(+explode.value));
+      find.addEventListener("change", () => select(find.value || null));
+
+      // Picking
+      const ray = new THREE.Raycaster();
+      const ptr = new THREE.Vector2();
+      let pending: PointerEvent | null = null;
+      let down: { x: number; y: number } | null = null;
+      const refOf = (o: any): string | null => { while (o) { if (o.userData?.ref) return o.userData.ref; o = o.parent; } return null; };
+      const pick = (e: PointerEvent) => {
+        const r = renderer.domElement.getBoundingClientRect();
+        ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+        ray.setFromCamera(ptr, cam);
+        const hit = ray.intersectObjects(pickables, false)[0];
+        return hit ? refOf(hit.object) ?? "Board" : null;
+      };
+      renderer.domElement.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pending = e; });
+      renderer.domElement.addEventListener("pointerleave", () => { pending = null; hovered = null; tip.style.opacity = "0"; paint(); showInfo(); });
+      renderer.domElement.addEventListener("pointerdown", (e) => { down = { x: e.clientX, y: e.clientY }; });
+      renderer.domElement.addEventListener("pointerup", (e) => {
+        if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
+        const r = pick(e);
+        if (r && r !== "Board") select(selected.has(r) && selected.size === 1 ? null : r);
+        else if (!r) select(null);
+      });
+      function hover() {
+        if (!pending) return;
+        const e = pending; pending = null;
+        const r = pick(e);
+        const part = r && r !== "Board" ? r : null;
+        if (part !== hovered) { hovered = part; paint(); showInfo(part); }
+        if (r) {
+          const b = stage.getBoundingClientRect();
+          tip.textContent = part ? label(parts.get(part)!.data) : "Bare PCB";
+          tip.style.opacity = "1";
+          tip.style.left = `${Math.max(4, Math.min(b.width - 260, e.clientX - b.left + 14))}px`;
+          tip.style.top = `${Math.min(b.height - 44, e.clientY - b.top + 14)}px`;
+        } else tip.style.opacity = "0";
+      }
+
+      // Size + render loop (paused while off-screen)
+      function size() {
+        const w = stage.clientWidth, h = stage.clientHeight;
+        if (!w) return;
+        renderer.setSize(w, h, false);
+        cam.aspect = w / h; cam.updateProjectionMatrix();
+      }
+      size();
+      new ResizeObserver(size).observe(stage);
+      let visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(stage);
+      renderer.setAnimationLoop((now: number) => {
+        if (!visible || !model) return;
+        if (fly) {
+          const k = Math.min(1, (now - fly.t0) / 450), s = k * k * (3 - 2 * k);
+          cam.position.lerpVectors(fly.from, fly.to, s);
+          controls.target.lerpVectors(fly.tgt, new THREE.Vector3(), s);
+          if (k >= 1) fly = null;
+        }
+        hover();
+        controls.update();
+        renderer.render(scene, cam);
+      });
+
+      return { load: loadModel };
+    }
+  }
+</script>
+
+<style>
+  .bv__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .bv__title {
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  .bv__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .bv__tab,
+  .bv__btn {
+    font: 500 var(--fs-14) / 1 var(--font-body);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: var(--space-2) var(--space-4);
+    cursor: pointer;
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  }
+
+  .bv__tab:hover,
+  .bv__btn:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  .bv__tab[aria-selected="true"] {
+    color: var(--text-on-accent);
+    background: var(--gradient-button);
+    border-color: transparent;
+  }
+
+  .bv__frame {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .bv__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elevated);
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+  }
+
+  .bv__group {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .bv__btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8125rem;
+  }
+
+  .bv__btn--icon {
+    width: 2rem;
+    padding-inline: 0;
+    font-family: var(--font-mono);
+  }
+
+  .bv__explode,
+  .bv__find {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+
+  .bv__explode input {
+    width: 7rem;
+    accent-color: var(--accent);
+  }
+
+  .bv__find {
+    margin-left: auto;
+    min-width: 0;
+  }
+
+  .bv__find select {
+    font: 0.8125rem var(--font-body);
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.35rem 0.5rem;
+    max-width: 18rem;
+  }
+
+  .bv__stage {
+    position: relative;
+    height: clamp(360px, 56vw, 540px);
+    background:
+      radial-gradient(ellipse 65% 60% at 50% 45%, var(--accent-glow), transparent 70%),
+      radial-gradient(circle at 50% 40%, var(--bg-elevated), var(--bg-surface) 75%);
+  }
+
+  .bv__stage :global(canvas) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+  }
+
+  .bv__stage :global(canvas:active) {
+    cursor: grabbing;
+  }
+
+  .bv__load {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: var(--space-4);
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    color: var(--text-muted);
+  }
+
+  .bv__load[hidden] {
+    display: none;
+  }
+
+  .bv__tip {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    max-width: 260px;
+    padding: 0.3rem 0.55rem;
+    border-radius: var(--radius-sm);
+    background: var(--text-primary);
+    color: var(--text-inverse);
+    font: 0.75rem/1.4 var(--font-body);
+    opacity: 0;
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+
+  .bv__hint {
+    position: absolute;
+    left: var(--space-3);
+    bottom: var(--space-2);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .bv__info {
+    margin: 0;
+    min-height: 3.2em;
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border);
+    background: var(--bg-elevated);
+    font-size: var(--fs-14);
+    line-height: 1.55;
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+  }
+
+  .bv__info :global(b) {
+    color: var(--text-primary);
+  }
+
+  .bv__info :global(code) {
+    font-size: 0.8em;
+  }
+
+  .bv__cap {
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 680px) {
+    .bv__find {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .bv__find select {
+      flex: 1;
+      max-width: none;
+    }
+
+    .bv__hint {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bv__tip {
+      transition: none;
+    }
+  }
+</style>

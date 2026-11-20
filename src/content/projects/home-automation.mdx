@@ -9,62 +9,18 @@ gallery:
     alt: "3D render of the 4-Channel Relay V1 board with ESP32 module, four relays and the AC-DC module"
     kind: "render"
     caption: "4-Channel Relay V1: 3D render"
-  - src: "/images/projects/home-automation/4ch-v1-pcb-top.webp"
-    alt: "Top-side PCB view of the 4-Channel Relay V1 board"
-    kind: "pcb"
-    caption: "4-Channel Relay V1: PCB top view"
-  - src: "/images/projects/home-automation/4ch-v1-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the 4-Channel Relay V1 board"
-    kind: "pcb"
-    caption: "4-Channel Relay V1: PCB bottom view"
-  - src: "/images/projects/home-automation/4ch-v1-top2d.webp"
-    alt: "2D top-layer layout of the 4-Channel Relay V1 board"
-    kind: "2d"
-    caption: "4-Channel Relay V1: 2D top layer"
-  - src: "/images/projects/home-automation/4ch-v1-bottom2d.webp"
-    alt: "2D bottom-layer layout of the 4-Channel Relay V1 board"
-    kind: "2d"
-    caption: "4-Channel Relay V1: 2D bottom layer"
   - src: "/images/projects/home-automation/6ch-v2-1-render3d.webp"
     alt: "3D render of the 6-Channel Relay V2.1 board with six relays and the HLK-PM01 supply module"
     kind: "render"
     caption: "6-Channel Relay V2.1: 3D render"
-  - src: "/images/projects/home-automation/6ch-v2-1-pcb-top.webp"
-    alt: "Top-side PCB view of the 6-Channel Relay V2.1 board"
-    kind: "pcb"
-    caption: "6-Channel Relay V2.1: PCB top view"
-  - src: "/images/projects/home-automation/6ch-v2-1-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the 6-Channel Relay V2.1 board"
-    kind: "pcb"
-    caption: "6-Channel Relay V2.1: PCB bottom view"
-  - src: "/images/projects/home-automation/6ch-v2-1-top2d.webp"
-    alt: "2D top-layer layout of the 6-Channel Relay V2.1 board"
-    kind: "2d"
-    caption: "6-Channel Relay V2.1: 2D top layer"
-  - src: "/images/projects/home-automation/6ch-v2-1-bottom2d.webp"
-    alt: "2D bottom-layer layout of the 6-Channel Relay V2.1 board"
-    kind: "2d"
-    caption: "6-Channel Relay V2.1: 2D bottom layer"
   - src: "/images/projects/home-automation/6ch-v2-2-render3d.webp"
     alt: "3D render of the 6-Channel Relay V2.2 board with six relays and the HLK-10M05T supply module"
     kind: "render"
     caption: "6-Channel Relay V2.2: 3D render"
-  - src: "/images/projects/home-automation/6ch-v2-2-pcb-top.webp"
-    alt: "Top-side PCB view of the 6-Channel Relay V2.2 board"
-    kind: "pcb"
-    caption: "6-Channel Relay V2.2: PCB top view"
-  - src: "/images/projects/home-automation/6ch-v2-2-pcb-bottom.webp"
-    alt: "Bottom-side PCB view of the 6-Channel Relay V2.2 board"
-    kind: "pcb"
-    caption: "6-Channel Relay V2.2: PCB bottom view"
-  - src: "/images/projects/home-automation/6ch-v2-2-top2d.webp"
-    alt: "2D top-layer layout of the 6-Channel Relay V2.2 board"
-    kind: "2d"
-    caption: "6-Channel Relay V2.2: 2D top layer"
-  - src: "/images/projects/home-automation/6ch-v2-2-bottom2d.webp"
-    alt: "2D bottom-layer layout of the 6-Channel Relay V2.2 board"
-    kind: "2d"
-    caption: "6-Channel Relay V2.2: 2D bottom layer"
+  - src: "/images/projects/home-automation/dashboard.webp"
+    alt: "Relay Control web dashboard with status cards (Currently On, Device IP, WiFi Signal, Uptime), All ON, All OFF and Restart Device buttons, and six relay cards, each with an on/off toggle, trigger and on-time statistics, View Log and Reset Stats buttons, an auto-off timer and a daily on/off schedule"
+    kind: "dashboard"
+    caption: "Web dashboard served by the firmware, shown before any data arrives (6-channel relay board)"
 models:
   - label: "4-Channel Relay V1"
     src: "/models/home-automation/4ch-v1.glb"
@@ -96,30 +52,11 @@ order: 12
 draft: false
 ---
 
-## Objective
+## Overview
 
 These boards bring Wi-Fi and wall-switch control to household mains loads such as lights, fans and sockets. Each one is a through-hole PCB built around an ESP32 module that runs a self-hosted web server, so it needs no cloud service, smartphone app or subscription: only the local Wi-Fi network and a browser.
 
 The design exists in three revisions: a 4-channel board (V1) and two 6-channel boards (V2.1 and V2.2). All three share the same core: an onboard AC-DC supply, an isolated relay drive per channel, physical switch inputs and USB-C programming.
-
-## Key Components
-
-| Component | Ref | Role |
-|---|---|---|
-| Ai-Thinker ESP32-S Wi-Fi and Bluetooth module | U9 | Main controller: web dashboard, relay and switch logic |
-| HLK-10M05T AC-DC module | U5 (V1), U11 (V2.2) | Onboard mains-to-5 V supply |
-| HLK-PM01 AC-DC module | U11 (V2.1) | Onboard mains-to-5 V supply on V2.1 |
-| AMS1117-3.3V LDO | U10 | 5 V to 3.3 V rail for the ESP32 logic |
-| SRD-24VDC-SL-C relay | RLY1–RLY4 (V1), RLY1–RLY6 (V2.x) | Switches the AC loads |
-| PC817C optocoupler | U1–U4 (V1), U1–U6 (V2.x) | Galvanic isolation between the logic and relay-coil side |
-| 2N2222A NPN transistor | Q1–Q4 (V1), Q1–Q6 (V2.x) | Relay coil driver |
-| 1N4007 diode | D1–D4 (V1), D1–D6 (V2.x) | Flyback protection across each relay coil |
-| CH340C USB-to-UART | U8 | Programming and serial console over USB-C |
-| USB-C 16-pin receptacle | USB1 | Programming port |
-| USBLC6-2SC6 | D5 (V1), D7 (V2.2) | USB ESD protection |
-| 14D121K varistor (MOV) | R11 (V1), R33 (V2.2) | Basic mains surge suppression |
-| DB128 5.08 mm pluggable terminal blocks | CN1, CN4 (V1); CN2, CN4 (V2.1); CN1, CN2, CN4 (V2.2) | Relay-output, wall-switch and ground terminals |
-| Passives | R1–R33, C1–C20 | Channel and LED resistors, 10 kΩ switch pull-ups, decoupling and bulk capacitors |
 
 ## Features
 
@@ -133,42 +70,3 @@ The design exists in three revisions: a 4-channel board (V1) and two 6-channel b
 - Master All-ON, All-OFF and Restart controls, plus a KPI row showing relays on, device IP, Wi-Fi RSSI and uptime.
 - Wi-Fi credentials entered once over the serial monitor and saved to NVS; static IP by default with DHCP fallback.
 - MOV surge suppression on the mains input and ESD protection on USB (V1 and V2.2).
-
-## Hardware Design
-
-### Power
-
-Mains (220 V AC) enters through a screw terminal and feeds an onboard Hi-Link AC-DC module that produces 5 V for the relay coils. An AMS1117-3.3 LDO derives the 3.3 V rail for the ESP32, the logic side of the optocouplers and the CH340C. V1 and V2.2 use the HLK-10M05T module and add a 14D121K varistor across the input; V2.1 uses the HLK-PM01 and has no varistor in its BOM.
-
-### Relay channels
-
-Every channel uses the same isolated drive path: an ESP32 GPIO, a PC817C optocoupler that separates the 3.3 V logic from the relay-coil side, a 2N2222A transistor that switches the coil, and a 1N4007 flyback diode that clamps back-EMF when the coil turns off. A per-channel LED shows the relay state.
-
-### Wall-switch inputs
-
-On V1 the four switch inputs use GPIO 36, 39, 34 and 35. These are input-only pins with no internal pull-up, so the board fits 10 kΩ pull-ups (R27–R30) to 3.3 V. On V2.1 the six inputs use GPIO 33, 32, 35, 34, 14 and 15: GPIO 34 and 35 get external 10 kΩ pull-ups and the others use the ESP32's internal pull-ups. In the V2.1 firmware every debounced change of a switch toggles its relay, so the wall switch and the dashboard can share control of a relay without fighting each other.
-
-### Programming and expansion
-
-USB-C connects through a CH340C USB-to-UART bridge, with BOOT (GPIO0) and RESET (EN) buttons for flash mode. Every revision also has a 4-pin UART TTL header (RX, TX, GND, 3V3) and an I²C header on IO21/IO22. V1 adds a spare-GPIO header (IO25–IO27), and V2.1 adds a 6-pin SPI header (IO27, IO18, IO19, IO23, GND, 3V3).
-
-### Revision differences
-
-| | 4-Channel Relay V1 | 6-Channel Relay V2.1 | 6-Channel Relay V2.2 |
-|---|---|---|---|
-| Relay channels | 4 | 6 | 6 |
-| AC-DC module | HLK-10M05T | HLK-PM01 | HLK-10M05T |
-| Mains varistor | 14D121K (R11) | Not in BOM | 14D121K (R33) |
-| USB ESD protection | USBLC6-2SC6 (D5) | Not in BOM | USBLC6-2SC6 (D7) |
-| Relay outputs documented | NO1–NO4 | NC and NO per relay | NO1–NO6 |
-| Extra headers documented | I²C, UART TTL, spare GPIO | SPI, I²C, UART TTL | I²C, UART TTL |
-| Extra parts | None | DC-005 barrel jack labelled 5V | None |
-| Firmware in project folder | 1 sketch | 2 sketches | None yet |
-
-## Outcome
-
-Each revision has a complete fabrication package in its project folder: schematic PDF, editable EasyEDA Pro project, Gerber files, BOM with a pricing sheet, pick-and-place file and a 3D STEP model. V1 and V2.2 also include a GPIO pinout PDF, and V2.1 a pinout document.
-
-Firmware is written for the Arduino ESP32 core using only built-in libraries (WiFi, WebServer, Preferences, time). V1 has a 4-channel sketch with wall-switch support. V2.1 has two 6-channel sketches: a dashboard-only version and a full version with wall switches. No firmware is in the V2.2 folder yet; its documentation points to the pinout PDF for the GPIO mapping.
-
-Documented limitations: on V2.1, relay 5 is driven from GPIO12, an ESP32 strapping pin that may interfere with boot if the line idles HIGH, and the documentation recommends swapping it if unstable. The V1 documentation states the design is for prototyping and has not received CE, UL or equivalent certification, and that the varistor does not replace proper earthing or upstream surge protection.

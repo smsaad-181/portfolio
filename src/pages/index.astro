@@ -3,8 +3,10 @@
  * Homepage — /
  * Hero in Saad's chosen style: "Hello, I'm", gradient name, role pill, bio
  * with underlined highlights, flowing line-art and glows, and his cut-out
- * portrait on the right fading into the page. Then featured projects
- * (CMS-controlled via `featured` + `order`), skills and the CV call-to-action.
+ * portrait on the right fading into the page, professional links and real
+ * counts (published projects, boards in 3D). Then "About me" (profile.about,
+ * from Saad's GitHub profile, plus his current role), featured projects
+ * (CMS-controlled via `featured` + `order`), skills + tools and the CV CTA.
  *
  * Portrait: src/assets/profile/portrait.{png,webp,jpg} — a transparent-
  * background cut-out looks best. Optimised by Astro's <Image />.
@@ -17,7 +19,7 @@ import SkillBar from "@components/SkillBar.astro";
 import ResumeButton from "@components/ResumeButton.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
-import { getFeaturedProjects } from "../lib/projects";
+import { getFeaturedProjects, getPublishedProjects } from "../lib/projects";
 import { getProfile } from "../lib/profile";
 import { pageUrl, projectUrl } from "../lib/urls";
 
@@ -25,7 +27,30 @@ const profile = await getProfile();
 const featured = await getFeaturedProjects();
 const allSkills = await getCollection("skills");
 const currentJob = (await getCollection("experience")).find((e) => e.data.current);
-const stats = profile.data.stats ?? [];
+const published = await getPublishedProjects();
+const boardCount = published.reduce((n, p) => n + p.data.models.length, 0);
+// Real counts from the content unless Saad has entered his own stats.
+const stats = profile.data.stats?.length
+  ? profile.data.stats
+  : [
+      { value: String(published.length), label: "PCB projects" },
+      { value: String(boardCount), label: "boards in interactive 3D" },
+    ];
+const about = profile.data.about ?? [];
+const tools = profile.data.tools ?? [];
+const sinceYear = currentJob ? new Date(currentJob.data.startDate).getFullYear() : null;
+const social = [
+  profile.data.socialLinks.linkedin && { label: "LinkedIn", href: profile.data.socialLinks.linkedin, icon: "linkedin" },
+  profile.data.socialLinks.github && { label: "GitHub", href: profile.data.socialLinks.github, icon: "github" },
+  profile.data.socialLinks.oshwlab && { label: "OSHWLab", href: profile.data.socialLinks.oshwlab, icon: "oshwlab" },
+  { label: "Email", href: `mailto:${profile.data.email}`, icon: "email" },
+].filter((l): l is { label: string; href: string; icon: string } => Boolean(l));
+const ICONS: Record<string, string> = {
+  linkedin: "M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.75h4v11H3v-11Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.6 4.77 6v5.46h-4v-4.84c0-1.15-.02-2.64-1.6-2.64-1.62 0-1.86 1.26-1.86 2.56v4.92h-4v-11Z",
+  github: "M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.58.23 2.75.11 3.04.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z",
+  oshwlab: "M7 3h10v2h2v2h2v2h-2v2h2v2h-2v2h2v2h-2v2h-2v2H7v-2H5v-2H3v-2h2v-2H3v-2h2V9H3V7h2V5h2V3Zm2 4v10h6V7H9Z",
+  email: "M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2.4V17h16V7.4l-8 5.3-8-5.3ZM5.2 7 12 11.5 18.8 7H5.2Z",
+};
 
 // Portrait — first match wins.
 const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
@@ -117,13 +142,35 @@ const city = profile.data.location.split(",")[0];
           I design PCBs, write embedded firmware and build IoT products, taking
           an idea from the <span class="u">first schematic</span> to a
           <span class="u">working board</span>.
-          {currentJob && <>Currently at {currentJob.data.company} in {city}.</>}
         </p>
+
+        {currentJob && (
+          <p class="hero__now">
+            <span class="hero__now-dot" aria-hidden="true"></span>
+            <span>{currentJob.data.role} at <strong>{currentJob.data.company}</strong> · {city}</span>
+          </p>
+        )}
 
         <div class="hero__actions">
           <a href={pageUrl("/projects/")} class="btn btn--primary">View projects</a>
           <ResumeButton variant="secondary" />
         </div>
+
+        <ul class="hero__social" role="list" aria-label="Contact and profiles">
+          {social.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                class="hero__social-link"
+                aria-label={l.href.startsWith("mailto") ? `Email ${profile.data.email}` : `${l.label} (opens in new tab)`}
+                target={l.href.startsWith("mailto") ? undefined : "_blank"}
+                rel={l.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d={ICONS[l.icon]} /></svg>
+              </a>
+            </li>
+          ))}
+        </ul>
 
         {stats.length > 0 && (
           <dl class="hero__stats">
@@ -143,8 +190,9 @@ const city = profile.data.location.split(",")[0];
           <Image
             src={portrait}
             alt={`${profile.data.name}, ${profile.data.title}`}
-            widths={[360, 540, 720, 1080]}
-            sizes="(max-width: 900px) 340px, 600px"
+            widths={[400, 600, 800, 1000, 1200]}
+            sizes="(max-width: 900px) 340px, 560px"
+            quality={90}
             loading="eager"
             fetchpriority="high"
             class="hero__photo"
@@ -158,6 +206,35 @@ const city = profile.data.location.split(",")[0];
     </div>
   </section>
 
+  <!-- ── About me (from Saad's GitHub profile) ────────────────────────────── -->
+  {about.length > 0 && (
+    <section class="section" aria-labelledby="about-heading">
+      <div class="container about">
+        <div class="about__intro">
+          <SectionHeading label="// about me" title="Hardware, end to end" id="about-heading" />
+          <p class="about__text">{profile.data.summary}</p>
+          {currentJob && (
+            <div class="about__role">
+              <p class="about__role-label">Current role{sinceYear && ` · since ${sinceYear}`}</p>
+              <p class="about__role-title">{currentJob.data.role}</p>
+              <p class="about__role-company">{currentJob.data.company}</p>
+            </div>
+          )}
+          <a href={pageUrl("/about/")} class="about__more">More about me <span aria-hidden="true">→</span></a>
+        </div>
+        <ul class="about__cards" role="list">
+          {about.map((a, i) => (
+            <li class="about__card">
+              <span class="about__card-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+              <h3 class="about__card-title">{a.label}</h3>
+              <p class="about__card-text">{a.value}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
   <!-- ── Featured projects ───────────────────────────────────────────────── -->
   {featured.length > 0 && (
     <section class="section" aria-labelledby="featured-heading">
@@ -166,7 +243,7 @@ const city = profile.data.location.split(",")[0];
           label="// selected work"
           title="Featured Projects"
           id="featured-heading"
-          description="Hardware builds, firmware deep-dives, and IoT systems — each one a real debugging story."
+          description="Boards I designed in EasyEDA Pro. Open any project to turn the PCB around in 3D and identify every part."
         />
         <div class="projects-grid">
           {featured.map((project) => (
@@ -212,6 +289,14 @@ const city = profile.data.location.split(",")[0];
           </div>
         ))}
       </div>
+      {tools.length > 0 && (
+        <div class="tools">
+          <h3 class="skills-group__title">Also in my toolbox</h3>
+          <ul class="tools__list" role="list">
+            {tools.map((t) => <li class="tools__chip">{t}</li>)}
+          </ul>
+        </div>
+      )}
     </div>
   </section>
 
@@ -253,7 +338,7 @@ const city = profile.data.location.split(",")[0];
     /* Slide under the transparent sticky nav so the art fills the top edge */
     margin-top: calc(-1 * var(--nav-height));
     padding-top: var(--nav-height);
-    min-height: min(100dvh, 860px);
+    min-height: min(100dvh, 820px);
     display: flex;
     align-items: stretch;
     background:
@@ -291,6 +376,13 @@ const city = profile.data.location.split(",")[0];
     animation: drift 22s ease-in-out infinite alternate-reverse;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .hero__waves--top,
+    .hero__waves--bottom {
+      animation: none;
+    }
+  }
+
   @keyframes drift {
     from { transform: translate3d(0, 0, 0) rotate(0deg); }
     to   { transform: translate3d(-14px, 10px, 0) rotate(-1.5deg); }
@@ -304,7 +396,7 @@ const city = profile.data.location.split(",")[0];
   }
 
   .hero__content {
-    padding-block: var(--space-16);
+    padding-block: var(--space-12);
   }
 
   .hero__greeting {
@@ -366,17 +458,70 @@ const city = profile.data.location.split(",")[0];
     padding-bottom: 2px;
   }
 
+  .hero__now {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: calc(-1 * var(--space-4)) 0 var(--space-8);
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+  }
+
+  .hero__now strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .hero__now-dot {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+  }
+
   .hero__actions {
     display: flex;
     gap: var(--space-3);
     flex-wrap: wrap;
   }
 
+  .hero__social {
+    display: flex;
+    gap: var(--space-2);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hero__social li + li {
+    margin-top: 0;
+  }
+
+  .hero__social-link {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
+    color: var(--text-secondary);
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+
+  .hero__social-link:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
   .hero__stats {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-8);
-    margin-top: var(--space-12);
+    margin-top: var(--space-8);
     padding-top: var(--space-6);
     border-top: 1px solid var(--border);
   }
@@ -423,7 +568,7 @@ const city = profile.data.location.split(",")[0];
   .hero__photo {
     display: block;
     width: 100%;
-    max-width: 600px;
+    max-width: 560px;
     height: auto;
     /* any opaque token works here — a mask only reads alpha */
     -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 80%, transparent 100%);
@@ -450,6 +595,140 @@ const city = profile.data.location.split(",")[0];
     font-size: clamp(5rem, 12vw, 8rem);
     line-height: 1;
     color: var(--text-primary);
+  }
+
+  /* About me */
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  .about__text {
+    color: var(--text-secondary);
+    line-height: 1.75;
+    margin-bottom: var(--space-6);
+    max-width: 52ch;
+  }
+
+  .about__role {
+    padding: var(--space-4) var(--space-6);
+    border-left: 3px solid var(--accent);
+    background: var(--bg-surface);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin-bottom: var(--space-6);
+  }
+
+  .about__role p {
+    margin: 0;
+  }
+
+  .about__role-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .about__role .about__role-title {
+    font-weight: 600;
+    margin-top: var(--space-1);
+  }
+
+  .about__role-company {
+    color: var(--text-secondary);
+    font-size: var(--fs-14);
+  }
+
+  .about__more {
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    font-weight: 600;
+  }
+
+  .about__cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .about__cards > li + li {
+    margin-top: 0;
+  }
+
+  .about__card {
+    position: relative;
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+  }
+
+  .about__card:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .about__card-num {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    font-weight: 600;
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+    margin-bottom: var(--space-3);
+  }
+
+  .about__card-title {
+    font-size: var(--fs-16);
+    font-weight: 600;
+    margin: 0 0 var(--space-2);
+  }
+
+  .about__card-text {
+    margin: 0;
+    font-size: var(--fs-14);
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* Tools chips under Skills */
+  .tools {
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border);
+  }
+
+  .tools__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tools__list > li + li {
+    margin-top: 0;
+  }
+
+  .tools__chip {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-elevated);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
   }
 
   /* Projects grid */
@@ -547,11 +826,20 @@ const city = profile.data.location.split(",")[0];
       width: min(220px, 60vw);
     }
 
+    .about {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+
     .hero__waves--top { width: 90%; height: 55%; }
     .hero__waves--bottom { width: 90%; height: 45%; }
   }
 
   @media (max-width: 640px) {
+    .about__cards {
+      grid-template-columns: 1fr;
+    }
+
     .cta-inner {
       padding: var(--space-6);
     }

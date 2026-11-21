@@ -1,0 +1,231 @@
+---
+/**
+ * CircuitField.astro — the site-wide animated background (Saad, 22 Nov 2026):
+ * fine PCB-style traces (90° / 45° turns, small vias and pads) across the
+ * page, with small soft "signal" pulses in the site's pink / violet / blue
+ * running along them like data on a bus. Kept small and dim on purpose
+ * (Saad: "smaller and less brightness").
+ *
+ * One fixed <canvas> behind every page (BaseLayout). The traces are drawn
+ * once into an off-screen layer; each frame only redraws that layer plus the
+ * pulses. Colours come from the --circuit-* tokens (light/dark theme).
+ * Light on purpose: starts after load + idle, fewer traces on phones, capped
+ * pixel ratio, paused in hidden tabs, a still frame for reduced motion.
+ */
+---
+
+<canvas class="circuit-field" aria-hidden="true" data-circuit></canvas>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>("[data-circuit]");
+  const ctx = canvas?.getContext("2d");
+
+  if (canvas && ctx) {
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    type Pt = { x: number; y: number };
+    type Trace = { pts: Pt[]; cum: number[]; len: number };
+    type Pulse = { t: Trace; s: number; speed: number; dir: 1 | -1; c: number; wait: number };
+
+    let W = 0, H = 0, dpr = 1, raf = 0, running = false, last = 0;
+    let traces: Trace[] = [], pulses: Pulse[] = [];
+    let layer: HTMLCanvasElement | null = null;
+    let pulseCols: string[] = [], traceRgb = "160, 120, 255", traceAlpha = 0.13, pulseAlpha = 0.6;
+    let sprites: HTMLCanvasElement[] = [];
+    const TRAIL = 60, GLOW = 10;
+
+    const readColours = () => {
+      const cs = getComputedStyle(document.documentElement);
+      pulseCols = ["--circuit-pulse-1", "--circuit-pulse-2", "--circuit-pulse-3"].map((v) => cs.getPropertyValue(v).trim() || "#ff5a8a");
+      traceRgb = cs.getPropertyValue("--circuit-trace").trim() || traceRgb;
+      traceAlpha = parseFloat(cs.getPropertyValue("--circuit-trace-alpha")) || traceAlpha;
+      pulseAlpha = parseFloat(cs.getPropertyValue("--circuit-pulse-alpha")) || pulseAlpha;
+      sprites = pulseCols.map(makeSprite);
+    };
+
+    // Small soft glow for a pulse head, drawn once per colour.
+    const makeSprite = (col: string) => {
+      const s = document.createElement("canvas");
+      s.width = s.height = GLOW * 2;
+      const g = s.getContext("2d")!;
+      const grad = g.createRadialGradient(GLOW, GLOW, 0, GLOW, GLOW, GLOW);
+      grad.addColorStop(0, col); grad.addColorStop(0.3, col); grad.addColorStop(1, "transparent");
+      g.globalAlpha = pulseAlpha; g.fillStyle = grad; g.fillRect(0, 0, GLOW * 2, GLOW * 2);
+      return s;
+    };
+
+    // ── Route traces on a grid: straight runs with 45° turns, no overlaps ──
+    const DIRS = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]] as const;
+    const build = () => {
+      const g = W < 700 ? 24 : 28;
+      const cols = Math.ceil(W / g) + 2, rows = Math.ceil(H / g) + 2;
+      const used = new Uint8Array(cols * rows);
+      const want = Math.max(14, Math.min(60, Math.round((W * H) / (W < 700 ? 30000 : 24000))));
+      traces = [];
+      for (let tries = 0; traces.length < want && tries < want * 8; tries++) {
+        let cx = Math.floor(Math.random() * cols), cy = Math.floor(Math.random() * rows);
+        if (used[cy * cols + cx]) continue;
+        let d = Math.floor(Math.random() * 4) * 2;          // start straight (0°, 90°, 180°, 270°)
+        const cells: [number, number][] = [[cx, cy]];
+        const segs = 2 + Math.floor(Math.random() * 3);
+        outer: for (let sgi = 0; sgi < segs; sgi++) {
+          const run = 2 + Math.floor(Math.random() * (sgi === 0 ? 8 : 6));
+          for (let k = 0; k < run; k++) {
+            const nx = cx + DIRS[d]![0], ny = cy + DIRS[d]![1];
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || used[ny * cols + nx]) break outer;
+            cx = nx; cy = ny; cells.push([cx, cy]);
+          }
+          d = (d + (Math.random() < 0.5 ? 1 : 7)) % 8;         // turn 45° left or right
+        }
+        if (cells.length < 4) continue;
+        for (const [x, y] of cells) used[y * cols + x] = 1;
+        // Keep only the corners as points.
+        const pts: Pt[] = [];
+        cells.forEach(([x, y], i) => {
+          const prev = cells[i - 1], next = cells[i + 1];
+          const corner = !prev || !next || (x - prev[0] !== next[0] - x || y - prev[1] !== next[1] - y);
+          if (corner) pts.push({ x: x * g - g / 2, y: y * g - g / 2 });
+        });
+        const cum = [0];
+        for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1]! + Math.hypot(pts[i]!.x - pts[i - 1]!.x, pts[i]!.y - pts[i - 1]!.y));
+        traces.push({ pts, cum, len: cum[cum.length - 1]! });
+      }
+      drawLayer();
+      const n = Math.max(5, Math.round(traces.length * 0.35));
+      pulses = Array.from({ length: n }, (_, i) => newPulse(i * 0.6));
+    };
+
+    const newPulse = (wait = Math.random() * 2.5): Pulse => {
+      const t = traces[Math.floor(Math.random() * traces.length)]!;
+      const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
+      return { t, dir, s: dir === 1 ? 0 : t.len, speed: 60 + Math.random() * 70, c: Math.floor(Math.random() * 3), wait };
+    };
+
+    // Static traces + vias + pads, drawn once per resize / theme change.
+    const drawLayer = () => {
+      layer = layer ?? document.createElement("canvas");
+      layer.width = canvas.width; layer.height = canvas.height;
+      const l = layer.getContext("2d")!;
+      l.setTransform(dpr, 0, 0, dpr, 0, 0);
+      l.lineCap = "round"; l.lineJoin = "round";
+      l.strokeStyle = `rgba(${traceRgb}, ${traceAlpha})`;
+      l.lineWidth = 1.1;
+      for (const t of traces) {
+        l.beginPath(); l.moveTo(t.pts[0]!.x, t.pts[0]!.y);
+        for (const p of t.pts.slice(1)) l.lineTo(p.x, p.y);
+        l.stroke();
+      }
+      // Small via at each end; a small square pad on some starts.
+      for (const t of traces) {
+        for (const [i, p] of [t.pts[0]!, t.pts[t.pts.length - 1]!].entries()) {
+          if (i === 0 && t.len % 3 < 1) {
+            l.fillStyle = `rgba(${traceRgb}, ${traceAlpha * 1.3})`;
+            l.fillRect(p.x - 2.8, p.y - 2.8, 5.6, 5.6);
+          } else {
+            l.beginPath(); l.arc(p.x, p.y, 2.8, 0, Math.PI * 2);
+            l.lineWidth = 1.2; l.strokeStyle = `rgba(${traceRgb}, ${traceAlpha * 1.5})`; l.stroke();
+            l.lineWidth = 1.1; l.strokeStyle = `rgba(${traceRgb}, ${traceAlpha})`;
+          }
+        }
+      }
+    };
+
+    const at = (t: Trace, s: number): Pt => {
+      s = Math.max(0, Math.min(t.len, s));
+      let i = 1; while (i < t.cum.length - 1 && t.cum[i]! < s) i++;
+      const a = t.pts[i - 1]!, b = t.pts[i]!, seg = t.cum[i]! - t.cum[i - 1]! || 1, k = (s - t.cum[i - 1]!) / seg;
+      return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+    };
+
+    const drawPulse = (p: Pulse) => {
+      const col = pulseCols[p.c]!;
+      // Trail: short segments fading out behind the head.
+      ctx.lineCap = "round";
+      const steps = 12;
+      let prev = at(p.t, p.s - p.dir * TRAIL);
+      for (let k = 1; k <= steps; k++) {
+        const s = p.s - p.dir * TRAIL * (1 - k / steps);
+        const cur = at(p.t, s);
+        ctx.globalAlpha = (k / steps) * pulseAlpha * 0.8;
+        ctx.strokeStyle = col; ctx.lineWidth = 0.8 + 1.0 * (k / steps);
+        ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(cur.x, cur.y); ctx.stroke();
+        prev = cur;
+      }
+      ctx.globalAlpha = 1;
+      const h = at(p.t, p.s);
+      ctx.drawImage(sprites[p.c]!, h.x - GLOW, h.y - GLOW);
+    };
+
+    const frame = (now: number) => {
+      const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+      ctx.clearRect(0, 0, W, H);
+      if (layer) ctx.drawImage(layer, 0, 0, W, H);
+      for (let i = 0; i < pulses.length; i++) {
+        const p = pulses[i]!;
+        if (p.wait > 0) { p.wait -= dt; continue; }
+        p.s += p.dir * p.speed * dt;
+        if (p.s < -TRAIL || p.s > p.t.len + TRAIL) { pulses[i] = newPulse(); continue; }
+        drawPulse(p);
+      }
+      if (running) raf = requestAnimationFrame(frame);
+    };
+
+    const drawStill = () => {
+      ctx.clearRect(0, 0, W, H);
+      if (layer) ctx.drawImage(layer, 0, 0, W, H);
+      for (const p of pulses) { p.s = p.t.len * (0.3 + Math.random() * 0.5); drawPulse(p); }
+    };
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      build();
+    };
+
+    const start = () => {
+      if (still.matches) { drawStill(); return; }
+      if (running || document.hidden) return;
+      running = true; last = 0; raf = requestAnimationFrame(frame);
+    };
+    const stop = () => { running = false; cancelAnimationFrame(raf); };
+
+    const init = () => {
+      readColours(); resize(); start();
+      canvas.classList.add("is-on");
+      let rt = 0;
+      window.addEventListener("resize", () => {
+        clearTimeout(rt);
+        rt = window.setTimeout(() => { resize(); if (!running) drawStill(); }, 150);
+      }, { passive: true });
+      document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+      still.addEventListener("change", () => { stop(); start(); });
+      new MutationObserver(() => { readColours(); drawLayer(); if (!running) drawStill(); })
+        .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    };
+
+    const later = () => ("requestIdleCallback" in window ? requestIdleCallback(init, { timeout: 1500 }) : setTimeout(init, 300));
+    if (document.readyState === "complete") later(); else window.addEventListener("load", later, { once: true });
+  }
+</script>
+
+<style>
+  .circuit-field {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s var(--ease);
+  }
+
+  .circuit-field.is-on {
+    opacity: 1;
+  }
+
+  @media print {
+    .circuit-field { display: none; }
+  }
+</style>

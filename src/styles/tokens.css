@@ -73,12 +73,13 @@
   --social-email: #ff5a8a;
   --social-email-fg: #1a0610;
 
-  /* Site-wide particle background (ParticleField.astro) */
-  --particle-1: #ff5a8a;
-  --particle-2: #c86bff;
-  --particle-3: #5b8cff;
-  --particle-line: 200, 107, 255; /* r, g, b for the link lines */
-  --particle-opacity: 0.75;
+  /* Site-wide circuit background (CircuitField.astro) — kept dim */
+  --circuit-trace: 160, 120, 255;  /* r, g, b of the traces and vias */
+  --circuit-trace-alpha: 0.13;
+  --circuit-pulse-1: #ff5a8a;
+  --circuit-pulse-2: #c86bff;
+  --circuit-pulse-3: #5b8cff;
+  --circuit-pulse-alpha: 0.6;
 
   /* 3D board viewer lighting (WebGL reads these at runtime) */
   --viewer-light: #ffffff;
@@ -185,9 +186,10 @@
   --social-email: #b8285d;
   --social-email-fg: #ffffff;
 
-  --particle-1: #d0457a;
-  --particle-2: #8a3dff;
-  --particle-3: #3b6fe0;
-  --particle-line: 138, 61, 255;
-  --particle-opacity: 0.6;
+  --circuit-trace: 120, 70, 200;
+  --circuit-trace-alpha: 0.11;
+  --circuit-pulse-1: #e0437a;
+  --circuit-pulse-2: #9a4dff;
+  --circuit-pulse-3: #3b6fe0;
+  --circuit-pulse-alpha: 0.5;
 }

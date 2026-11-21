@@ -409,16 +409,20 @@ const jsonLd = {
   }
 
   .version__img {
+    position: relative;
     aspect-ratio: 16 / 10;
-    padding: var(--space-4);
+    overflow: hidden;
     background:
       radial-gradient(ellipse 70% 70% at 50% 45%, var(--accent-glow), transparent 70%),
       var(--bg-elevated);
   }
 
+  /* Fixed box: tall boards (e.g. the L-shaped V1.2) scale down instead of stretching the card */
   .version__img :global(img) {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: var(--space-4);
+    width: calc(100% - 2 * var(--space-4));
+    height: calc(100% - 2 * var(--space-4));
     object-fit: contain;
   }
 

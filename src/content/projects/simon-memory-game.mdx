@@ -8,11 +8,11 @@ gallery:
   - src: "/images/projects/simon-memory-game/v1-0-render3d.webp"
     alt: "3D render of the game-controller-shaped Simon V1.0 board with OLED, four LEDs and four keys"
     kind: "render"
-    caption: "Simon V1.0: 3D render"
+    caption: "V1.0 · ESP32-WROOM-32E, USB Mini-B"
   - src: "/images/projects/simon-memory-game/v1-2-render3d.webp"
     alt: "3D render of the game-controller-shaped Simon V1.2 board with OLED, four LEDs and keys"
     kind: "render"
-    caption: "Simon V1.2: 3D render"
+    caption: "V1.2 · ESP32-S, USB-C"
 models:
   - label: "Simon V1.0"
     src: "/models/simon-memory-game/v1-0.glb"
@@ -20,6 +20,30 @@ models:
   - label: "Simon V1.2"
     src: "/models/simon-memory-game/v1-2.glb"
     poster: "/images/projects/simon-memory-game/v1-2-render3d.webp"
+versions:
+  - label: "Simon V1.0"
+    summary: "The first board, built on an ESP32-WROOM-32E module."
+    highlights:
+      - "ESP32-WROOM-32E-N8 module"
+      - "USB Mini-B with CH340C for programming"
+      - "SMD BOOT and EN buttons"
+      - "Four 4-pin breakout headers"
+    image:
+      src: "/images/projects/simon-memory-game/v1-0-render3d.webp"
+      alt: "3D render of the Simon V1.0 board"
+    model: "Simon V1.0"
+  - label: "Simon V1.2"
+    summary: "The revision: Ai-Thinker ESP32-S module and USB-C on the same controller outline."
+    highlights:
+      - "Ai-Thinker ESP32-S module"
+      - "USB-C with CH340C for programming"
+      - "AMS1117-3.3V regulator"
+      - "Through-hole BOOT and EN buttons"
+      - "One 4-pin 3V3, GND, RX, TX programming header"
+    image:
+      src: "/images/projects/simon-memory-game/v1-2-render3d.webp"
+      alt: "3D render of the Simon V1.2 board"
+    model: "Simon V1.2"
 specs:
   - label: "MCU"
     value: "ESP32-WROOM-32E-N8 (V1.0) · Ai-Thinker ESP32-S (V1.2)"
@@ -45,7 +69,7 @@ draft: false
 
 Simon is a classic electronic memory game: the board flashes a sequence of coloured LEDs with matching tones, and the player repeats it on the buttons. Each successful round adds one step, and a wrong press resets the game.
 
-This project turns the game into a single custom PCB shaped like a game controller. An ESP32 module handles game logic, display output and audio, a 0.96-inch OLED shows score and status, and a battery connector allows portable play. The board went through two revisions, V1.0 and V1.2.
+This project turns the game into a single custom PCB shaped like a game controller. An ESP32 module handles game logic, display output and audio, a 0.96-inch OLED shows score and status, and a battery connector allows portable play. The board exists in two versions, V1.0 and V1.2; the Versions section above compares them.
 
 ## Features
 

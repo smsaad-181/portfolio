@@ -41,6 +41,10 @@ Pages were written only from each project's README, documentation, BOM and sourc
 - Dashboards with no screenshot are rendered from the firmware's own HTML with no data (no invented readings). Vehicle Motion Analyzer uses Saad's own screenshots from its Documentation folder.
 - GitHub links removed from project pages (the repos are private).
 
+### Confirmed by Saad — 21 Nov 2026 (projects)
+- Project order changed to Saad's sequence; Fingerprint V1.1 and V1.2 merged into one project, **Fingerprint Sensor Board** (`fingerprint-sensor-board`), with two versions. The claims listed below under `fingerprint-v1-1` / `fingerprint-v1-2` now belong to that project.
+- **Waiting for Saad:** EasyEDA exports of the new V1.1 layout (3D render + 2D top/bottom into `Fingerprint V1.1/Image`), so the V1.1 card and 3D board get real copper and silkscreen.
+
 ### Confirmed by Saad — 21 Nov 2026 (Phase 5)
 - Availability: **Open to hardware / embedded roles · Dhaka or remote**.
 - OSHWLab profile https://oshwlab.com/smsaad181 is correct (the site blocks automated checks). GitHub and LinkedIn return 200.

@@ -1,0 +1,77 @@
+---
+title: "Fingerprint Sensor Board"
+summary: "ESP32-S carrier board in two versions, with USB-C programming through a CH340C and headers for a fingerprint sensor, an RFID reader and a display, powered from a 5 V DC jack."
+coverImage:
+  src: "/images/projects/fingerprint-v1-2/render3d.webp"
+  alt: "3D render of the Fingerprint Sensor Board V1.2 PCB"
+gallery:
+  - src: "/images/projects/fingerprint-v1-2/render3d.webp"
+    alt: "3D render of the Fingerprint Sensor Board V1.2 with ESP32-S module, CH340C, USB-C port, DC jack and fingerprint, RFID and display headers"
+    kind: "render"
+    caption: "V1.2 · L-shaped board"
+  - src: "/images/projects/fingerprint-v1-1/step-render-3d.webp"
+    alt: "3D view of the Fingerprint Sensor Board V1.1 made from its STEP file, with the ESP32-S module, CH340C, USB-C port, DC jack, 12 mm push button and headers on a blue board"
+    kind: "render"
+    caption: "V1.1 · rendered from its STEP file (21 Nov 2026 layout)"
+versions:
+  - label: "Fingerprint V1.1"
+    summary: "Square carrier board with labelled headers on the top side."
+    highlights:
+      - "Board 59.8 × 60.8 mm with four M3 mounting holes"
+      - "Header pin names printed on the top silkscreen"
+      - "Layout from the STEP file of 21 Nov 2026"
+    image:
+      src: "/images/projects/fingerprint-v1-1/step-render-3d.webp"
+      alt: "3D view of the Fingerprint Sensor Board V1.1"
+    model: "Fingerprint V1.1"
+  - label: "Fingerprint V1.2"
+    summary: "The follow-up revision: same parts list on a reshaped L-shaped board."
+    highlights:
+      - "L-shaped board, 49.1 × 75.1 mm"
+      - "Five M3 mounting holes, one more than V1.1"
+      - "Header pin names moved to the bottom silkscreen"
+    image:
+      src: "/images/projects/fingerprint-v1-2/render3d.webp"
+      alt: "3D render of the Fingerprint Sensor Board V1.2"
+    model: "Fingerprint V1.2"
+models:
+  - label: "Fingerprint V1.1"
+    src: "/models/fingerprint-v1-1/board.glb"
+    poster: "/images/projects/fingerprint-v1-1/render3d.webp"
+  - label: "Fingerprint V1.2"
+    src: "/models/fingerprint-v1-2/board.glb"
+    poster: "/images/projects/fingerprint-v1-2/render3d.webp"
+specs:
+  - label: "MCU"
+    value: "Ai-Thinker ESP32-S module, 2.4 GHz"
+  - label: "USB"
+    value: "USB Type-C with CH340C USB-to-UART bridge"
+  - label: "Power"
+    value: "5 V DC jack, AMS1117-3.3V regulator"
+  - label: "Interfaces"
+    value: "4-pin fingerprint UART header, 8-pin RFID header, 8-pin display header"
+  - label: "PCB"
+    value: "V1.1 59.8 × 60.8 mm, 4 × M3 · V1.2 L-shaped 49.1 × 75.1 mm, 5 × M3; mixed SMD and through-hole"
+tags: ["esp32", "fingerprint", "rfid", "pcb design", "easyeda"]
+status: "prototype"
+role: "Schematic & PCB layout"
+featured: false
+order: 16
+draft: false
+---
+
+## Overview
+
+The Fingerprint Sensor Board is a carrier PCB for an Ai-Thinker ESP32-S module. It brings together the connectors needed for a fingerprint sensor, an RFID reader and a small display on one board, with USB-C programming and a 5 V supply built in.
+
+It exists in two versions with the same parts list: V1.1 on a square board, and V1.2 on a reshaped L-shaped board with an extra mounting hole. The Versions section above compares them.
+
+## Features
+
+- Ai-Thinker ESP32-S module as the controller
+- USB-C programming through a CH340C bridge, with BC847 transistors for automatic reset and boot entry, plus manual BOOT and RST buttons
+- USBLC6-2SC6 ESD protection on the USB connection
+- 5 V DC jack input with an AMS1117-3.3V regulator for the 3.3 V rail
+- Headers for a fingerprint sensor (3V3, GND, TX, RX), an RFID reader (SDA, SCK, MOSI, MISO, GND, RST, 3V3) and a display (LED, SCK, SDA, A0, RST, CS, GND, 3V3)
+- 12 mm OMRON push button and a status LED for user interaction
+- Test points TP1 and TP2 (V1.1) and M3 mounting holes on both versions

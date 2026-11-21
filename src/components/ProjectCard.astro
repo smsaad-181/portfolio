@@ -1,8 +1,12 @@
 ---
 /**
  * ProjectCard.astro
- * Grid card for a project. Shows: cover image, title, summary, up to 3 tag
- * chips, and a status badge.
+ * Grid card for a project. Shows: cover image, status, tags, title, the
+ * summary, the board versions (when there are several) and a link.
+ *
+ * Its 6 direct children are the 6 rows of the shared .projects-grid subgrid
+ * (global.css), so every card in a row lines up. A project with several
+ * board versions is drawn as a small stack of cards with its version names.
  *
  * Cover images live in public/ as plain paths (Tina Cloud commits them
  * there) and render through Astro's <Image />, base-prefixed. If the file
@@ -25,24 +29,31 @@ export interface Props {
   };
   tags: string[];
   status: "completed" | "in-progress" | "prototype";
-  /** Number of board versions (shows a "3 versions" chip when > 1). */
-  versions?: number;
+  /** Board version names; 2+ shows the stacked look and the version list. */
+  versions?: string[];
   /** Above-the-fold cards: load the image immediately (it is often the LCP). */
   priority?: boolean;
   /** 2 on the Projects page (cards follow the h1), 3 under a section h2. */
   headingLevel?: 2 | 3;
 }
 
-const { title, href, summary, coverImage, tags, status, versions = 0, priority = false, headingLevel = 3 } = Astro.props;
+const { title, href, summary, coverImage, tags, status, versions = [], priority = false, headingLevel = 3 } = Astro.props;
+const multi = versions.length > 1;
 const Heading = headingLevel === 2 ? "h2" : "h3";
 const hasCover = publicFileExists(coverImage.src);
 const displayTags = tags.slice(0, 3);
 ---
 
-<article class="project-card" aria-label={title}>
-  {hasCover && (
+<article class:list={["project-card", { "project-card--stack": multi }]} aria-label={title} data-reveal={priority ? undefined : ""}>
+  {hasCover ? (
     <a href={href} class="project-card__image-link" tabindex="-1" aria-hidden="true">
       <div class="project-card__image-wrap">
+        {multi && (
+          <span class="project-card__ribbon">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2 1.5 7.5 12 13l10.5-5.5L12 2Zm-8.2 9.6L1.5 12.8 12 18.3l10.5-5.5-2.3-1.2L12 15.9l-8.2-4.3Zm0 5L1.5 17.8 12 23.3l10.5-5.5-2.3-1.2L12 20.9l-8.2-4.3Z" /></svg>
+            {versions.length} versions
+          </span>
+        )}
         <PublicImage
           src={coverImage.src}
           alt={coverImage.alt}
@@ -54,12 +65,10 @@ const displayTags = tags.slice(0, 3);
         />
       </div>
     </a>
-  )}
+  ) : <div aria-hidden="true"></div>}
 
-  <div class="project-card__body">
     <div class="project-card__meta">
       <StatusBadge status={status} />
-      {versions > 1 && <span class="project-card__versions">{versions} versions</span>}
       <div class="project-card__tags" aria-label="Project tags">
         {displayTags.map((tag) => <TagChip tag={tag} />)}
         {tags.length > 3 && (
@@ -76,10 +85,18 @@ const displayTags = tags.slice(0, 3);
 
     <p class="project-card__summary">{summary}</p>
 
-    <a href={href} class="project-card__cta" aria-label={`View project: ${title}`}>
+    {multi ? (
+      <div class="project-card__versions">
+        <p class="project-card__versions-label">{versions.length} board versions</p>
+        <ul class="project-card__version-list" role="list">
+          {versions.map((v) => <li>{v}</li>)}
+        </ul>
+      </div>
+    ) : <div aria-hidden="true"></div>}
+
+    <a href={href} class="project-card__cta" aria-label={`View project: ${title}${multi ? `, ${versions.length} versions` : ""}`}>
       View project <span aria-hidden="true">→</span>
     </a>
-  </div>
 </article>
 
 <style>
@@ -99,11 +116,73 @@ const displayTags = tags.slice(0, 3);
     box-shadow: var(--shadow-md);
   }
 
+  /* Several board versions: two cards peek out behind this one. */
+  .project-card--stack {
+    --stack:
+      7px 7px 0 -1px var(--bg-surface), 7px 7px 0 0 var(--border),
+      14px 14px 0 -2px var(--bg-surface), 14px 14px 0 -1px var(--border);
+    box-shadow: var(--stack); /* fits in the grid gap (24 px) */
+  }
+
+  .project-card--stack:hover {
+    box-shadow: var(--stack), var(--shadow-md);
+  }
+
+  .project-card__ribbon {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--gradient-accent);
+    color: var(--text-on-accent);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 12px var(--accent-glow);
+  }
+
+  .project-card__meta,
+  .project-card__title,
+  .project-card__versions,
+  .project-card__summary,
+  .project-card__cta {
+    padding-inline: var(--space-6);
+  }
+
+  .project-card__meta { padding-top: var(--space-4); }
+  .project-card__title { padding-top: var(--space-3); }
+  .project-card__versions { padding-top: var(--space-3); }
+  .project-card__summary { padding-top: var(--space-3); }
+  .project-card__cta { padding-block: var(--space-4) var(--space-6); }
+
+  /* In the shared grid: 6 subgrid rows, so cards in a row line up
+     (scoped here so it outranks the display: flex above). */
+  @supports (grid-template-rows: subgrid) {
+    :global(.projects-grid) .project-card {
+      display: grid;
+      grid-row: span 6;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+    }
+
+    :global(.projects-grid) .project-card__cta {
+      align-self: end;
+      justify-self: start;
+    }
+  }
+
   .project-card__image-link {
     display: block;
   }
 
   .project-card__image-wrap {
+    position: relative;
     aspect-ratio: 16 / 10;
     overflow: hidden;
     padding: var(--space-4);
@@ -125,14 +204,6 @@ const displayTags = tags.slice(0, 3);
     transform: scale(1.03);
   }
 
-  .project-card__body {
-    padding: var(--space-4) var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    flex: 1;
-  }
-
   .project-card__meta {
     display: flex;
     align-items: center;
@@ -140,14 +211,34 @@ const displayTags = tags.slice(0, 3);
     flex-wrap: wrap;
   }
 
-  .project-card__versions {
-    padding: 2px 8px;
-    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
-    border-radius: var(--radius-pill);
-    background: color-mix(in srgb, var(--accent-2) 12%, transparent);
+  .project-card__versions-label {
+    margin: 0 0 var(--space-2);
     font-family: var(--font-mono);
     font-size: 0.7rem;
     font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .project-card__version-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-card__version-list li {
+    margin: 0;
+    padding: 2px 8px;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+    border-left: 3px solid var(--accent-2);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--accent-2) 10%, transparent);
+    font-size: 0.75rem;
+    font-weight: 500;
     color: var(--text-primary);
   }
 

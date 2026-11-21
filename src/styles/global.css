@@ -329,3 +329,67 @@ ul, ol {
   background-size: var(--grid-size) var(--grid-size);
   background-position: -1px -1px;
 }
+
+/* ─── hidden attribute always wins (grid/flex items set display) ─────────── */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ─── Page header (inner pages) ────────────────────────────────────────────── */
+
+.page-header {
+  padding-block: var(--space-16) var(--space-8);
+}
+
+/* ─── Scroll reveal (BaseLayout adds .reveal-on; reduced motion = no class) ── */
+
+/* :root raises specificity above components' own transition rules; the
+   attribute is removed after the animation (BaseLayout), so hover
+   transitions go back to the component's own. */
+:root.reveal-on [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s var(--ease) var(--reveal-delay, 0ms),
+    transform 0.6s var(--ease) var(--reveal-delay, 0ms);
+}
+
+:root.reveal-on [data-reveal="left"] { transform: translateX(-24px); }
+:root.reveal-on [data-reveal="right"] { transform: translateX(24px); }
+:root.reveal-on [data-reveal="zoom"] { transform: scale(0.96); }
+
+:root.reveal-on [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Printing before scrolling must not drop unrevealed content. */
+@media print {
+  :root.reveal-on [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ─── Project grid (Home + Projects): cards line up row by row ────────────── */
+/* Each card spans 6 rows of a subgrid (image, meta, title, summary, versions,
+   link), so titles, summaries and links sit on the same line across a row. */
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  column-gap: var(--space-6);
+  row-gap: var(--space-8);
+}
+
+/* A wrapper (Projects page filter item) passes the 6 rows through; the
+   card itself sets its subgrid in ProjectCard.astro. */
+@supports (grid-template-rows: subgrid) {
+  .projects-grid > .project-item {
+    display: grid;
+    grid-row: span 6;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+}

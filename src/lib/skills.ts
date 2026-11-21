@@ -1,5 +1,7 @@
 /**
- * Skills helpers — grouping in a fixed reading order and "Used in N projects".
+ * Skills helpers — grouping in a fixed reading order. The per-skill project
+ * match below is kept for ordering within a group (most-used first); the
+ * site no longer displays "used in N projects" (Saad, 21 Nov 2026).
  *
  * A project uses a skill when one of the skill's aliases (default: its name)
  * appears as a whole word in the project's tags or spec values. The write-up

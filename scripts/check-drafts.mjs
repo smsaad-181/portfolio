@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const projectsDir = path.join(root, "src", "content", "projects");
+const blogDir = path.join(root, "src", "content", "blog");
 const skip = path.join(dist, "admin");
 
 if (!existsSync(dist)) {
@@ -31,10 +32,15 @@ function readFrontmatter(file) {
   return { title: field("title"), draft: field("draft") === "true" };
 }
 
-const drafts = readdirSync(projectsDir)
-  .filter((f) => /\.mdx?$/.test(f))
-  .map((f) => ({ slug: f.replace(/\.mdx?$/, ""), ...readFrontmatter(path.join(projectsDir, f)) }))
-  .filter((p) => p.draft);
+/** Draft entries of one collection: projects → /projects/<slug>/, blog → /blog/<slug>/. */
+const draftsIn = (dir, section) =>
+  existsSync(dir)
+    ? readdirSync(dir)
+        .filter((f) => /\.mdx?$/.test(f))
+        .map((f) => ({ slug: f.replace(/\.mdx?$/, ""), section, ...readFrontmatter(path.join(dir, f)) }))
+        .filter((p) => p.draft)
+    : [];
+const drafts = [...draftsIn(projectsDir, "projects"), ...draftsIn(blogDir, "blog")];
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -53,12 +59,12 @@ for (const file of walk(dist)) {
   const text = decode(readFileSync(file, "utf8"));
   for (const d of drafts) {
     if (d.title && text.includes(d.title)) leaks.push({ file, draft: d.slug, match: `title "${d.title}"` });
-    if (text.includes(`/projects/${d.slug}/`)) leaks.push({ file, draft: d.slug, match: "URL" });
+    if (text.includes(`/${d.section}/${d.slug}/`)) leaks.push({ file, draft: d.slug, match: "URL" });
   }
 }
 for (const d of drafts) {
-  if (existsSync(path.join(dist, "projects", d.slug))) {
-    leaks.push({ file: `dist/projects/${d.slug}/`, draft: d.slug, match: "page generated" });
+  if (existsSync(path.join(dist, d.section, d.slug))) {
+    leaks.push({ file: `dist/${d.section}/${d.slug}/`, draft: d.slug, match: "page generated" });
   }
 }
 
@@ -67,4 +73,5 @@ if (leaks.length) {
   for (const l of leaks) console.error(`  ${path.relative(root, l.file)}  ←  ${l.draft} (${l.match})`);
   process.exit(1);
 }
-console.log(`✓ check:drafts — ${drafts.length} draft project(s), none found in dist/`);
+const count = (section) => drafts.filter((d) => d.section === section).length;
+console.log(`✓ check:drafts — ${count("projects")} draft project(s), ${count("blog")} draft post(s), none found in dist/`);

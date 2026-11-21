@@ -1,0 +1,41 @@
+---
+title: "How the interactive 3D boards on this site are made"
+summary: "Every project here has a 3D board you can rotate and explore part by part. This is how an EasyEDA STEP export becomes a light, labelled model that runs in the browser."
+date: 2026-11-21
+tags: ["easyeda", "pcb design", "3d"]
+draft: true
+---
+
+Every project on this site has an interactive 3D board. You can rotate it, zoom in, pull the parts apart and pick any component to see what it is. Here is how those models are made from my EasyEDA projects.
+
+## Starting point: what EasyEDA exports
+
+For each board the conversion uses what EasyEDA exports:
+
+- the **STEP file** (the 3D geometry of the board and every placed part),
+- the **BOM** (what each part is),
+- the **top and bottom 2D layouts** as images,
+- EasyEDA's own **3D render**, as a visual reference,
+- and the **Pick & Place** file, for part positions.
+
+## From STEP to a browser-friendly model
+
+A small conversion script reads the STEP file and writes a GLB, the compact 3D format browsers load easily:
+
+- **One object per placed part,** named by its reference designator (U1, R3 …) and linked to its BOM line. That is what lets the viewer tell you what you clicked.
+- **The real board artwork.** Where the 2D exports match the STEP file, the top and bottom layouts become the board's surface, so copper, silkscreen and labels look like the actual PCB.
+- **Realistic materials.** The STEP export carries almost no colour, so each part's type (from its reference, BOM line and footprint) decides how its body, pins and markings look.
+- **Small files.** The model is compressed (meshopt) so it downloads faster.
+
+## When the export needs help
+
+Not every export is perfect:
+
+- Parts EasyEDA exports without a 3D model arrive as tiny placeholder cubes. These are rebuilt at their real package size and placed from the Pick & Place file.
+- When I have confirmed a correction by looking at the real board, for example LED colours that follow the silkscreen labels rather than the BOM, it is recorded per board and the viewer shows a note about it.
+
+## In the browser
+
+The viewer is built on three.js. It shows a picture of the board while the model loads, then lets you switch between boards, change the camera view, zoom, explode the parts and find a component by name.
+
+Open any project to try it.

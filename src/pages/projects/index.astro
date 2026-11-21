@@ -28,7 +28,7 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
         label="// portfolio"
         title="Projects"
         level={1}
-        description="PCB design, embedded firmware, and IoT builds. Each project is a real engineering problem solved end-to-end."
+        description="PCB design, embedded firmware, and IoT builds. Each project is a real engineering problem solved end-to-end. Cards drawn as a stack have several board versions inside."
       />
     </div>
   </section>
@@ -87,7 +87,7 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
               coverImage={project.data.coverImage}
               tags={project.data.tags}
               status={project.data.status}
-              versions={project.data.versions.length}
+              versions={project.data.versions.map((v) => v.label)}
               priority={i < 3}
               headingLevel={2}
             />
@@ -147,10 +147,6 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
 </script>
 
 <style>
-  .page-header {
-    padding-block: var(--space-16) var(--space-8);
-  }
-
   .projects-section {
     padding-bottom: var(--space-24);
   }
@@ -225,22 +221,10 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
     margin-bottom: var(--space-6);
   }
 
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: var(--space-6);
-  }
-
   .no-results {
     text-align: center;
     color: var(--text-secondary);
     padding-block: var(--space-16);
     font-size: 0.95rem;
-  }
-
-  @media (max-width: 480px) {
-    .projects-grid {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

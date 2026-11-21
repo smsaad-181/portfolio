@@ -63,6 +63,16 @@
   /* Elevation */
   --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.35);
 
+  /* Social buttons on Home (brand colour bubble + icon colour) */
+  --social-linkedin: #0a66c2;
+  --social-linkedin-fg: #ffffff;
+  --social-github: #f0f6fc;
+  --social-github-fg: #0d1117;
+  --social-oshwlab: #1f9d74;
+  --social-oshwlab-fg: #ffffff;
+  --social-email: #ff5a8a;
+  --social-email-fg: #1a0610;
+
   /* 3D board viewer lighting (WebGL reads these at runtime) */
   --viewer-light: #ffffff;
   --viewer-ground: #404050;
@@ -158,4 +168,13 @@
   --status-error: #c62828;
 
   --shadow-md: 0 12px 32px rgba(40, 0, 80, 0.08);
+
+  --social-linkedin: #0a66c2;
+  --social-linkedin-fg: #ffffff;
+  --social-github: #181717;
+  --social-github-fg: #ffffff;
+  --social-oshwlab: #13795a;
+  --social-oshwlab-fg: #ffffff;
+  --social-email: #b8285d;
+  --social-email-fg: #ffffff;
 }

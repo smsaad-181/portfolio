@@ -6,7 +6,9 @@
  * (aria-hidden); pass `label` when the icon is the only content.
  */
 export interface Props {
-  name: "linkedin" | "github" | "oshwlab" | "email" | "copy" | "check" | "send" | "pin" | "download" | "print";
+  name:
+    | "linkedin" | "github" | "oshwlab" | "email" | "copy" | "check" | "send" | "pin" | "download" | "print"
+    | "chip" | "code" | "exchange" | "cloud" | "wrench" | "briefcase" | "cap" | "award" | "user" | "arrow";
   size?: number;
   label?: string;
   class?: string;
@@ -25,6 +27,16 @@ const STROKE: Record<string, string> = {
   pin: "M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Zm0-9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
   download: "M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 19h14",
   print: "M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2M7 14h10v6H7z",
+  chip: "M7 7h10v10H7zM10 10h4v4h-4zM9.5 3v4M14.5 3v4M9.5 17v4M14.5 17v4M3 9.5h4M3 14.5h4M17 9.5h4M17 14.5h4",
+  code: "M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16",
+  exchange: "M4 8h14l-3.5-3.5M20 16H6l3.5 3.5",
+  cloud: "M7 18.5h10a4 4 0 0 0 .7-7.94A6 6 0 0 0 6.2 9.6 4.5 4.5 0 0 0 7 18.5Z",
+  wrench: "M14.7 6.3a4 4 0 0 0-5.4 5.4L3.5 17.5l3 3 5.8-5.8a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4 2.6-2.6Z",
+  briefcase: "M3.5 8h17v11.5h-17zM9 8V5h6v3M3.5 13h17",
+  cap: "M2 9.5 12 4.5l10 5-10 5-10-5ZM6 11.5v5c3.3 2.6 8.7 2.6 12 0v-5M22 9.5v5",
+  award: "M12 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12ZM8.6 13.9 7 21l5-2.8 5 2.8-1.6-7.1",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20.5a7.5 7.5 0 0 1 15 0",
+  arrow: "M5 12h14m0 0-5-5m5 5-5 5",
 };
 const d = FILLED[name] ?? STROKE[name];
 const filled = name in FILLED;

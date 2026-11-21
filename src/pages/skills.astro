@@ -1,0 +1,191 @@
+---
+/**
+ * Skills — /skills/
+ * Every skill from the skills collection, grouped by area in a fixed order
+ * (lib/skills.ts). Saad asked for the plain list: no "used in N projects".
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SectionHeading from "@components/SectionHeading.astro";
+import Icon from "@components/Icon.astro";
+import { getSkillGroups } from "../lib/skills";
+import { pageUrl } from "../lib/urls";
+
+const groups = await getSkillGroups();
+const total = groups.reduce((n, g) => n + g.skills.length, 0);
+
+type IconName = "chip" | "code" | "exchange" | "cloud" | "wrench";
+const ICON: Record<string, IconName> = {
+  "hardware & pcb": "chip",
+  "embedded & firmware": "code",
+  protocols: "exchange",
+  "iot & platforms": "cloud",
+  tools: "wrench",
+};
+const BLURB: Record<string, string> = {
+  "hardware & pcb": "Schematic capture, PCB layout and 3D for boards.",
+  "embedded & firmware": "Microcontrollers and the languages I program them in.",
+  protocols: "Buses and links between sensors, boards and systems.",
+  "iot & platforms": "Networks, brokers and dashboards for connected devices.",
+  tools: "Everything else I use around the hardware.",
+};
+---
+
+<BaseLayout
+  title="Skills"
+  description="Hardware, embedded firmware, protocols and IoT platforms Sultan Mahmud works with — EasyEDA, ESP32, I²C, SPI, UART, Modbus, MQTT, LoRaWAN, Node-RED and more."
+>
+  <section class="page-header">
+    <div class="container">
+      <SectionHeading
+        label="// toolbox"
+        title="Skills & tools"
+        level={1}
+        description={`${total} tools, languages and protocols, grouped by area.`}
+      />
+    </div>
+  </section>
+
+  <section class="skills-section" aria-label="Skills by area">
+    <div class="container skill-groups" data-reveal-stagger>
+      {groups.map((g) => (
+        <article class="skill-group" aria-labelledby={`grp-${g.category.replace(/\W+/g, "-")}`} data-reveal>
+          <header class="skill-group__head">
+            <span class="skill-group__icon"><Icon name={ICON[g.category] ?? "wrench"} size={22} /></span>
+            <div>
+              <h2 class="skill-group__title" id={`grp-${g.category.replace(/\W+/g, "-")}`}>{g.label}</h2>
+              {BLURB[g.category] && <p class="skill-group__blurb">{BLURB[g.category]}</p>}
+            </div>
+            <span class="skill-group__count">{g.skills.length}<span class="sr-only"> skills</span></span>
+          </header>
+          <ul class="skill-chips" role="list">
+            {g.skills.map(({ skill }) => <li class="skill-chip">{skill.data.name}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <div class="container skills-cta" data-reveal>
+      <p>See these tools at work in real boards.</p>
+      <a href={pageUrl("/projects/")} class="btn btn--primary">Browse projects</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .skills-section {
+    padding-bottom: var(--space-24);
+  }
+
+  .skill-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: var(--space-6);
+  }
+
+  .skill-group {
+    position: relative;
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+  }
+
+  .skill-group::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--gradient-accent);
+  }
+
+  .skill-group:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .skill-group__head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--space-4);
+    align-items: start;
+    margin-bottom: var(--space-4);
+  }
+
+  .skill-group__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--accent-glow);
+    color: var(--accent);
+  }
+
+  .skill-group__title {
+    margin: 0;
+    font-size: var(--fs-18, 1.125rem);
+    font-weight: 600;
+  }
+
+  .skill-group__blurb {
+    margin: var(--space-1) 0 0;
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+  }
+
+  .skill-group__count {
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .skill-chips > li + li {
+    margin-top: 0;
+  }
+
+  .skill-chip {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-elevated);
+    font-size: var(--fs-14);
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+
+  .skill-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .skills-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-12);
+    padding: var(--space-6) var(--space-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+  }
+
+  .skills-cta p {
+    margin: 0;
+    font-weight: 500;
+  }
+</style>

@@ -176,8 +176,28 @@ const projects = defineCollection({
       })
       .default({}),
     featured: z.boolean().default(false),
-    order: z.number().int().default(0), // lower = higher on homepage
+    order: z.number().int().default(0), // lower = first on Projects; Home shows the first 6
     draft: z.boolean().default(false), // draft: true → excluded from build
+  }),
+});
+
+// ─── blog ──────────────────────────────────────────────────────────────────
+// Engineering write-ups. Facts follow the same rule as projects: only from
+// the project docs/READMEs or Saad. New posts start as draft: true and are
+// published by Saad (drafts show only in local dev, never in dist/).
+// /admin creates them with draft: true (tina/config.ts defaultItem).
+
+const blog = defineCollection({
+  loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/blog" }),
+  schema: z.object({
+    title: z.string().min(1),
+    summary: z.string().min(1), // one or two sentences for cards and meta description
+    date: z.coerce.date(), // publish date (Tina stores an ISO string)
+    tags: z.array(z.string()).default([]), // lowercase, shown via formatTag()
+    coverImage: imageSchema.optional(),
+    // Slug of a related project (file name without .mdx), e.g. "lora-gps-tracker".
+    project: z.string().optional(),
+    draft: z.boolean().default(false), // draft: true → only in local dev, never built
   }),
 });
 
@@ -188,4 +208,5 @@ export const collections = {
   certifications,
   skills,
   projects,
+  blog,
 };

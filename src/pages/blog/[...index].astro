@@ -1,0 +1,217 @@
+---
+/**
+ * Blog index — /blog/
+ * Built only when at least one post is published, so the site never shows
+ * an empty blog (in local dev, drafts count and are marked "Draft").
+ * The rest parameter is `undefined` → the page is served at /blog/.
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import SectionHeading from "@components/SectionHeading.astro";
+import TagChip from "@components/TagChip.astro";
+import { getPublishedPosts, postUrl, formatPostDate, readingMinutes } from "../../lib/blog";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await getPublishedPosts();
+  return posts.length ? [{ params: { index: undefined } }] : [];
+}) satisfies GetStaticPaths;
+
+const posts = await getPublishedPosts();
+const [latest, ...rest] = posts;
+---
+
+<BaseLayout
+  title="Blog"
+  description="Engineering notes from Sultan Mahmud: how his PCB, embedded firmware and IoT projects were designed and built."
+>
+  <section class="page-header">
+    <div class="container">
+      <SectionHeading
+        label="// notes"
+        title="Blog"
+        level={1}
+        description="Write-ups on how my boards were designed and built: decisions, circuits and lessons."
+      />
+    </div>
+  </section>
+
+  <section class="blog-section" aria-label="Posts">
+    <div class="container">
+      {latest && (
+        <a href={postUrl(latest)} class="post-feature" data-reveal>
+          <span class="post-feature__eyebrow">Latest post</span>
+          <h2 class="post-feature__title">{latest.data.title}</h2>
+          <p class="post-feature__summary">{latest.data.summary}</p>
+          <p class="post-meta">
+            {latest.data.draft && <span class="post-draft">Draft</span>}
+            <time datetime={latest.data.date.toISOString()}>{formatPostDate(latest.data.date)}</time>
+            <span aria-hidden="true">·</span>
+            <span>{readingMinutes(latest)} min read</span>
+          </p>
+          <span class="post-feature__cta">Read post <span aria-hidden="true">→</span></span>
+        </a>
+      )}
+
+      {rest.length > 0 && (
+        <ul class="post-grid" role="list" data-reveal-stagger>
+          {rest.map((post) => (
+            <li class="post-card" data-reveal>
+              <p class="post-meta">
+                {post.data.draft && <span class="post-draft">Draft</span>}
+                <time datetime={post.data.date.toISOString()}>{formatPostDate(post.data.date)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{readingMinutes(post)} min read</span>
+              </p>
+              <h2 class="post-card__title"><a href={postUrl(post)}>{post.data.title}</a></h2>
+              <p class="post-card__summary">{post.data.summary}</p>
+              {post.data.tags.length > 0 && (
+                <div class="post-card__tags">{post.data.tags.slice(0, 4).map((t) => <TagChip tag={t} />)}</div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .blog-section {
+    padding-bottom: var(--space-24);
+  }
+
+  .post-feature {
+    position: relative;
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-8);
+    margin-bottom: var(--space-8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(ellipse 50% 90% at 100% 0%, var(--hero-glow-blue), transparent 70%),
+      radial-gradient(ellipse 40% 80% at 0% 100%, var(--hero-glow-pink), transparent 70%),
+      var(--bg-surface);
+    color: var(--text-primary);
+    text-decoration: none;
+    overflow: hidden;
+    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+  }
+
+  .post-feature::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--gradient-accent);
+  }
+
+  .post-feature:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    color: var(--text-primary);
+  }
+
+  .post-feature__eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .post-feature__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.2;
+  }
+
+  .post-feature__summary {
+    margin: 0;
+    max-width: 70ch;
+    color: var(--text-secondary);
+  }
+
+  .post-feature__cta {
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .post-draft {
+    padding: 1px 8px;
+    border-radius: var(--radius-pill);
+    border: 1px dashed var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .post-grid > li + li {
+    margin-top: 0;
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+  }
+
+  .post-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .post-card__title {
+    margin: 0;
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+
+  .post-card__title a {
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .post-card__title a:hover {
+    color: var(--accent);
+  }
+
+  .post-card__summary {
+    flex: 1;
+    margin: 0;
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+  }
+
+  .post-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+</style>

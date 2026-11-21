@@ -3,8 +3,7 @@
  * About page — /about/
  * Portrait + three-paragraph bio (who / what I build / what I'm looking for),
  * availability, experience as impact bullets, compact education and
- * certifications, and the full skills list grouped by area — each skill links
- * to the published projects that use it (no rating widgets).
+ * certifications, and a link to the Skills page (/skills/).
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionHeading from "@components/SectionHeading.astro";
@@ -13,7 +12,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { getProfile } from "../lib/profile";
 import { getSkillGroups } from "../lib/skills";
-import { projectUrl } from "../lib/urls";
+import { pageUrl } from "../lib/urls";
 import { personJsonLd, toJsonLd } from "../lib/jsonld";
 import { formatTag } from "../lib/tags";
 
@@ -25,7 +24,7 @@ const experiences = (await getCollection("experience")).sort((a, b) => {
 });
 const educations = (await getCollection("education")).sort((a, b) => b.data.year - a.data.year);
 const certs = await getCollection("certifications");
-const skillGroups = await getSkillGroups();
+const skillCount = (await getSkillGroups()).reduce((n, g) => n + g.skills.length, 0);
 
 const portraitFiles = import.meta.glob<{ default: ImageMetadata }>("../assets/profile/portrait.{png,webp,avif,jpg,jpeg}", { eager: true });
 const portrait = Object.values(portraitFiles)[0]?.default;
@@ -143,41 +142,15 @@ const bio = data.bio?.length ? data.bio : [data.summary];
     </div>
   </section>
 
-  <!-- ── Skills ─────────────────────────────────────────────────────────── -->
-  <section class="section" aria-labelledby="skills-heading">
+  <!-- ── Skills moved to their own page ───────────────────────────────── -->
+  <section class="section section--compact" aria-label="Skills">
     <div class="container">
-      <SectionHeading
-        label="// toolbox"
-        title="Skills & tools"
-        id="skills-heading"
-        description="Grouped by area. Where a skill appears in my published projects, open it to see which ones."
-      />
-      <div class="skill-groups">
-        {skillGroups.map((g) => (
-          <div class="skill-group">
-            <h3 class="skill-group__title">{g.label}</h3>
-            <ul class="skill-list" role="list">
-              {g.skills.map(({ skill, projects }) => (
-                <li class="skill">
-                  {projects.length > 0 ? (
-                    <details class="skill__details">
-                      <summary>
-                        <span class="skill__name">{skill.data.name}</span>
-                        <span class="skill__use">Used in {projects.length} project{projects.length === 1 ? "" : "s"}</span>
-                      </summary>
-                      <ul class="skill__projects" role="list">
-                        {projects.map((p) => <li><a href={projectUrl(p)}>{p.data.title}</a></li>)}
-                      </ul>
-                    </details>
-                  ) : (
-                    <span class="skill__name skill__name--plain">{skill.data.name}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <a href={pageUrl("/skills/")} class="skills-link" data-reveal>
+        <span class="skills-link__label">// toolbox</span>
+        <span class="skills-link__title">Skills &amp; tools</span>
+        <span class="skills-link__text">{skillCount} tools, languages and protocols, from EasyEDA and ESP32 to Modbus, MQTT and LoRaWAN.</span>
+        <span class="skills-link__cta">See all skills <span aria-hidden="true">→</span></span>
+      </a>
     </div>
   </section>
 </BaseLayout>
@@ -485,88 +458,53 @@ const bio = data.bio?.length ? data.bio : [data.summary];
     color: var(--text-muted);
   }
 
-  /* Skills */
-  .skill-groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-    gap: var(--space-8);
+  /* Link to the Skills page */
+  .section--compact {
+    padding-block: var(--space-12);
   }
 
-  .skill-group__title {
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin: 0 0 var(--space-3);
-  }
-
-  .skill-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  .skills-link {
     display: grid;
     gap: var(--space-2);
-  }
-
-  .skill-list > li + li {
-    margin-top: 0;
-  }
-
-  .skill {
+    padding: var(--space-6) var(--space-8);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(ellipse 60% 120% at 100% 0%, var(--accent-glow), transparent 70%),
+      var(--bg-surface);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
   }
 
-  .skill__details summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
-    cursor: pointer;
-    list-style: none;
+  .skills-link:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    color: var(--text-primary);
   }
 
-  .skill__details summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .skill__details summary:hover .skill__use,
-  .skill__details[open] .skill__use {
+  .skills-link__label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     color: var(--accent);
   }
 
-  .skill__name {
-    font-weight: 500;
+  .skills-link__title {
+    font-size: 1.5rem;
+    font-weight: 700;
   }
 
-  .skill__name--plain {
-    display: block;
-    padding: var(--space-2) var(--space-3);
+  .skills-link__text {
+    color: var(--text-secondary);
   }
 
-  .skill__use {
+  .skills-link__cta {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-  }
-
-  .skill__use::after {
-    content: " ▾" / "";
-  }
-
-  .skill__details[open] .skill__use::after {
-    content: " ▴" / "";
-  }
-
-  .skill__projects {
-    margin: 0;
-    padding: 0 var(--space-3) var(--space-3) var(--space-6);
     font-size: var(--fs-14);
-    line-height: 1.6;
+    font-weight: 600;
+    color: var(--accent);
   }
 
   @media (max-width: 900px) {

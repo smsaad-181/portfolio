@@ -1,0 +1,39 @@
+---
+title: "Three revisions of an ESP32 relay board: 4 channels to 6"
+summary: "What changed between the 4-channel V1 and the two 6-channel versions of my Wi-Fi relay board, and the core that all three share: mains power on board, an isolated drive per relay, wall-switch inputs and a self-hosted dashboard."
+date: 2026-11-21
+tags: ["esp32", "home automation", "pcb design", "iot"]
+project: "home-automation"
+draft: true
+---
+
+My home automation boards bring Wi-Fi and wall-switch control to household mains loads such as lights, fans and sockets. Each one is a through-hole PCB built around an ESP32 module that runs its own web server, so it needs no cloud service, no smartphone app and no subscription: only the local Wi-Fi and a browser.
+
+The design went through three versions. Here is what stayed the same and what changed.
+
+## The shared core
+
+All three boards are built on the same ideas:
+
+- **Mains power on the board.** A Hi-Link AC-DC module powers the board straight from 220 V, followed by an AMS1117-3.3 LDO. No external adapter is needed.
+- **An isolated drive per channel.** Each relay has a PC817C optocoupler, a 2N2222A driver, a 1N4007 flyback diode and a status LED. Relays switch on when their GPIO goes high.
+- **Physical switches still work.** Every relay has a wall-switch input, and the firmware debounces each input over 50 ms.
+- **USB-C programming** through a CH340C USB-to-UART bridge.
+
+## V1: four channels
+
+The first board has four SRD-24VDC-SL-C relays on a 101.6 × 81.5 mm PCB, powered by an HLK-10M05T module. It has USBLC6-2SC6 ESD protection on the USB-C port and a 4-pin XH expansion header.
+
+## V2.1: six channels and a DC input
+
+V2.1 moves to six relays and switches to an HLK-PM01 AC-DC module. It also adds a 5 V DC jack (DC-005) as an alternative power input. At 121.6 × 97.3 mm it is the largest of the three.
+
+## V2.2: six channels, smaller board
+
+The latest revision keeps six relays but fits them on a smaller 110.0 × 88.9 mm board. It goes back to the HLK-10M05T module and to USBLC6-2SC6 ESD protection on the USB-C port, and has a 4-pin XH expansion header.
+
+## The dashboard
+
+The firmware serves a card-based dashboard on port 80 that refreshes every 3 s. Each relay can have a custom name, a daily ON/OFF schedule synced over NTP and a countdown auto-off timer. Per-relay statistics (trigger count, total ON time, last ON/OFF) and a 10-entry event log are stored in the ESP32's NVS flash.
+
+All three boards are on the project page in 3D; switch between them to compare the layouts yourself.

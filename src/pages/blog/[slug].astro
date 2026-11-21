@@ -1,0 +1,225 @@
+---
+/**
+ * Blog post — /blog/<slug>/
+ * Header (date, reading time, tags), optional cover, the MDX body and, when
+ * the post belongs to a project, a link card to that project.
+ */
+import BaseLayout from "@layouts/BaseLayout.astro";
+import TagChip from "@components/TagChip.astro";
+import PublicImage from "@components/PublicImage.astro";
+import { render } from "astro:content";
+import { getPublishedPosts, postUrl, formatPostDate, readingMinutes } from "../../lib/blog";
+import { getPublishedProjects } from "../../lib/projects";
+import { getProfile } from "../../lib/profile";
+import { toJsonLd } from "../../lib/jsonld";
+import { absoluteUrl, assetUrl, pageUrl, projectSlug, projectUrl, publicFileExists } from "../../lib/urls";
+import type { GetStaticPaths } from "astro";
+
+export const getStaticPaths = (async () => {
+  const posts = await getPublishedPosts();
+  // A related-project slug that doesn't match a published project fails the
+  // build loudly (CLAUDE.md: a bad CMS save must not pass silently).
+  const slugs = new Set((await getPublishedProjects()).map(projectSlug));
+  for (const post of posts) {
+    if (post.data.project && !slugs.has(post.data.project)) {
+      throw new Error(`Blog post "${post.id}": project "${post.data.project}" is not a published project slug.`);
+    }
+  }
+  return posts.map((post) => ({ params: { slug: post.id.replace(/\.(md|mdx)$/, "") }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props as { post: Awaited<ReturnType<typeof getPublishedPosts>>[number] };
+const { data } = post;
+const { Content } = await render(post);
+const profile = (await getProfile()).data;
+const project = data.project ? (await getPublishedProjects()).find((p) => projectSlug(p) === data.project) : undefined;
+const cover = data.coverImage && publicFileExists(data.coverImage.src) ? data.coverImage : undefined;
+const ogImage = project ? absoluteUrl(assetUrl(`/images/og/${projectSlug(project)}.png`)) : undefined;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: data.title,
+  description: data.summary,
+  datePublished: data.date.toISOString(),
+  url: absoluteUrl(postUrl(post)),
+  author: { "@type": "Person", name: profile.name, url: absoluteUrl(pageUrl("/")) },
+  ...(data.tags.length && { keywords: data.tags.join(", ") }),
+};
+---
+
+<BaseLayout title={data.title} description={data.summary} ogImage={ogImage} ogType="article">
+  <script is:inline slot="head" type="application/ld+json" set:html={toJsonLd(jsonLd)} />
+
+  <nav class="breadcrumb container" aria-label="Breadcrumb">
+    <ol>
+      <li><a href={pageUrl("/blog/")}>Blog</a></li>
+      <li><span aria-current="page">{data.title}</span></li>
+    </ol>
+  </nav>
+
+  <article class="post container">
+    <header class="post__header">
+      <p class="post-meta">
+        {data.draft && <span class="post-draft">Draft — only visible on your computer</span>}
+        <time datetime={data.date.toISOString()}>{formatPostDate(data.date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{readingMinutes(post)} min read</span>
+      </p>
+      <h1 class="post__title">{data.title}</h1>
+      <p class="post__summary">{data.summary}</p>
+      {data.tags.length > 0 && <div class="post__tags">{data.tags.map((t) => <TagChip tag={t} />)}</div>}
+    </header>
+
+    {cover && (
+      <div class="post__cover">
+        <PublicImage src={cover.src} alt={cover.alt} widths={[480, 720, 960, 1280]} sizes="(max-width: 800px) 100vw, 760px" loading="eager" fetchpriority="high" />
+      </div>
+    )}
+
+    <div class="prose post__body">
+      <Content />
+    </div>
+
+    {project && (
+      <a href={projectUrl(project)} class="post__project" data-reveal>
+        <span class="post__project-label">From the project</span>
+        <span class="post__project-title">{project.data.title}</span>
+        <span class="post__project-cta">Open the project and its 3D board <span aria-hidden="true">→</span></span>
+      </a>
+    )}
+
+    <p class="post__back"><a href={pageUrl("/blog/")}>← All posts</a></p>
+  </article>
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    padding-top: var(--space-8);
+    font-size: var(--fs-14);
+  }
+
+  .breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb li + li {
+    margin-top: 0;
+  }
+
+  .breadcrumb li + li::before {
+    content: "/";
+    margin-right: var(--space-2);
+  }
+
+  .breadcrumb a {
+    color: var(--text-secondary);
+  }
+
+  .post {
+    max-width: 800px;
+    padding-block: var(--space-8) var(--space-24);
+  }
+
+  .post__header {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.15;
+  }
+
+  .post__summary {
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+  }
+
+  .post__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .post-draft {
+    padding: 1px 8px;
+    border-radius: var(--radius-pill);
+    border: 1px dashed var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .post__cover {
+    margin-bottom: var(--space-8);
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-elevated);
+  }
+
+  .post__project {
+    display: grid;
+    gap: var(--space-1);
+    margin-top: var(--space-12);
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: border-color var(--dur-base) var(--ease);
+  }
+
+  .post__project:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  .post__project-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .post__project-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .post__project-cta {
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+  }
+
+  .post__back {
+    margin-top: var(--space-8);
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+  }
+</style>

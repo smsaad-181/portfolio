@@ -243,7 +243,7 @@ const skillsCollection: Collection = {
       name: "aliases",
       label: "Words that mark a project as using it",
       list: true,
-      description: "Lowercase, e.g. esp32 or node-red. Matched in project tags and spec values (\"Used in N projects\"). Leave empty to match the skill name.",
+      description: "Lowercase, e.g. esp32 or node-red. Matched in project tags and spec values; used to order skills within a group. Leave empty to match the skill name.",
     },
   ],
 };
@@ -382,13 +382,14 @@ const projectsCollection: Collection = {
     {
       type: "boolean" as const,
       name: "featured",
-      label: "Featured on Homepage?",
+      label: "Featured (not used at the moment)",
+      description: "Kept for later. Home shows the first 6 projects by Order below.",
     },
     {
       type: "number" as const,
       name: "order",
-      label: "Homepage Order",
-      description: "Lower number = shown first. Only applies if Featured = true.",
+      label: "Order",
+      description: "Lower number = shown first, on Projects and Home (Home shows the first 6).",
     },
     {
       type: "boolean" as const,
@@ -407,6 +408,50 @@ const projectsCollection: Collection = {
         "Full project write-up in MDX. Sections: Objective → Key Components → " +
         "Features → Hardware Design (optional) → Outcome.",
     },
+  ],
+};
+
+// ─── Blog ────────────────────────────────────────────────────────────────────
+
+const blogCollection: Collection = {
+  name: "blog",
+  label: "Blog",
+  path: "src/content/blog",
+  format: "mdx" as const,
+  // New posts start hidden; Saad unticks Draft to publish.
+  defaultItem: () => ({ draft: true, date: new Date().toISOString() }),
+  fields: [
+    { type: "string" as const, name: "title", label: "Title", required: true, isTitle: true },
+    {
+      type: "string" as const,
+      name: "summary",
+      label: "Summary",
+      required: true,
+      description: "One or two sentences, shown on the blog list and in search results.",
+      ui: { component: "textarea" as const },
+    },
+    { type: "datetime" as const, name: "date", label: "Publish date", required: true },
+    {
+      type: "string" as const,
+      name: "tags",
+      label: "Tags",
+      list: true,
+      description: "Lowercase (esp32, lora, pcb design). Displayed with the right capitals automatically.",
+    },
+    { type: "object" as const, name: "coverImage", label: "Cover Image (optional)", fields: imageFields("Cover") },
+    {
+      type: "string" as const,
+      name: "project",
+      label: "Related project slug",
+      description: "Optional. The project file name without .mdx, e.g. lora-gps-tracker.",
+    },
+    {
+      type: "boolean" as const,
+      name: "draft",
+      label: "Draft (hide from site)",
+      description: "Drafts are only visible on the local dev server. Untick to publish.",
+    },
+    { type: "rich-text" as const, name: "body", label: "Post", isBody: true },
   ],
 };
 
@@ -448,6 +493,7 @@ export default defineConfig({
       educationCollection,
       certificationsCollection,
       skillsCollection,
+      blogCollection,
     ],
   },
 });

@@ -9,13 +9,18 @@
  */
 import Wordmark from "@components/Wordmark.astro";
 import { pageUrl } from "../lib/urls";
+import { getPublishedPosts } from "../lib/blog";
 
 const home = pageUrl("/"); // "/portfolio/"
+// Blog appears once a post is published (drafts count only in local dev).
+const hasPosts = (await getPublishedPosts()).length > 0;
 
 const navLinks = [
   { href: home, label: "Home" },
   { href: pageUrl("/about/"), label: "About" },
+  { href: pageUrl("/skills/"), label: "Skills" },
   { href: pageUrl("/projects/"), label: "Projects" },
+  ...(hasPosts ? [{ href: pageUrl("/blog/"), label: "Blog" }] : []),
   { href: pageUrl("/resume/"), label: "Resume" },
   { href: pageUrl("/contact/"), label: "Contact" },
 ];
@@ -341,7 +346,7 @@ function isActive(href: string): boolean {
     background: var(--accent-glow);
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 960px) {
     .nav__links {
       display: none;
     }

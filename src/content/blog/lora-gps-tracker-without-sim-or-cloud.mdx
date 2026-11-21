@@ -1,0 +1,39 @@
+---
+title: "A LoRa GPS tracker with no SIM card and no cloud"
+summary: "How the two ESP32-S3 boards of my LoRa GPS tracker share one design: a battery-powered transmitter with GPS, and a base station that shows the track on a live map over local Wi-Fi."
+date: 2026-11-21
+tags: ["esp32", "lora", "gps", "pcb design"]
+project: "lora-gps-tracker"
+draft: true
+---
+
+This tracker is designed to work without a SIM card, without mobile coverage and without a cloud service, so position tracking stays on a private radio link and a local network.
+
+It is a pair of boards built on the ESP32-S3. A battery-powered **transmitter** reads its position from a GPS module and sends it over 915 MHz LoRa. A **receiver** base station acknowledges each report and shows the track on a live map in any browser on the local Wi-Fi.
+
+## One project, two boards
+
+Both boards come from one EasyEDA Pro project, and they share most of their circuits:
+
+- **Microcontroller:** ESP32-S3-WROOM-1-N8R8 (8 MB flash, 8 MB PSRAM).
+- **Radio:** EBYTE E22-900M22S (Semtech SX1262) at 915 MHz. SPI, the DIO1 interrupt, BUSY, reset and the TXEN/RXEN RF-switch lines are all wired to the ESP32-S3.
+- **Programming:** USB-C through a CH340C with DTR/RTS auto-reset, plus a 6-pin programming header.
+- **Expansion:** a 4-pin XH I²C header on both boards.
+
+The transmitter adds the GPS: an ATGM336H GPS + BeiDou receiver on UART1, with its PPS output routed to GPIO14 as a time mark and a hint that the fix is valid.
+
+## Power from a single Li-ion cell
+
+The tracker runs from a 1-cell Li-ion or Li-Po battery on a JST PH connector, anywhere from 2.75 V to 4.2 V:
+
+- An **MCP73831** charges it at 500 mA from USB-C.
+- A **TPS63020** buck-boost regulator makes the 3.28 V rail from the battery.
+- The battery input is protected by an **AO3401A** reverse-polarity switch, a TVS diode and a 10 V Zener gate clamp.
+
+## Keeping the antenna clear
+
+The ESP32-S3 module's antenna needs copper-free space around it. On the transmitter the board has a cut-out under the antenna; on the receiver there is a keep-out area. Both boards are 2-layer, 1.6 mm: the transmitter is 72.8 × 42.8 mm and the receiver 60.7 × 45.0 mm.
+
+## See it in 3D
+
+Both boards are on the project page as interactive 3D models, where you can rotate them and identify each placed part.

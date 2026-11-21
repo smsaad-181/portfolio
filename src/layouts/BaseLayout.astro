@@ -73,6 +73,11 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
           theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
         }
         document.documentElement.setAttribute("data-theme", theme);
+        // Scroll-reveal animations only with JS + IntersectionObserver and
+        // when the visitor has not asked for reduced motion. Without this
+        // class every [data-reveal] element is simply visible.
+        var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!still && "IntersectionObserver" in window) document.documentElement.classList.add("reveal-on");
       })();
     </script>
 
@@ -122,6 +127,52 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
       <slot />
     </main>
     <Footer />
+
+    <script>
+      // Scroll reveal: [data-reveal] fades/slides in once it enters the viewport.
+      // A parent with [data-reveal-stagger] staggers its [data-reveal] children.
+      // [data-count] numbers count up from 0 when they appear.
+      const root = document.documentElement;
+      if (root.classList.contains("reveal-on")) {
+        document.querySelectorAll<HTMLElement>("[data-reveal-stagger]").forEach((group) => {
+          group.querySelectorAll<HTMLElement>(":scope > [data-reveal], :scope > * > [data-reveal]").forEach((el, i) => {
+            el.style.setProperty("--reveal-delay", `${Math.min(i, 8) * 70}ms`);
+          });
+        });
+        const countUp = (el: HTMLElement) => {
+          const target = Number(el.dataset["count"]);
+          if (!Number.isFinite(target)) return;
+          const start = performance.now(), dur = 900;
+          const tick = (t: number) => {
+            const p = Math.min(1, (t - start) / dur);
+            el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        };
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (!e.isIntersecting) continue;
+              const el = e.target as HTMLElement;
+              io.unobserve(el);
+              if (el.dataset["count"] !== undefined) countUp(el);
+              if (!el.hasAttribute("data-reveal")) continue;
+              el.classList.add("is-visible");
+              // Hand the element back to its own CSS once it has arrived.
+              const delay = parseInt(el.style.getPropertyValue("--reveal-delay")) || 0;
+              setTimeout(() => {
+                el.removeAttribute("data-reveal");
+                el.classList.remove("is-visible");
+                el.style.removeProperty("--reveal-delay");
+              }, 650 + delay);
+            }
+          },
+          { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
+        );
+        document.querySelectorAll<HTMLElement>("[data-reveal], [data-count]").forEach((el) => io.observe(el));
+      }
+    </script>
   </body>
 </html>
 

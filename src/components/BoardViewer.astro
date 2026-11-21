@@ -169,11 +169,12 @@ const first = boards[0];
 
     async function start() {
       load.textContent = "Loading 3D model…";
-      const [THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }] = await Promise.all([
+      const [THREE, { GLTFLoader }, { OrbitControls }, { RoomEnvironment }, { MeshoptDecoder }] = await Promise.all([
         import("three"),
         import("three/addons/loaders/GLTFLoader.js"),
         import("three/addons/controls/OrbitControls.js"),
         import("three/addons/environments/RoomEnvironment.js"),
+        import("three/addons/libs/meshopt_decoder.module.js"), // models use EXT_meshopt_compression
       ]);
 
       let renderer: InstanceType<typeof THREE.WebGLRenderer>;
@@ -211,7 +212,8 @@ const first = boards[0];
       stage.addEventListener("wheel", (e) => { if (!e.ctrlKey && !e.metaKey) e.stopPropagation(); }, { capture: true });
 
       const accent = new THREE.Color();
-      const loader = new GLTFLoader();
+      const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+      let clockTimer = 0;
       let model: InstanceType<typeof THREE.Object3D> | null = null;
       let parts = new Map<string, { obj: InstanceType<typeof THREE.Object3D>; data: PartData; base: number; mats: any[] }>();
       let pickables: InstanceType<typeof THREE.Object3D>[] = [];
@@ -243,6 +245,7 @@ const first = boards[0];
           b.mpn ? `part <code>${esc(b.mpn)}</code>${b.maker ? ` (${esc(b.maker)})` : ""}` : "",
           b.footprint ? `footprint <code>${esc(b.footprint)}</code>` : "",
           `${d.side} side`,
+          (d as any).synthetic ? "shown at datasheet size (the STEP export has no 3D model for this part)" : "",
         ].filter(Boolean);
         return `<b>${esc(d.ref)}</b> — ${bits.join(" · ")}`;
       };
@@ -305,6 +308,7 @@ const first = boards[0];
             o.traverse((m: any) => {
               if (m.isMesh) {
                 m.material = m.material.clone();   // own material so highlight is per part
+                if (m.material.emissive) m.material.userData.baseEmissive = m.material.emissive.clone(); // LED glow, display segments
                 mats.push(m.material);
                 pickables.push(m);
                 seen.add(m);
@@ -343,6 +347,7 @@ const first = boards[0];
         info.innerHTML = DEFAULT_INFO;
         frame();
         setExplode(0);
+        startClock();
         load.hidden = true;
         showPoster(null);
         enable(true);
@@ -355,9 +360,67 @@ const first = boards[0];
           const on = selected.has(r), hov = r === hovered;
           p.mats.forEach((m) => {
             if (!m.emissive) return;
+            const base = m.userData.baseEmissive;
+            if (m.emissiveMap) return;                       // display faces keep their own glow
             m.emissive.copy(accent).multiplyScalar(on ? 0.55 : hov ? 0.22 : 0);
+            if (base) m.emissive.add(base);
           });
         });
+      }
+
+      // A board with exactly four single-digit 7-segment displays (the Clock)
+      // shows the current time on them, like Saad's own documentation model.
+      function startClock() {
+        clearInterval(clockTimer);
+        const faces = [...parts.values()]
+          .filter((p) => (p.data as any).kind === "display7")
+          .map((p) => {
+            let mesh: any = null;
+            p.obj.traverse((o: any) => { if (o.isMesh && o.material?.name?.startsWith("display-face-1")) mesh = o; });
+            return mesh ? { mesh, x: new THREE.Box3().setFromObject(p.obj).getCenter(new THREE.Vector3()).x } : null;
+          })
+          .filter(Boolean) as { mesh: any; x: number }[];
+        if (faces.length !== 4) return;
+        faces.sort((a, b) => a.x - b.x);
+        const SEG: Record<string, string> = { "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abfgcd" };
+        const canvases = faces.map(({ mesh }) => {
+          const c = document.createElement("canvas");
+          c.width = 240; c.height = 340;
+          const tex = new THREE.CanvasTexture(c);
+          tex.flipY = false;                                   // glTF UVs: v = 0 is the image top
+          tex.colorSpace = THREE.SRGBColorSpace;
+          mesh.material.map = tex;
+          mesh.material.emissiveMap = tex;
+          mesh.material.needsUpdate = true;
+          return { c, tex };
+        });
+        const ON = css("--viewer-seg-on"), OFF = css("--viewer-seg-off"), FACE = css("--viewer-seg-face");
+        const draw = (ctx: CanvasRenderingContext2D, digit: string, dp: boolean) => {
+          const t = 26, L = 120, x0 = 40, y0 = 40, mid = 170, bot = 300;
+          const rects: Record<string, [number, number, number, number]> = {
+            a: [x0 + t, y0, L, t], g: [x0 + t, mid - t / 2, L, t], d: [x0 + t, bot - t, L, t],
+            f: [x0, y0 + t, t, mid - y0 - t * 1.5], b: [x0 + L + t, y0 + t, t, mid - y0 - t * 1.5],
+            e: [x0, mid + t / 2, t, bot - mid - t * 1.5], c: [x0 + L + t, mid + t / 2, t, bot - mid - t * 1.5],
+          };
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.fillStyle = FACE;
+          ctx.fillRect(0, 0, 240, 340);
+          ctx.setTransform(1, 0, Math.tan((-6 * Math.PI) / 180), 1, 14, 0);
+          const lit = SEG[digit] ?? "";
+          for (const [k, [x, y, w, h]] of Object.entries(rects)) {
+            ctx.fillStyle = lit.includes(k) ? ON : OFF;
+            ctx.beginPath(); ctx.roundRect(x, y, w, h, Math.min(w, h) / 2); ctx.fill();
+          }
+          ctx.fillStyle = dp ? ON : OFF;
+          ctx.beginPath(); ctx.arc(x0 + L + t * 2.6, bot - t / 2, t / 1.6, 0, Math.PI * 2); ctx.fill();
+        };
+        const tick = () => {
+          const now = new Date();
+          const s = String(now.getHours()).padStart(2, "0") + String(now.getMinutes()).padStart(2, "0");
+          canvases.forEach(({ c, tex }, i) => { draw(c.getContext("2d")!, s[i]!, i === 1 && now.getSeconds() % 2 === 0); tex.needsUpdate = true; });
+        };
+        tick();
+        clockTimer = window.setInterval(() => { if (visible) tick(); }, 1000);
       }
 
       function showInfo(r?: string | null) {

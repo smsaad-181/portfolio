@@ -96,15 +96,24 @@ export const LOOKS = {
   generic: { body: "plastic", lead: "tin", plate: "tin" },
 };
 
-const ledColour = (s) =>
-  /\bred\b|-r\b|_r\b|-rd\b|红/.test(s) ? "ledRed"
-  : /green|-g\b|_g\b|绿/.test(s) ? "ledGreen"
-  : /blue|-b\b|_b\b|蓝/.test(s) ? "ledBlue"
-  : /yellow|-y\b|黄/.test(s) ? "ledYellow"
-  : /orange|橙/.test(s) ? "ledOrange"
-  : /white|-w\b|白/.test(s) ? "ledWhite"
-  : /rgb|ws28|sk68/.test(s) ? "ledClear"
-  : "ledRed";
+// LED colour from the BOM, most specific field first. EasyEDA/LCSC names put
+// the colour letter in a token: LED_TH-R_5mm, LED_0603-G, KT-0603B, …-RD_GREEN.
+const CODE = { r: "ledRed", g: "ledGreen", b: "ledBlue", y: "ledYellow", w: "ledWhite", o: "ledOrange" };
+const WORD = [[/\bred\b|红/, "ledRed"], [/green|绿/, "ledGreen"], [/blue|蓝/, "ledBlue"], [/yellow|黄/, "ledYellow"],
+  [/orange|橙/, "ledOrange"], [/white|白/, "ledWhite"], [/\brgb\b|ws28|sk68/, "ledClear"]];
+function ledColour(fields) {
+  for (const field of fields) {
+    if (!field) continue;
+    const t = field.toLowerCase();
+    for (const [re, c] of WORD) if (re.test(t)) return c;
+    for (const tok of t.split(/[^a-z0-9]+/)) {
+      if (CODE[tok]) return CODE[tok];                       // LED_TH-R_5mm → "r"
+      const m = tok.match(/^\d{4}([rgbywo])$/);              // KT-0603B → "0603b"
+      if (m) return CODE[m[1]];
+    }
+  }
+  return null;
+}
 
 /** Decide the part type. Returns { type, overrides, digits } */
 export function classifyPart(ref, bom = {}, footprint = "") {
@@ -120,9 +129,9 @@ export function classifyPart(ref, bom = {}, footprint = "") {
   }
   if (/devkit|dev ?board|supermini|super mini|nodemcu|wemos|d1 mini/.test(s)) return { type: "devboard", o };
   if (/arduino|nano|ad8232/.test(s)) return { type: "devboardBlue", o };
-  if (/^rgb|rgb led|ws281|sk681/.test(s)) return { type: /SMD|5050|3535|2020/.test(fp) ? "ledSmd" : "ledTH", o: { body: "ledClear" } };
+  if (/\brgb\b|ws281|sk681/.test(s)) return { type: /SMD|5050|3535|2020/.test(fp) ? "ledSmd" : "ledTH", o: { body: "ledClear" } };
   if (/^LED/.test(R) || /^LED/.test(fp)) {
-    const col = ledColour(s);
+    const col = ledColour([bom.name, bom.mpn, bom.value, bom.footprint, footprint]) ?? "ledRed";
     if (/SMD|^LED\d{4}|0603|0805|1206|PLCC|5050|3528|2020/.test(fp)) return { type: "ledSmd", o: { body: col } };
     return { type: "ledTH", o: { body: col } };
   }

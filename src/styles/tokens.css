@@ -66,6 +66,10 @@
   /* 3D board viewer lighting (WebGL reads these at runtime) */
   --viewer-light: #ffffff;
   --viewer-ground: #404050;
+  /* 7-segment display faces on the 3D Clock board */
+  --viewer-seg-on: #ff3b30;
+  --viewer-seg-off: #2a1110;
+  --viewer-seg-face: #151517;
 
   /* Type */
   --font-body: "Rubik Variable", "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;

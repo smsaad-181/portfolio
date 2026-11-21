@@ -29,7 +29,9 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 15 | Component Tester | Firmware is a port of Karl-Heinz Kübbeler's open-source Transistor Tester. | Role "Schematic, PCB layout & firmware port" with credit. |
 | 16 | Fingerprint Voting Machine | `dashboard.h` line 462 (also `Code/Dashboard/dashboard.html`): the CSV header string in `exportVotesCsv()` contains a literal line break, so the page's only `<script>` does not parse and **none of the dashboard's JavaScript runs on the device**. | The Outcome screenshot shows the page exactly as the firmware serves it (static layout). Worth fixing in the firmware. |
 | 17 | IoT Activity Tracker | Folder name says "Accelerometer-Gyroscope"; the dashboard subtitle and firmware say **BNO085**. | Site uses BNO085 (from firmware). |
-| 18 | Fingerprint V1.1 | `3D Step File/` folder is empty. | No interactive 3D board on that page until a STEP file is added. |
+| 18 | Fingerprint V1.1 | ~~`3D Step File/` folder is empty.~~ Saad added `3D_PCB1_2026-11-21.step` on 21 Nov 2026. Its 2D layout images are still dated 27 Jul 2026. | 3D board added. If the layout changed since July, re-export the 2D images so the board texture matches. |
+| 20 | Acqua Node | STEP export has no 3D model for relay RLY1 (only a 0.76 mm placeholder). | Shown as a box of the SRD-24VDC-SL-C datasheet size (19 × 15.5 × 15.3 mm), placed by Pick & Place; the viewer says so. |
+| 21 | Acqua Node | Silkscreen labels the LEDs **BLUE**, **RED**, **GREEN** (and **RGB**), but the BOM lists every 5 mm LED as `LED_TH-R_5mm` (red). | 3D board follows the BOM (red). **Which colours are fitted?** |
 | 19 | Vehicle Motion Analyzer | Spec card says the PCB is **59.4 × 49.9 mm**; the board outline in the STEP file (and the 2D layout's aspect ratio) is **55.5 × 49.9 mm**. | Spec card unchanged; the 3D caption no longer states a size. **Which is right?** |
 
 ### Confirmed by Saad — 21 Nov 2026

@@ -73,6 +73,13 @@
   --social-email: #ff5a8a;
   --social-email-fg: #1a0610;
 
+  /* Site-wide particle background (ParticleField.astro) */
+  --particle-1: #ff5a8a;
+  --particle-2: #c86bff;
+  --particle-3: #5b8cff;
+  --particle-line: 200, 107, 255; /* r, g, b for the link lines */
+  --particle-opacity: 0.75;
+
   /* 3D board viewer lighting (WebGL reads these at runtime) */
   --viewer-light: #ffffff;
   --viewer-ground: #404050;
@@ -177,4 +184,10 @@
   --social-oshwlab-fg: #ffffff;
   --social-email: #b8285d;
   --social-email-fg: #ffffff;
+
+  --particle-1: #d0457a;
+  --particle-2: #8a3dff;
+  --particle-3: #3b6fe0;
+  --particle-line: 138, 61, 255;
+  --particle-opacity: 0.6;
 }

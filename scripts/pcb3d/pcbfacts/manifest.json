@@ -602,45 +602,44 @@
       {
         "key": "",
         "label": "Fingerprint V1.1",
-        "dir": "D:/SAAD/PCB/Fingerprint V1.1",
+        "dir": "D:/SAAD/PCB/Fingerprint Sensor/Fingerprint V1.1",
         "github": null,
-        "step": "D:/SAAD/PCB/Fingerprint V1.1/3D Step File/3D_PCB1_2026-11-21.step",
+        "step": "D:/SAAD/PCB/Fingerprint Sensor/Fingerprint V1.1/3D Step File/3D_PCB1_2026-11-21.step",
         "glb": "/models/fingerprint-v1-1/board.glb",
         "images": {
           "render3d": {
             "src": "/images/projects/fingerprint-v1-1/render3d.webp",
-            "from": "Fingerprint V1.1/Image/3D/3D_PCB1_2026-07-27.png",
+            "from": "Fingerprint Sensor/Fingerprint V1.1/Image/3D/3D_PCB1_2026-07-27.png",
             "width": 1800,
             "height": 1803
           },
           "pcbTop": {
             "src": "/images/projects/fingerprint-v1-1/pcb-top.webp",
-            "from": "Fingerprint V1.1/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
+            "from": "Fingerprint Sensor/Fingerprint V1.1/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
             "width": 1800,
             "height": 1845
           },
           "pcbBottom": {
             "src": "/images/projects/fingerprint-v1-1/pcb-bottom.webp",
-            "from": "Fingerprint V1.1/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
+            "from": "Fingerprint Sensor/Fingerprint V1.1/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
             "width": 1800,
             "height": 1845
           },
           "top2d": {
             "src": "/images/projects/fingerprint-v1-1/top2d.webp",
-            "from": "Fingerprint V1.1/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
+            "from": "Fingerprint Sensor/Fingerprint V1.1/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
             "width": 1800,
             "height": 1830
           },
           "bottom2d": {
             "src": "/images/projects/fingerprint-v1-1/bottom2d.webp",
-            "from": "Fingerprint V1.1/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
+            "from": "Fingerprint Sensor/Fingerprint V1.1/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
             "width": 1800,
             "height": 1830
           },
           "schematics": []
         },
-        "bomMd": "fingerprint-v1-1-bom.md",
-        "layoutOutdated": "2D images, render and Pick & Place are from 27 Jul 2026; the STEP file (21 Nov 2026) has a newer layout"
+        "bomMd": "fingerprint-v1-1-bom.md"
       }
     ]
   },
@@ -653,38 +652,38 @@
       {
         "key": "",
         "label": "Fingerprint V1.2",
-        "dir": "D:/SAAD/PCB/Fingerprint V1.2",
+        "dir": "D:/SAAD/PCB/Fingerprint Sensor/Fingerprint V1.2",
         "github": null,
-        "step": "D:/SAAD/PCB/Fingerprint V1.2/3D Step File/3D_PCB1_2026-07-27.step",
+        "step": "D:/SAAD/PCB/Fingerprint Sensor/Fingerprint V1.2/3D Step File/3D_PCB1_2026-07-27.step",
         "glb": "/models/fingerprint-v1-2/board.glb",
         "images": {
           "render3d": {
             "src": "/images/projects/fingerprint-v1-2/render3d.webp",
-            "from": "Fingerprint V1.2/Image/3D/3D_PCB1_2026-07-27.png",
+            "from": "Fingerprint Sensor/Fingerprint V1.2/Image/3D/3D_PCB1_2026-07-27.png",
             "width": 1800,
             "height": 2753
           },
           "pcbTop": {
             "src": "/images/projects/fingerprint-v1-2/pcb-top.webp",
-            "from": "Fingerprint V1.2/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
+            "from": "Fingerprint Sensor/Fingerprint V1.2/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
             "width": 1800,
             "height": 2321
           },
           "pcbBottom": {
             "src": "/images/projects/fingerprint-v1-2/pcb-bottom.webp",
-            "from": "Fingerprint V1.2/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
+            "from": "Fingerprint Sensor/Fingerprint V1.2/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
             "width": 1800,
             "height": 2321
           },
           "top2d": {
             "src": "/images/projects/fingerprint-v1-2/top2d.webp",
-            "from": "Fingerprint V1.2/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
+            "from": "Fingerprint Sensor/Fingerprint V1.2/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
             "width": 1800,
             "height": 2752
           },
           "bottom2d": {
             "src": "/images/projects/fingerprint-v1-2/bottom2d.webp",
-            "from": "Fingerprint V1.2/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
+            "from": "Fingerprint Sensor/Fingerprint V1.2/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
             "width": 1800,
             "height": 2752
           },

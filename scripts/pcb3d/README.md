@@ -35,9 +35,12 @@ node step2board.mjs <board.step> <out.glb> <bom.md|-> <top2d.png|-> <bottom2d.pn
 - `overrides.json`: per-board corrections Saad confirmed, keyed by the output
   path (e.g. `models/acqua-node/board.glb`), each with a material and a note that
   the viewer shows (Acqua Node LEDs follow the silkscreen labels, not the BOM).
-- Manifest `layoutOutdated`: the STEP file is newer than the 2D images, render and
-  Pick & Place (Fingerprint V1.1), so the board is built from the STEP alone
-  (STEP solder-mask colour, no copper/silkscreen texture).
+- Manifest `layoutOutdated` (optional): set it only when the STEP file really has a newer
+  layout than the 2D images, render and Pick & Place; the board is then built from the STEP
+  alone. Check first: P&P "Mid" and STEP body centres differ by design for parts whose 3D body
+  overhangs the footprint (ESP32 antenna, DC jack, USB-C shell), and EasyEDA's STEP export
+  always colours the board blue. Compare with a board whose files share one date.
+
 - Parts EasyEDA exported without a model (a 0.76 mm placeholder cube) are built
   at datasheet/package size, centred from Pick & Place and refined by the part's
   outline in EasyEDA's render.

@@ -1,8 +1,32 @@
 {
   "models/acqua-node/board.glb": {
-    "LED3": { "material": "ledBlue", "note": "colour from the silkscreen label BLUE (Saad, 21 Nov 2026); the BOM lists LED_TH-R_5mm" },
-    "LED4": { "material": "ledRed", "note": "colour from the silkscreen label RED (Saad, 21 Nov 2026)" },
-    "LED1": { "material": "ledRed", "note": "colour from the silkscreen label RED (Saad, 21 Nov 2026)" },
-    "LED5": { "material": "ledGreen", "note": "colour from the silkscreen label GREEN (Saad, 21 Nov 2026); the BOM lists LED_TH-R_5mm" }
+    "LED3": {
+      "material": "ledBlue",
+      "note": "colour from the silkscreen label BLUE (Saad, 21 Nov 2026); the BOM lists LED_TH-R_5mm"
+    },
+    "LED4": {
+      "material": "ledRed",
+      "note": "colour from the silkscreen label RED (Saad, 21 Nov 2026)"
+    },
+    "LED1": {
+      "material": "ledRed",
+      "note": "colour from the silkscreen label RED (Saad, 21 Nov 2026)"
+    },
+    "LED5": {
+      "material": "ledGreen",
+      "note": "colour from the silkscreen label GREEN (Saad, 21 Nov 2026); the BOM lists LED_TH-R_5mm"
+    }
+  },
+  "models/fingerprint-v1-1/board.glb": {
+    "LED8": {
+      "material": "ledGreen",
+      "note": "colour from the silkscreen label GREEN (same rule as Acqua Node, Saad 21 Nov 2026); the BOM lists LED_TH-R_5mm"
+    }
+  },
+  "models/fingerprint-v1-2/board.glb": {
+    "LED8": {
+      "material": "ledGreen",
+      "note": "colour from the silkscreen label GREEN (same rule as Acqua Node, Saad 21 Nov 2026); the BOM lists LED_TH-R_5mm"
+    }
   }
 }

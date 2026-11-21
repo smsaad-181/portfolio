@@ -150,6 +150,19 @@ const projects = defineCollection({
       )
       .default([]),
     // Key specs for the page header: { label: "MCU", value: "ESP32-WROOM-32E" }.
+    // Several board revisions in one project: one card each on the project page.
+    // `model` is the label of the matching entry in `models` (opens it in 3D).
+    versions: z
+      .array(
+        z.object({
+          label: z.string().min(1),
+          summary: z.string().min(1),
+          highlights: z.array(z.string().min(1)).max(6).default([]),
+          image: imageSchema.optional(),
+          model: z.string().optional(),
+        })
+      )
+      .default([]),
     specs: z.array(z.object({ label: z.string().min(1), value: z.string().min(1) })).default([]),
     tags: z.array(z.string()).default([]),
     status: z.enum(["completed", "in-progress", "prototype"]),

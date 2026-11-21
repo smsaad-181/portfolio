@@ -309,6 +309,29 @@ const projectsCollection: Collection = {
     },
     {
       type: "object" as const,
+      name: "versions",
+      label: "Versions (board revisions)",
+      list: true,
+      description: "Only for projects with several boards. One card each on the project page; Model = the label of the matching 3D model.",
+      ui: { itemProps: (item: { label?: string }) => ({ label: item?.label || "New version" }) },
+      fields: [
+        { type: "string" as const, name: "label", label: "Name", required: true },
+        { type: "string" as const, name: "summary", label: "One-line summary", required: true },
+        { type: "string" as const, name: "highlights", label: "What's different (max 6)", list: true },
+        {
+          type: "object" as const,
+          name: "image",
+          label: "Image",
+          fields: [
+            { type: "image" as const, name: "src", label: "Image", required: true },
+            { type: "string" as const, name: "alt", label: "Alt text", required: true },
+          ],
+        },
+        { type: "string" as const, name: "model", label: "3D model label" },
+      ],
+    },
+    {
+      type: "object" as const,
       name: "specs",
       label: "Key specs",
       list: true,

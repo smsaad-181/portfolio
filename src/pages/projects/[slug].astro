@@ -47,6 +47,13 @@ const gallery = (
   )
 ).filter((g): g is NonNullable<typeof g> => g !== null);
 const renders = gallery.filter((g) => g.kind === "render");
+// Board revisions (e.g. Home Automation V1 / V2.1 / V2.2): only images that exist.
+const versions = await Promise.all(
+  data.versions.map(async (v) => {
+    const size = v.image ? await publicImageSize(v.image.src) : null;
+    return { ...v, img: v.image && size ? { ...v.image, ...size } : null, has3d: !!v.model && data.models.some((m) => m.label === v.model && publicFileExists(m.src)) };
+  })
+);
 const dashboards = gallery.filter((g) => g.kind === "dashboard");
 
 const statusLabel = { completed: "Completed", "in-progress": "In progress", prototype: "Prototype" } as const;
@@ -132,6 +139,38 @@ const jsonLd = {
         </aside>
       )}
     </header>
+
+    <!-- Versions: one card per board revision -->
+    {versions.length > 1 && (
+      <section class="container project-section" aria-labelledby="versions-heading">
+        <h2 class="section-title" id="versions-heading">Versions</h2>
+        <p class="section-lead">This project has {versions.length} board versions. Each card shows what is different; open one in the 3D viewer below.</p>
+        <ol class="versions" role="list">
+          {versions.map((v, i) => (
+            <li class="version">
+              {v.img && (
+                <div class="version__img">
+                  <Image src={assetUrl(v.img.src)} alt={v.img.alt} width={v.img.width} height={v.img.height} loading="lazy" />
+                </div>
+              )}
+              <div class="version__body">
+                <p class="version__num">Version {i + 1}</p>
+                <h3 class="version__title">{v.label}</h3>
+                <p class="version__summary">{v.summary}</p>
+                {v.highlights.length > 0 && (
+                  <ul class="version__list">
+                    {v.highlights.map((h) => <li>{h}</li>)}
+                  </ul>
+                )}
+                {v.has3d && (
+                  <button type="button" class="btn btn--secondary version__btn" data-select-board={v.model}>View in 3D <span aria-hidden="true">↓</span></button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
 
     <!-- Interactive 3D board(s) -->
     {data.models.length > 0 && (
@@ -346,6 +385,88 @@ const jsonLd = {
   }
 
   /* Same look as the write-up's h2 headings */
+  /* Versions */
+  .versions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .versions > li + li {
+    margin-top: 0;
+  }
+
+  .version {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    overflow: hidden;
+  }
+
+  .version__img {
+    aspect-ratio: 16 / 10;
+    padding: var(--space-4);
+    background:
+      radial-gradient(ellipse 70% 70% at 50% 45%, var(--accent-glow), transparent 70%),
+      var(--bg-elevated);
+  }
+
+  .version__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .version__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6) var(--space-6);
+  }
+
+  .version__num {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .version__title {
+    margin: 0;
+    font-size: var(--fs-18);
+    font-weight: 600;
+  }
+
+  .version__summary {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  .version__list {
+    margin: var(--space-2) 0 var(--space-4);
+    padding-left: 1.2em;
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .version__list li + li {
+    margin-top: var(--space-1);
+  }
+
+  .version__btn {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+
   .section-title {
     margin: 0 0 var(--space-6);
     padding-bottom: var(--space-2);

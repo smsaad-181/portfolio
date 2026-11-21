@@ -8,15 +8,15 @@ gallery:
   - src: "/images/projects/home-automation/4ch-v1-render3d.webp"
     alt: "3D render of the 4-Channel Relay V1 board with ESP32 module, four relays and the AC-DC module"
     kind: "render"
-    caption: "4-Channel Relay V1: 3D render"
+    caption: "V1 · 4 channels"
   - src: "/images/projects/home-automation/6ch-v2-1-render3d.webp"
     alt: "3D render of the 6-Channel Relay V2.1 board with six relays and the HLK-PM01 supply module"
     kind: "render"
-    caption: "6-Channel Relay V2.1: 3D render"
+    caption: "V2.1 · 6 channels"
   - src: "/images/projects/home-automation/6ch-v2-2-render3d.webp"
     alt: "3D render of the 6-Channel Relay V2.2 board with six relays and the HLK-10M05T supply module"
     kind: "render"
-    caption: "6-Channel Relay V2.2: 3D render"
+    caption: "V2.2 · 6 channels"
   - src: "/images/projects/home-automation/dashboard.webp"
     alt: "Relay Control web dashboard with status cards (Currently On, Device IP, WiFi Signal, Uptime), All ON, All OFF and Restart Device buttons, and six relay cards, each with an on/off toggle, trigger and on-time statistics, View Log and Reset Stats buttons, an auto-off timer and a daily on/off schedule"
     kind: "dashboard"
@@ -31,6 +31,42 @@ models:
   - label: "6-Channel Relay V2.2"
     src: "/models/home-automation/6ch-v2-2.glb"
     poster: "/images/projects/home-automation/6ch-v2-2-render3d.webp"
+versions:
+  - label: "4-Channel Relay V1"
+    summary: "The first board: four relay channels on a compact PCB."
+    highlights:
+      - "4 SRD-24VDC-SL-C relays, each with PC817C opto-isolation"
+      - "HLK-10M05T AC-DC module powers it from mains"
+      - "USBLC6-2SC6 ESD protection on the USB-C port"
+      - "4-pin XH expansion header"
+      - "Board 101.6 × 81.5 mm"
+    image:
+      src: "/images/projects/home-automation/4ch-v1-render3d.webp"
+      alt: "3D render of the 4-Channel Relay V1 board"
+    model: "4-Channel Relay V1"
+  - label: "6-Channel Relay V2.1"
+    summary: "Six channels, with a 5 V DC jack as an alternative power input."
+    highlights:
+      - "6 SRD-24VDC-SL-C relays, each with PC817C opto-isolation"
+      - "HLK-PM01 AC-DC module"
+      - "5 V DC jack input (DC-005)"
+      - "Board 121.6 × 97.3 mm (the largest of the three)"
+    image:
+      src: "/images/projects/home-automation/6ch-v2-1-render3d.webp"
+      alt: "3D render of the 6-Channel Relay V2.1 board"
+    model: "6-Channel Relay V2.1"
+  - label: "6-Channel Relay V2.2"
+    summary: "The latest revision: six channels on a smaller board than V2.1."
+    highlights:
+      - "6 SRD-24VDC-SL-C relays, each with PC817C opto-isolation"
+      - "HLK-10M05T AC-DC module"
+      - "USBLC6-2SC6 ESD protection on the USB-C port"
+      - "4-pin XH expansion header"
+      - "Board 110.0 × 88.9 mm"
+    image:
+      src: "/images/projects/home-automation/6ch-v2-2-render3d.webp"
+      alt: "3D render of the 6-Channel Relay V2.2 board"
+    model: "6-Channel Relay V2.2"
 specs:
   - label: "MCU"
     value: "Ai-Thinker ESP32-S module"
@@ -48,7 +84,7 @@ tags: ["esp32", "iot", "pcb design", "home automation", "firmware"]
 status: "prototype"
 role: "Schematic, PCB layout & firmware"
 featured: false
-order: 12
+order: 5
 draft: false
 ---
 
@@ -56,7 +92,7 @@ draft: false
 
 These boards bring Wi-Fi and wall-switch control to household mains loads such as lights, fans and sockets. Each one is a through-hole PCB built around an ESP32 module that runs a self-hosted web server, so it needs no cloud service, smartphone app or subscription: only the local Wi-Fi network and a browser.
 
-The design exists in three revisions: a 4-channel board (V1) and two 6-channel boards (V2.1 and V2.2). All three share the same core: an onboard AC-DC supply, an isolated relay drive per channel, physical switch inputs and USB-C programming.
+The design exists in three versions — a 4-channel board (V1) and two 6-channel boards (V2.1 and V2.2); the Versions section above compares them. All three share the same core: an onboard AC-DC supply, an isolated relay drive per channel, physical switch inputs and USB-C programming.
 
 ## Features
 

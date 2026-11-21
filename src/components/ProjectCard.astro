@@ -25,9 +25,11 @@ export interface Props {
   };
   tags: string[];
   status: "completed" | "in-progress" | "prototype";
+  /** Number of board versions (shows a "3 versions" chip when > 1). */
+  versions?: number;
 }
 
-const { title, href, summary, coverImage, tags, status } = Astro.props;
+const { title, href, summary, coverImage, tags, status, versions = 0 } = Astro.props;
 const hasCover = publicFileExists(coverImage.src);
 const displayTags = tags.slice(0, 3);
 ---
@@ -51,6 +53,7 @@ const displayTags = tags.slice(0, 3);
   <div class="project-card__body">
     <div class="project-card__meta">
       <StatusBadge status={status} />
+      {versions > 1 && <span class="project-card__versions">{versions} versions</span>}
       <div class="project-card__tags" aria-label="Project tags">
         {displayTags.map((tag) => <TagChip tag={tag} />)}
         {tags.length > 3 && (
@@ -129,6 +132,17 @@ const displayTags = tags.slice(0, 3);
     align-items: center;
     gap: var(--space-3);
     flex-wrap: wrap;
+  }
+
+  .project-card__versions {
+    padding: 2px 8px;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--accent-2) 12%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
   .project-card__tags {

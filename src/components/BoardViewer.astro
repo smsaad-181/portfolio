@@ -157,6 +157,16 @@ const first = boards[0];
     );
     io.observe(stage);
 
+    // "View in 3D" buttons elsewhere on the page (project versions) pick a board tab.
+    document.querySelectorAll<HTMLButtonElement>("[data-select-board]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const tab = [...host.querySelectorAll<HTMLButtonElement>(".bv__tab")].find((t) => t.dataset.label === btn.dataset.selectBoard);
+        tab?.click();
+        host.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        (tab ?? host.querySelector<HTMLElement>("[data-view]"))?.focus({ preventScroll: true });
+      }),
+    );
+
     host.querySelectorAll<HTMLButtonElement>(".bv__tab").forEach((tab) =>
       tab.addEventListener("click", () => {
         host.querySelectorAll(".bv__tab").forEach((t) => t.setAttribute("aria-pressed", String(t === tab)));

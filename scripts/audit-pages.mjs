@@ -100,6 +100,11 @@ for (const theme of themes) {
       });
       if (overflow) problems.push({ label, kind: "horizontal overflow", detail: overflow });
 
+      // Sections with content-visibility: auto are not rendered until they are
+      // near the viewport; axe then reads wrong colours (flaky contrast hits).
+      // Render everything before measuring.
+      await page.addStyleTag({ content: "*{content-visibility:visible !important}" });
+      await page.waitForTimeout(100);
       await page.addScriptTag({ path: AXE_PATH });
       const result = await page.evaluate(async () => {
         // @ts-ignore — injected global

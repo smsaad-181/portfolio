@@ -1,1 +1,7 @@
-{ "name": "UART", "category": "protocols", "proficiency": 4 }
+{
+  "name": "UART",
+  "category": "protocols",
+  "aliases": [
+    "uart"
+  ]
+}

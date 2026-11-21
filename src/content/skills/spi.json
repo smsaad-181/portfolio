@@ -1,1 +1,7 @@
-{ "name": "SPI", "category": "protocols", "proficiency": 4 }
+{
+  "name": "SPI",
+  "category": "protocols",
+  "aliases": [
+    "spi"
+  ]
+}

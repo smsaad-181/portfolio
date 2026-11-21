@@ -1,1 +1,7 @@
-{ "name": "Proteus", "category": "pcb & eda", "proficiency": 3 }
+{
+  "name": "Proteus",
+  "category": "hardware & pcb",
+  "aliases": [
+    "proteus"
+  ]
+}

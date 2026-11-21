@@ -1,1 +1,8 @@
-{ "name": "ESP32", "category": "iot & communication", "proficiency": 5 }
+{
+  "name": "ESP32",
+  "category": "embedded & firmware",
+  "home": true,
+  "aliases": [
+    "esp32"
+  ]
+}

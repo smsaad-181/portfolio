@@ -87,7 +87,7 @@ const profileCollection: Collection = {
       name: "resume",
       label: "Resume PDF",
       required: true,
-      description: "Upload the current CV as a PDF. Path stored as public/resume/…",
+      description: "Generated from the Resume page by `npm run cv:pdf` (run it after content changes). Don't upload a different file.",
     },
     {
       type: "object" as const,
@@ -122,10 +122,17 @@ const profileCollection: Collection = {
     },
     {
       type: "string" as const,
-      name: "tools",
-      label: "Tools & platforms",
+      name: "bio",
+      label: "About bio (paragraphs)",
       list: true,
-      description: "Shown as chips under Skills on the home page (no skill level).",
+      ui: { component: "list" as const },
+      description: "Up to 4 short paragraphs for the About page: who you are, what you build, what you're looking for.",
+    },
+    {
+      type: "string" as const,
+      name: "availability",
+      label: "Availability line",
+      description: "e.g. Open to hardware / embedded roles · Dhaka or remote. Leave empty to hide.",
     },
   ],
 };
@@ -166,6 +173,7 @@ const experienceCollection: Collection = {
       label: "Responsibilities & Achievements",
       list: true,
       ui: { component: "list" as const },
+      description: "At most 6. Start with a verb: what you did and the result.",
     },
     {
       type: "string" as const,
@@ -222,14 +230,20 @@ const skillsCollection: Collection = {
       label: "Category",
       required: true,
       description:
-        "Free text, lowercase. e.g. 'programming', 'protocols', 'iot & communication'. " +
-        "The UI groups by whatever categories exist — no code change needed for a new category.",
+        "Lowercase. One of: hardware & pcb, embedded & firmware, protocols, iot & platforms, tools. " +
+        "A new category shows up as its own group automatically.",
     },
     {
-      type: "number" as const,
-      name: "proficiency",
-      label: "Proficiency (1–5)",
-      description: "Optional. 1 = beginner, 5 = expert.",
+      type: "boolean" as const,
+      name: "home",
+      label: "Show in the home page's key tools row",
+    },
+    {
+      type: "string" as const,
+      name: "aliases",
+      label: "Words that mark a project as using it",
+      list: true,
+      description: "Lowercase, e.g. esp32 or node-red. Matched in project tags and spec values (\"Used in N projects\"). Leave empty to match the skill name.",
     },
   ],
 };

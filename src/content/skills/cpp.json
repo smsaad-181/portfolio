@@ -1,1 +1,8 @@
-{ "name": "C++", "category": "programming", "proficiency": 4 }
+{
+  "name": "C++",
+  "category": "embedded & firmware",
+  "home": true,
+  "aliases": [
+    "c++"
+  ]
+}

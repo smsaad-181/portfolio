@@ -60,6 +60,9 @@ jobs:
       # ── Gate 3: Build the Astro site ──────────────────────────────────────
       - name: Build Astro site
         run: npm run build:site
+        env:
+          # Contact form (Web3Forms). Public by design; empty secret = form hidden.
+          PUBLIC_WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
 
       # ── Gate 4: Every internal link and asset resolves under /portfolio ───
       - name: Check links

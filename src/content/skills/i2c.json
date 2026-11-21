@@ -1,1 +1,8 @@
-{ "name": "I\u00b2C", "category": "protocols", "proficiency": 4 }
+{
+  "name": "I²C",
+  "category": "protocols",
+  "home": true,
+  "aliases": [
+    "i2c"
+  ]
+}

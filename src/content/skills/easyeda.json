@@ -1,1 +1,8 @@
-{ "name": "EasyEDA", "category": "pcb & eda", "proficiency": 4 }
+{
+  "name": "EasyEDA",
+  "category": "hardware & pcb",
+  "home": true,
+  "aliases": [
+    "easyeda"
+  ]
+}

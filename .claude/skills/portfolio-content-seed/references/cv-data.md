@@ -8,8 +8,9 @@
   [CV email — not published] — do not use that one on the site)
 - Summary basis: hardware engineer focused on PCB design, embedded systems,
   and IoT product development.
-- Social links: LinkedIn, GitHub, OSHWLab — **get exact URLs from Saad before
-  publishing**, do not guess a username/URL.
+- Social links (verified 21 Nov 2026): LinkedIn https://linkedin.com/in/sultan-mahmud-saad,
+  GitHub https://github.com/smsaad-181, OSHWLab https://oshwlab.com/smsaad181 (confirmed by Saad).
+- Availability (Saad, 21 Nov 2026): Open to hardware / embedded roles · Dhaka or remote.
 
 ## Experience
 **Assistant Officer, SIOT Solutions — Southern Innovation of Technology** — Jan 14, 2025–Present (`current: true`)

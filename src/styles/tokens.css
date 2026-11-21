@@ -66,6 +66,13 @@
   /* 3D board viewer lighting (WebGL reads these at runtime) */
   --viewer-light: #ffffff;
   --viewer-ground: #404050;
+  /* Printable CV sheet (same in both themes: it is paper) */
+  --paper-bg: #ffffff;
+  --paper-text: #1a1028;
+  --paper-muted: #574a6b;
+  --paper-rule: #e2d8ee;
+  --paper-accent: #9c1f4d;
+
   /* 7-segment display faces on the 3D Clock board */
   --viewer-seg-on: #ff3b30;
   --viewer-seg-off: #2a1110;

@@ -4,15 +4,23 @@
   "startDate": "2025-01-14",
   "current": true,
   "bullets": [
-    "Circuit/schematic design and PCB design for IoT products",
-    "Sensor integration (temperature, humidity, gas, laser, fingerprint, RFID) and embedded debugging",
-    "Hardware documentation and design review",
-    "LoRaWAN gateway integration and Raspberry Pi Pico development for IoT applications",
-    "Node-RED for IoT data visualization and control flows",
-    "Protocols: I²C, SPI, UART, Modbus, MQTT",
-    "Motor driver work (A4988, L298N) and power regulation circuit design",
-    "Jacquard machine control/racking board observation",
-    "Notable internal project: three-phase voltage indicator"
+    "Design circuits, schematics and PCBs for the company's IoT products, including power regulation circuits",
+    "Integrate temperature, humidity, gas, laser, fingerprint and RFID sensors over I²C, SPI and UART, and debug the embedded firmware that drives them",
+    "Connect devices to LoRaWAN gateways, Modbus and MQTT, and develop Raspberry Pi Pico controllers for IoT applications",
+    "Build Node-RED flows for IoT data visualisation and control",
+    "Develop motor-driver circuits with A4988 and L298N, and an internal three-phase voltage indicator",
+    "Write hardware documentation and take part in design reviews"
   ],
-  "tags": ["PCB Design", "ESP32", "LoRaWAN", "MQTT", "I2C", "SPI", "UART", "Modbus", "Node-RED", "Raspberry Pi Pico"]
+  "tags": [
+    "PCB Design",
+    "ESP32",
+    "LoRaWAN",
+    "MQTT",
+    "I2C",
+    "SPI",
+    "UART",
+    "Modbus",
+    "Node-RED",
+    "Raspberry Pi Pico"
+  ]
 }

@@ -1,212 +1,402 @@
 ---
 /**
  * Resume page — /resume/
- * Links directly to the PDF in public/resume/ for download. If the PDF hasn't
- * been uploaded yet, offers "CV available on request" (mailto) instead.
- * The PDF path is sourced from the profile content entry so Saad can
- * update it via /admin (by uploading a new file in Tina) without touching code.
+ * An HTML CV built from the content collections (profile, experience,
+ * projects, skills, education, certifications). On screen it sits on a
+ * paper-like sheet with Download / Print buttons; when printed (or exported
+ * by `npm run cv:pdf`) it becomes a clean A4 CV without the site chrome.
+ * The PDF in public/resume/ is generated from this page, so both always match.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
+import Icon from "@components/Icon.astro";
+import { getCollection } from "astro:content";
 import { getProfile, getResumeUrl } from "../lib/profile";
+import { getFeaturedProjects, getPublishedProjects } from "../lib/projects";
+import { getSkillGroups } from "../lib/skills";
+import { absoluteUrl, pageUrl } from "../lib/urls";
+import resumeMeta from "../data/resume.json";
 
 const profile = await getProfile();
+const { data } = profile;
 const resumeUrl = getResumeUrl(profile);
-const requestHref = `mailto:${profile.data.email}?subject=${encodeURIComponent("CV request")}`;
+const experiences = (await getCollection("experience")).sort((a, b) => {
+  if (a.data.current !== b.data.current) return a.data.current ? -1 : 1;
+  return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
+});
+const educations = (await getCollection("education")).sort((a, b) => b.data.year - a.data.year);
+const certs = await getCollection("certifications");
+const featured = await getFeaturedProjects();
+const others = (await getPublishedProjects()).filter((p) => !p.data.featured);
+const skillGroups = await getSkillGroups();
+const portfolio = absoluteUrl(pageUrl("/"));
+const host = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 ---
 
-<BaseLayout
-  title="Resume"
-  description={`Download the CV of ${profile.data.name}, ${profile.data.title}.`}
->
-  <section class="resume-page">
-    <div class="container resume-inner">
-      <p class="section-label">// cv</p>
-      <h1 class="resume-title">Resume</h1>
-      <p class="resume-body">
-        {resumeUrl
-          ? "Download the latest version of my CV as a PDF."
-          : "My CV is available on request — email me and I'll send the latest version."}
-      </p>
-
-      {resumeUrl ? (
-      <div class="resume-actions">
-        <a
-          href={resumeUrl}
-          download
-          class="btn btn--primary"
-          aria-label={`Download ${profile.data.name}'s resume as PDF`}
-        >
-          Download CV (PDF)
-        </a>
-        <a
-          href={resumeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn--secondary"
-          aria-label="Open resume PDF in new tab"
-        >
-          Open in Browser
-        </a>
-      </div>
-      ) : (
-      <div class="resume-actions">
-        <a href={requestHref} class="btn btn--primary">Request my CV by email</a>
-      </div>
-      )}
-
-      <div class="resume-meta">
-        <p class="section-label">// quick overview</p>
-        <dl class="resume-facts">
-          <div class="resume-fact">
-            <dt>Name</dt>
-            <dd>{profile.data.name}</dd>
-          </div>
-          <div class="resume-fact">
-            <dt>Title</dt>
-            <dd>{profile.data.title}</dd>
-          </div>
-          <div class="resume-fact">
-            <dt>Location</dt>
-            <dd>{profile.data.location}</dd>
-          </div>
-          <div class="resume-fact">
-            <dt>Email</dt>
-            <dd>
-              <a href={`mailto:${profile.data.email}`}>{profile.data.email}</a>
-            </dd>
-          </div>
-        </dl>
+<BaseLayout title="Resume" description={`CV of ${data.name}, ${data.title} in ${data.location}: experience, projects, skills and education.`}>
+  <section class="resume" aria-labelledby="resume-heading">
+    <div class="container">
+      <div class="resume-bar">
+        <div>
+          <p class="section-label">// cv</p>
+          <h1 class="resume-bar__title" id="resume-heading">Resume</h1>
+          <p class="resume-bar__updated">Last updated: <time datetime={resumeMeta.updated}>{updated}</time></p>
+        </div>
+        <div class="resume-bar__actions">
+          {resumeUrl && (
+            <a href={resumeUrl} download class="btn btn--primary"><Icon name="download" />Download PDF</a>
+          )}
+          <button type="button" class="btn btn--secondary" data-print><Icon name="print" />Print</button>
+        </div>
       </div>
 
+      <article class="cv" aria-label={`CV of ${data.name}`}>
+        <header class="cv__head">
+          <div>
+            <h2 class="cv__name">{data.name}</h2>
+            <p class="cv__title">{data.title}</p>
+          </div>
+          <ul class="cv__contact" role="list">
+            <li>{data.location}</li>
+            <li><a href={`mailto:${data.email}`}>{data.email}</a></li>
+            {data.socialLinks.linkedin && <li><a href={data.socialLinks.linkedin}>{host(data.socialLinks.linkedin)}</a></li>}
+            {data.socialLinks.github && <li><a href={data.socialLinks.github}>{host(data.socialLinks.github)}</a></li>}
+            {data.socialLinks.oshwlab && <li><a href={data.socialLinks.oshwlab}>{host(data.socialLinks.oshwlab)}</a></li>}
+            <li><a href={portfolio}>{host(portfolio)}</a></li>
+          </ul>
+        </header>
+
+        <section class="cv__section">
+          <h3 class="cv__h">Profile</h3>
+          <p>{data.summary}</p>
+          {data.availability && <p class="cv__avail">{data.availability}</p>}
+        </section>
+
+        <section class="cv__section">
+          <h3 class="cv__h">Experience</h3>
+          {experiences.map((e) => (
+            <div class="cv__item">
+              <div class="cv__row">
+                <p class="cv__strong">{e.data.role} · {e.data.company}</p>
+                <p class="cv__date">{fmt(e.data.startDate)} – {e.data.current ? "Present" : e.data.endDate ? fmt(e.data.endDate) : ""}</p>
+              </div>
+              <ul class="cv__bullets">
+                {e.data.bullets.map((b) => <li>{b}</li>)}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        <section class="cv__section">
+          <h3 class="cv__h">Selected projects</h3>
+          {featured.map((p) => (
+            <div class="cv__item cv__item--tight">
+              <p class="cv__strong">{p.data.title}</p>
+              <p class="cv__muted">{p.data.summary}</p>
+            </div>
+          ))}
+          {others.length > 0 && (
+            <p class="cv__more"><span class="cv__strong">Also:</span> {others.map((p) => p.data.title).join(" · ")}</p>
+          )}
+          <p class="cv__muted cv__small">Interactive 3D boards and write-ups: {host(portfolio)}/projects/</p>
+        </section>
+
+        <section class="cv__section">
+          <h3 class="cv__h">Skills</h3>
+          <dl class="cv__skills">
+            {skillGroups.map((g) => (
+              <div class="cv__skillrow">
+                <dt>{g.label}</dt>
+                <dd>{[...g.skills].sort((a, b) => Number(b.skill.data.home) - Number(a.skill.data.home) || a.skill.data.name.localeCompare(b.skill.data.name)).map((s) => s.skill.data.name).join(", ")}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section class="cv__section cv__two">
+          <div>
+            <h3 class="cv__h">Education</h3>
+            {educations.map((e) => (
+              <div class="cv__item cv__item--tight">
+                <div class="cv__row">
+                  <p class="cv__strong">{e.data.degree}</p>
+                  <p class="cv__date">{e.data.year}</p>
+                </div>
+                <p class="cv__muted">{e.data.institute}{e.data.result && ` · ${e.data.result}`}</p>
+              </div>
+            ))}
+          </div>
+          {certs.length > 0 && (
+            <div>
+              <h3 class="cv__h">Certifications & training</h3>
+              <ul class="cv__bullets">
+                {certs.map((c) => <li>{c.data.name}{c.data.issuer && <span class="cv__muted"> — {c.data.issuer}</span>}</li>)}
+              </ul>
+            </div>
+          )}
+        </section>
+      </article>
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  document.querySelector("[data-print]")?.addEventListener("click", () => window.print());
+</script>
+
 <style>
-  .resume-page {
-    padding-block: var(--space-16) var(--space-24);
-    min-height: calc(100dvh - var(--nav-height));
+  .resume {
+    padding-block: var(--space-12) var(--space-16);
   }
 
-  .resume-inner {
-    max-width: 640px;
-  }
-
-  .resume-title {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-block: var(--space-2) var(--space-4);
-  }
-
-  .resume-body {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.7;
+  .resume-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-4);
     margin-bottom: var(--space-8);
   }
 
-  .resume-actions {
-    display: flex;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-    margin-bottom: var(--space-12);
+  .resume-bar__title {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    margin: var(--space-2) 0 var(--space-1);
   }
 
-  .btn {
+  .resume-bar__updated {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-14);
+    color: var(--text-muted);
+  }
+
+  .resume-bar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .resume-bar__actions .btn {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    padding: 0.65rem 1.5rem;
+  }
+
+  /* ── The CV sheet (paper colours in both themes) ───────────────────────── */
+  .cv {
+    max-width: 210mm;
+    margin-inline: auto;
+    padding: 14mm 16mm;
+    background: var(--paper-bg);
+    color: var(--paper-text);
     border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-decoration: none;
-    transition: all 0.15s ease;
-    white-space: nowrap;
+    box-shadow: var(--shadow-md);
+    font-size: 9.4pt;
+    line-height: 1.4;
   }
 
-  .btn--primary {
-    background: var(--accent);
-    color: var(--text-inverse);
-    border: 1px solid var(--accent);
+  .cv p {
+    margin: 0;
   }
 
-  .btn--primary:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent-dim);
-    color: var(--text-inverse);
-  }
-
-  .btn--secondary {
-    background: transparent;
-    color: var(--accent);
-    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-
-  .btn--secondary:hover {
-    background: var(--accent-glow);
-    border-color: var(--accent);
-  }
-
-  .resume-meta {
-    padding: var(--space-6);
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-8);
-  }
-
-  .resume-meta .section-label {
-    margin-bottom: var(--space-4);
-  }
-
-  .resume-facts {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .resume-fact {
-    display: flex;
-    gap: var(--space-6);
-    font-size: 0.9rem;
-  }
-
-  .resume-fact dt {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    min-width: 80px;
-    padding-top: 2px;
-  }
-
-  .resume-fact dd {
-    color: var(--text-secondary);
-    min-width: 0;
-    overflow-wrap: anywhere; /* long email must wrap on phones */
-  }
-
-  .resume-fact a {
-    color: var(--accent);
-  }
-
-  .resume-note {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
-
-  .resume-note a {
-    color: var(--text-secondary);
+  .cv a {
+    color: var(--paper-text);
     text-decoration: underline;
+    text-decoration-color: var(--paper-rule);
     text-underline-offset: 2px;
   }
 
-  .resume-note a:hover {
-    color: var(--accent);
+  .cv__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 6mm;
+    padding-bottom: 4mm;
+    border-bottom: 2px solid var(--paper-accent);
+    margin-bottom: 4mm;
+  }
+
+  .cv__name {
+    font-size: 20pt;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0;
+    color: var(--paper-text);
+  }
+
+  .cv__title {
+    margin-top: 1mm;
+    font-size: 11pt;
+    font-weight: 500;
+    color: var(--paper-accent);
+  }
+
+  .cv__contact {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: right;
+    font-size: 8.5pt;
+    color: var(--paper-muted);
+  }
+
+  .cv__contact li + li {
+    margin-top: 0.5mm;
+  }
+
+  .cv__section {
+    margin-top: 3.2mm;
+  }
+
+  .cv__h {
+    font-family: var(--font-mono);
+    font-size: 8.5pt;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--paper-accent);
+    margin: 0 0 2mm;
+    padding-bottom: 1mm;
+    border-bottom: 1px solid var(--paper-rule);
+  }
+
+  .cv__avail {
+    margin-top: 1.5mm !important;
+    font-weight: 600;
+  }
+
+  .cv__item {
+    margin-bottom: 2.5mm;
+    break-inside: avoid;
+  }
+
+  .cv__item--tight {
+    margin-bottom: 1.8mm;
+  }
+
+  .cv__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 4mm;
+  }
+
+  .cv__strong {
+    font-weight: 600;
+  }
+
+  .cv__date {
+    font-family: var(--font-mono);
+    font-size: 8.5pt;
+    color: var(--paper-muted);
+    white-space: nowrap;
+  }
+
+  .cv__muted {
+    color: var(--paper-muted);
+  }
+
+  .cv__small {
+    margin-top: 1mm !important;
+    font-size: 8.5pt;
+  }
+
+  .cv__more {
+    margin-top: 1mm !important;
+  }
+
+  .cv__bullets {
+    margin: 1mm 0 0;
+    padding-left: 4.5mm;
+  }
+
+  .cv__bullets li + li {
+    margin-top: 0.6mm;
+  }
+
+  .cv__skills {
+    margin: 0;
+    display: grid;
+    gap: 1mm;
+  }
+
+  .cv__skillrow {
+    display: grid;
+    grid-template-columns: 42mm 1fr;
+    gap: 3mm;
+  }
+
+  .cv__skillrow dt {
+    font-weight: 600;
+  }
+
+  .cv__skillrow dd {
+    margin: 0;
+    color: var(--paper-muted);
+  }
+
+  .cv__two {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 8mm;
+  }
+
+  /* Phone layout on screens only — the A4 print area is also under 720 px wide */
+  @media screen and (max-width: 720px) {
+    .cv {
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .cv__head,
+    .cv__row {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .cv__contact {
+      text-align: left;
+    }
+
+    .cv__skillrow,
+    .cv__two {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Print: only the CV sheet, A4 ──────────────────────────────────────── */
+  @page {
+    size: A4;
+    margin: 7mm 13mm 6mm;
+  }
+
+  @media print {
+    :global(.nav-wrapper),
+    :global(.footer),
+    :global(.skip-link),
+    .resume-bar {
+      display: none !important;
+    }
+
+    :global(html),
+    :global(body) {
+      background: var(--paper-bg) !important;
+    }
+
+    .resume {
+      padding: 0;
+    }
+
+    .resume :global(.container) {
+      max-width: none;
+      padding: 0;
+    }
+
+    .cv {
+      max-width: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 9.2pt;
+      padding: 0;
+    }
   }
 </style>

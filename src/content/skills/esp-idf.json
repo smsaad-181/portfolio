@@ -1,0 +1,7 @@
+{
+  "name": "ESP-IDF",
+  "category": "embedded & firmware",
+  "aliases": [
+    "esp-idf"
+  ]
+}

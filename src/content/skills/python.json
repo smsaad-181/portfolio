@@ -1,1 +1,7 @@
-{ "name": "Python", "category": "programming", "proficiency": 2 }
+{
+  "name": "Python (basic)",
+  "category": "tools",
+  "aliases": [
+    "python"
+  ]
+}

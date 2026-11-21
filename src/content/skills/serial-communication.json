@@ -1,1 +1,7 @@
-{ "name": "Serial Communication", "category": "automation & integration", "proficiency": 4 }
+{
+  "name": "Serial Communication",
+  "category": "protocols",
+  "aliases": [
+    "serial communication"
+  ]
+}

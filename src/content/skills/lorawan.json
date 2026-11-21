@@ -1,1 +1,8 @@
-{ "name": "LoRaWAN", "category": "iot & communication", "proficiency": 4 }
+{
+  "name": "LoRaWAN",
+  "category": "iot & platforms",
+  "home": true,
+  "aliases": [
+    "lorawan"
+  ]
+}

@@ -33,6 +33,7 @@ npm run dev               # http://localhost:4321/portfolio/  (CMS: /portfolio/a
 | `npm run check:links` | After a build: every internal link resolves under `/portfolio` |
 | `npm run check:drafts` | After a build: no `draft: true` project reaches `dist/` |
 | `npm run preview` | Serve `dist/` locally |
+| `npm run cv:pdf` | With the dev server running: export the resume page to the CV PDF (A4) |
 | `npm run audit:pages` | With `preview` running: every page × both themes × 1440/375 px — console errors, failed requests, AA contrast |
 
 ## One-time setup (manual)
@@ -44,8 +45,10 @@ npm run dev               # http://localhost:4321/portfolio/  (CMS: /portfolio/a
 3. **GitHub secrets:** add `TINA_CLIENT_ID` and `TINA_TOKEN`
    (Settings → Secrets and variables → Actions). Until these exist the deploy
    workflow stops at the Tina build step and the live site is not updated.
-4. **CV:** put the PDF at `public/resume/sultan-mahmud-cv.pdf`.
-5. **Social links:** confirm the URLs in `src/content/profile/saad.json`.
+4. **CV:** generated from the resume page with `npm run cv:pdf` (re-run after content changes).
+5. **Contact form:** get a Web3Forms access key (web3forms.com), put it in `.env` as
+   `PUBLIC_WEB3FORMS_KEY` and add GitHub secret `WEB3FORMS_KEY`. Without it the form stays hidden.
+6. **Social links:** verified on 21 Nov 2026 (LinkedIn, GitHub, OSHWLab in `src/content/profile/saad.json`).
 
 ## Content
 

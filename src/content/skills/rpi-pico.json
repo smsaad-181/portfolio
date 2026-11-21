@@ -1,1 +1,8 @@
-{ "name": "Raspberry Pi Pico", "category": "iot & communication", "proficiency": 3 }
+{
+  "name": "Raspberry Pi Pico",
+  "category": "embedded & firmware",
+  "aliases": [
+    "raspberry pi pico",
+    "rp2040"
+  ]
+}

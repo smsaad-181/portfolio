@@ -41,6 +41,14 @@ Pages were written only from each project's README, documentation, BOM and sourc
 - Dashboards with no screenshot are rendered from the firmware's own HTML with no data (no invented readings). Vehicle Motion Analyzer uses Saad's own screenshots from its Documentation folder.
 - GitHub links removed from project pages (the repos are private).
 
+### Confirmed by Saad — 21 Nov 2026 (Phase 5)
+- Availability: **Open to hardware / embedded roles · Dhaka or remote**.
+- OSHWLab profile https://oshwlab.com/smsaad181 is correct (the site blocks automated checks). GitHub and LinkedIn return 200.
+- The CV PDF is generated from the site's resume page (`npm run cv:pdf`), not uploaded.
+- Contact form: Web3Forms. **Waiting for Saad's access key** (put it in `.env` as `PUBLIC_WEB3FORMS_KEY`).
+- Experience bullets state no numbers or outcomes — add measurable results (boards shipped, devices deployed, …) if you can confirm them.
+- **Please confirm the new wording** (written from the CV + GitHub profile): the three About bio paragraphs in `src/content/profile/saad.json` and the six experience bullets in `src/content/experience/southern-iot.json`. Python is shown as "Python (basic)" as in the CV.
+
 ## 2. Every claim, by project
 
 718 claims in total: 674 SOURCED, 44 INFERRED.

@@ -1,1 +1,8 @@
-{ "name": "Node-RED", "category": "automation & integration", "proficiency": 3 }
+{
+  "name": "Node-RED",
+  "category": "iot & platforms",
+  "home": true,
+  "aliases": [
+    "node-red"
+  ]
+}

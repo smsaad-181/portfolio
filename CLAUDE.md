@@ -25,6 +25,7 @@ TypeScript strict · npm · Node ≥ 22.23.4 (`.nvmrc`).
 | `npm run check:links` | After a build: every internal href/src in `dist/` resolves under `/portfolio` |
 | `npm run check:drafts` | After a build: no `draft: true` project appears in `dist/` |
 | `npm run preview` | Serve `dist/` locally |
+| `npm run cv:pdf` | With the dev server (or `CV_URL=…`) running: exports `/resume/` to `public/resume/sultan-mahmud-cv.pdf` (A4, must stay ≤ 2 pages) and stamps "Last updated". Re-run after changing profile, experience, skills or education |
 | `npm run audit:pages` | With `preview` running: every page × dark/light × 1440/375 px in Edge — console errors, failed requests, axe AA contrast. Must be 0 |
 
 Credentials: root `.env` (copy `.env.example`). Every `.env*` except the

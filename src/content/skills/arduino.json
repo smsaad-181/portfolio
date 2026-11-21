@@ -1,1 +1,8 @@
-{ "name": "Arduino", "category": "iot & communication", "proficiency": 4 }
+{
+  "name": "Arduino",
+  "category": "embedded & firmware",
+  "home": true,
+  "aliases": [
+    "arduino"
+  ]
+}

@@ -55,8 +55,10 @@ const profile = defineCollection({
       .array(z.object({ label: z.string().min(1), value: z.string().min(1) }))
       .max(6)
       .optional(),
-    // Extra tools/platforms shown as chips under Skills (no proficiency).
-    tools: z.array(z.string().min(1)).optional(),
+    // About page bio: who I am / what I build / what I'm looking for.
+    bio: z.array(z.string().min(1)).max(4).optional(),
+    // e.g. "Open to hardware / embedded roles · Dhaka or remote"
+    availability: z.string().optional(), // empty = hidden
   }),
 });
 
@@ -70,7 +72,8 @@ const experience = defineCollection({
     startDate: z.string(), // ISO date string e.g. "2025-01-14"
     current: z.boolean(),
     endDate: z.string().optional(), // only set when current === false
-    bullets: z.array(z.string()),
+    // Impact bullets (verb + what + result), at most 6 per role.
+    bullets: z.array(z.string().min(1)).max(6),
     tags: z.array(z.string()),
   }),
 });
@@ -108,7 +111,11 @@ const skills = defineCollection({
     // free text — group in UI by whatever categories exist at render time;
     // don't hardcode a category list (content-model.md requirement)
     category: z.string(),
-    proficiency: z.number().int().min(1).max(5).optional(),
+    // Shown in the compact "key tools" row on the home page.
+    home: z.boolean().default(false),
+    // Words that mark a project as using this skill (tags, specs, write-up).
+    // Defaults to the skill name; [] = don't count projects (e.g. "C").
+    aliases: z.array(z.string().min(1)).optional(),
   }),
 });
 

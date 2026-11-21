@@ -1,1 +1,8 @@
-{ "name": "MQTT", "category": "iot & communication", "proficiency": 4 }
+{
+  "name": "MQTT",
+  "category": "protocols",
+  "home": true,
+  "aliases": [
+    "mqtt"
+  ]
+}

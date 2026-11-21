@@ -1,1 +1,8 @@
-{ "name": "Fusion 360", "category": "pcb & eda", "proficiency": 3 }
+{
+  "name": "Fusion 360",
+  "category": "hardware & pcb",
+  "aliases": [
+    "fusion 360",
+    "fusion360"
+  ]
+}

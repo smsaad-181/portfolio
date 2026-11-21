@@ -6,26 +6,26 @@
  * portrait on the right fading into the page, professional links and real
  * counts (published projects, boards in 3D). Then "About me" (profile.about,
  * from Saad's GitHub profile, plus his current role), featured projects
- * (CMS-controlled via `featured` + `order`), skills + tools and the CV CTA.
+ * (CMS-controlled via `featured` + `order`), a compact key-tools row (full
+ * skills on About) and the CV CTA.
  *
  * Portrait: src/assets/profile/portrait.{png,webp,jpg} — a transparent-
  * background cut-out looks best. Optimised by Astro's <Image />.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
-import { formatTag } from "../lib/tags";
 import SectionHeading from "@components/SectionHeading.astro";
 import ProjectCard from "@components/ProjectCard.astro";
-import SkillBar from "@components/SkillBar.astro";
 import ResumeButton from "@components/ResumeButton.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { getFeaturedProjects, getPublishedProjects } from "../lib/projects";
 import { getProfile } from "../lib/profile";
+import { getHomeSkills } from "../lib/skills";
 import { pageUrl, projectUrl, publicFileExists } from "../lib/urls";
 
 const profile = await getProfile();
 const featured = await getFeaturedProjects();
-const allSkills = await getCollection("skills");
+const homeSkills = await getHomeSkills();
 const currentJob = (await getCollection("experience")).find((e) => e.data.current);
 const published = await getPublishedProjects();
 const boardCount = published.reduce((n, p) => n + p.data.models.filter((m) => publicFileExists(m.src)).length, 0);
@@ -37,7 +37,6 @@ const stats = profile.data.stats?.length
       { value: String(boardCount), label: "boards in interactive 3D" },
     ];
 const about = profile.data.about ?? [];
-const tools = profile.data.tools ?? [];
 const sinceYear = currentJob ? new Date(currentJob.data.startDate).getFullYear() : null;
 const social = [
   profile.data.socialLinks.linkedin && { label: "LinkedIn", href: profile.data.socialLinks.linkedin, icon: "linkedin" },
@@ -66,16 +65,7 @@ const initials = profile.data.name
   .slice(0, 2)
   .toUpperCase();
 
-// Group skills by category (lowercase stored, title-case at render)
-const skillsByCategory = allSkills.reduce<Record<string, typeof allSkills>>(
-  (acc, skill) => {
-    const cat = skill.data.category;
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat]!.push(skill);
-    return acc;
-  },
-  {}
-);
+
 
 
 // Flowing line-art for the hero background: a family of cubic curves whose
@@ -266,39 +256,27 @@ const city = profile.data.location.split(",")[0];
     </section>
   )}
 
-  <!-- ── Skills ─────────────────────────────────────────────────────────── -->
-  <section class="section section--alt" aria-labelledby="skills-heading">
-    <div class="container">
-      <SectionHeading
-        label="// toolbox"
-        title="Skills & Technologies"
-        id="skills-heading"
-        description="The hardware and software toolkit I reach for on every project."
-      />
-      <div class="skills-grid">
-        {Object.entries(skillsByCategory).map(([category, skills]) => (
-          <div class="skills-group">
-            <h3 class="skills-group__title">{formatTag(category)}</h3>
-            <div class="skills-group__list">
-              {skills
-                .sort((a, b) => (b.data.proficiency ?? 0) - (a.data.proficiency ?? 0))
-                .map((skill) => (
-                  <SkillBar name={skill.data.name} proficiency={skill.data.proficiency} />
-                ))}
-            </div>
-          </div>
-        ))}
-      </div>
-      {tools.length > 0 && (
-        <div class="tools">
-          <h3 class="skills-group__title">Also in my toolbox</h3>
-          <ul class="tools__list" role="list">
-            {tools.map((t) => <li class="tools__chip">{t}</li>)}
-          </ul>
+  <!-- ── Key tools (full list on About) ─────────────────────────────────── -->
+  {homeSkills.length > 0 && (
+    <section class="section section--alt section--compact" aria-labelledby="skills-heading">
+      <div class="container keytools">
+        <div class="keytools__head">
+          <p class="section-label">// toolbox</p>
+          <h2 class="keytools__title" id="skills-heading">Key tools</h2>
+          <p class="keytools__legend"><span class="keytools__count" aria-hidden="true">n</span> = projects that use it</p>
         </div>
-      )}
-    </div>
-  </section>
+        <ul class="keytools__list" role="list">
+          {homeSkills.map(({ skill, projects }) => (
+            <li class="keytools__chip">
+              {skill.data.name}
+              {projects.length > 0 && <><span class="keytools__count" aria-hidden="true" title={`Used in ${projects.length} published projects`}>{projects.length}</span><span class="sr-only">, used in {projects.length} project{projects.length === 1 ? "" : "s"}</span></>}
+            </li>
+          ))}
+        </ul>
+        <a href={pageUrl("/about/#skills-heading")} class="keytools__more">All skills <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  )}
 
   <!-- ── Resume CTA ─────────────────────────────────────────────────────── -->
   <section class="section cta-section" aria-label="Resume download">
@@ -701,36 +679,6 @@ const city = profile.data.location.split(",")[0];
     color: var(--text-secondary);
   }
 
-  /* Tools chips under Skills */
-  .tools {
-    margin-top: var(--space-12);
-    padding-top: var(--space-8);
-    border-top: 1px solid var(--border);
-  }
-
-  .tools__list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .tools__list > li + li {
-    margin-top: 0;
-  }
-
-  .tools__chip {
-    padding: 0.35rem 0.8rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    background: var(--bg-elevated);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-  }
-
   /* Projects grid */
   .projects-grid {
     display: grid;
@@ -743,27 +691,75 @@ const city = profile.data.location.split(",")[0];
     text-align: center;
   }
 
-  /* Skills grid */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-    gap: var(--space-8);
+  /* Key tools row */
+  .section--compact {
+    padding-block: var(--space-12);
   }
 
-  .skills-group__title {
+  .keytools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-8);
+  }
+
+  .keytools__title {
+    font-size: var(--fs-22);
+    font-weight: 700;
+    margin: var(--space-1) 0 0;
+  }
+
+  .keytools__legend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin: var(--space-2) 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .keytools__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    flex: 1;
+  }
+
+  .keytools__list > li + li {
+    margin-top: 0;
+  }
+
+  .keytools__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--bg-base);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--text-primary);
+  }
+
+  .keytools__count {
+    min-width: 1.4rem;
+    padding: 0 0.35rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent-glow);
+    color: var(--accent);
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  .keytools__more {
     font-family: var(--font-mono);
     font-size: var(--fs-14);
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: var(--space-3);
-  }
-
-  .skills-group__list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+    white-space: nowrap;
   }
 
   /* CTA section */

@@ -1,1 +1,8 @@
-{ "name": "Modbus", "category": "protocols", "proficiency": 3 }
+{
+  "name": "Modbus",
+  "category": "protocols",
+  "home": true,
+  "aliases": [
+    "modbus"
+  ]
+}

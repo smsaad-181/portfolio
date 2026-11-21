@@ -31,3 +31,6 @@ docs/tracker.html
 
 # 3D conversion tools (installed on demand, see scripts/pcb3d/README.md)
 scripts/pcb3d/pcbtools/
+
+# Lighthouse CI reports (CI artifact)
+.lighthouseci/

@@ -1,0 +1,43 @@
+---
+/**
+ * PublicImage.astro — an optimised <Image /> for files in public/ (Tina's
+ * media folder, e.g. "/images/projects/<slug>/render3d.webp").
+ *
+ * Astro serves public/ files as-is, so a 1800 px render would load in full
+ * even on a phone. Files under public/images are picked up by an import
+ * glob, which lets Astro generate resized WebP variants with a srcset. A
+ * file the glob doesn't know (e.g. uploaded after the build started) falls
+ * back to the original file with its real width/height.
+ */
+import { Image } from "astro:assets";
+import { assetUrl } from "../lib/urls";
+import { publicImageSize } from "../lib/images";
+
+export interface Props {
+  /** Public path, e.g. "/images/projects/acqua-node/render3d.webp". */
+  src: string;
+  alt: string;
+  /** Widths to generate (px). */
+  widths: number[];
+  /** sizes attribute matching the CSS layout. */
+  sizes: string;
+  class?: string;
+  loading?: "lazy" | "eager" | undefined;
+  fetchpriority?: "high" | "low" | "auto" | undefined;
+  [key: `data-${string}`]: unknown;
+  hidden?: boolean | undefined;
+}
+
+const { src, alt, widths, sizes, class: cls, loading = "lazy", fetchpriority, hidden, ...rest } = Astro.props;
+const all = import.meta.glob<{ default: ImageMetadata }>("/public/images/**/*.{webp,png,jpg,jpeg}", { eager: true });
+const meta = all[`/public/${src.replace(/^\/+/, "")}`]?.default;
+const size = meta ? null : await publicImageSize(src);
+const usable = meta ? widths.filter((w) => w <= meta.width) : [];
+const finalWidths = meta ? (usable.length ? usable : [meta.width]) : [];
+---
+
+{meta ? (
+  <Image src={meta} alt={alt} widths={finalWidths} sizes={sizes} class={cls} loading={loading} fetchpriority={fetchpriority} hidden={hidden} {...rest} />
+) : size ? (
+  <Image src={assetUrl(src)} alt={alt} width={size.width} height={size.height} class={cls} loading={loading} fetchpriority={fetchpriority} hidden={hidden} {...rest} />
+) : null}

@@ -14,6 +14,7 @@ import { getCollection } from "astro:content";
 import { getProfile } from "../lib/profile";
 import { getSkillGroups } from "../lib/skills";
 import { projectUrl } from "../lib/urls";
+import { personJsonLd, toJsonLd } from "../lib/jsonld";
 import { formatTag } from "../lib/tags";
 
 const profile = await getProfile();
@@ -28,6 +29,7 @@ const skillGroups = await getSkillGroups();
 
 const portraitFiles = import.meta.glob<{ default: ImageMetadata }>("../assets/profile/portrait.{png,webp,avif,jpg,jpeg}", { eager: true });
 const portrait = Object.values(portraitFiles)[0]?.default;
+const person = await personJsonLd(portrait);
 
 const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 const links = [
@@ -39,6 +41,8 @@ const bio = data.bio?.length ? data.bio : [data.summary];
 ---
 
 <BaseLayout title="About" description={`About ${data.name}, ${data.title} in ${data.location}. ${data.summary}`}>
+  <script is:inline slot="head" type="application/ld+json" set:html={toJsonLd(person)} />
+
   <!-- ── Intro ─────────────────────────────────────────────────────────── -->
   <section class="intro" aria-labelledby="about-title">
     <div class="container intro__inner">
@@ -68,7 +72,7 @@ const bio = data.bio?.length ? data.bio : [data.summary];
       {portrait && (
         <div class="intro__portrait">
           <div class="intro__glow" aria-hidden="true"></div>
-          <Image src={portrait} alt={`${data.name}, ${data.title}`} widths={[320, 480, 640, 800]} sizes="(max-width: 900px) 280px, 400px" quality={80} class="intro__photo" />
+          <Image src={portrait} alt={`${data.name}, ${data.title}`} widths={[320, 480, 640, 800]} sizes="(max-width: 900px) 280px, 400px" quality={80} class="intro__photo" loading="eager" fetchpriority="high" />
         </div>
       )}
     </div>
@@ -285,7 +289,7 @@ const bio = data.bio?.length ? data.bio : [data.summary];
     inset: 10% 8% 0;
     border-radius: 50%;
     background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 65%);
-    filter: blur(24px);
+    /* soft via the radial gradient alone (no blur filter: costly on phones) */
     z-index: 0;
   }
 

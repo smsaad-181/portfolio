@@ -16,7 +16,7 @@
  */
 import { statSync } from "node:fs";
 import path from "node:path";
-import { Image } from "astro:assets";
+import PublicImage from "@components/PublicImage.astro";
 import { assetUrl, publicFileExists } from "../lib/urls";
 import { publicImageSize } from "../lib/images";
 
@@ -44,7 +44,7 @@ const boards = await Promise.all(
         label: m.label,
         src: assetUrl(m.src),
         size: mb(m.src),
-        poster: m.poster && size ? { src: assetUrl(m.poster), ...size } : null,
+        poster: m.poster && size ? { path: m.poster, ...size } : null,
       };
     }),
 );
@@ -92,15 +92,14 @@ const first = boards[0];
 
       <div class="bv__stage" data-stage data-src={first.src} data-size={first.size}>
         {boards.map((b, i) => b.poster && (
-          <Image
-            src={b.poster.src}
-            alt=""
-            width={b.poster.width}
-            height={b.poster.height}
+          <PublicImage
+            src={b.poster.path}
+            alt={`3D render of the ${title} board (${b.label})`}
+            widths={[640, 1000, 1400]}
+            sizes="(max-width: 1200px) 100vw, 1100px"
             class="bv__poster"
             data-poster-for={b.src}
             hidden={i !== 0}
-            loading="lazy"
           />
         ))}
         <div class="bv__tip" data-tip aria-hidden="true"></div>

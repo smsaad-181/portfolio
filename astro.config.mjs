@@ -16,6 +16,11 @@ export default defineConfig({
   // Astro 7 defaults to "jsx", which strips whitespace between inline
   // elements ("<a>x</a> <b>y</b>" → "xy"). Keep the pre-7 behaviour.
   compressHTML: true,
+  build: {
+    // "auto": small stylesheets are inlined, larger ones stay as cached files.
+    // Measured: inlining everything ("always") raised mobile blocking time.
+    inlineStylesheets: "auto",
+  },
   vite: {
     build: {
       // three.js (the 3D board viewer) is one large chunk. It is

@@ -9,10 +9,10 @@
  * hasn't been uploaded yet, the image area is omitted (no 404, no
  * placeholder text shown to the public).
  */
-import { Image } from "astro:assets";
+import PublicImage from "@components/PublicImage.astro";
 import StatusBadge from "@components/StatusBadge.astro";
 import TagChip from "@components/TagChip.astro";
-import { assetUrl, publicFileExists } from "../lib/urls";
+import { publicFileExists } from "../lib/urls";
 
 export interface Props {
   title: string;
@@ -27,9 +27,14 @@ export interface Props {
   status: "completed" | "in-progress" | "prototype";
   /** Number of board versions (shows a "3 versions" chip when > 1). */
   versions?: number;
+  /** Above-the-fold cards: load the image immediately (it is often the LCP). */
+  priority?: boolean;
+  /** 2 on the Projects page (cards follow the h1), 3 under a section h2. */
+  headingLevel?: 2 | 3;
 }
 
-const { title, href, summary, coverImage, tags, status, versions = 0 } = Astro.props;
+const { title, href, summary, coverImage, tags, status, versions = 0, priority = false, headingLevel = 3 } = Astro.props;
+const Heading = headingLevel === 2 ? "h2" : "h3";
 const hasCover = publicFileExists(coverImage.src);
 const displayTags = tags.slice(0, 3);
 ---
@@ -38,13 +43,14 @@ const displayTags = tags.slice(0, 3);
   {hasCover && (
     <a href={href} class="project-card__image-link" tabindex="-1" aria-hidden="true">
       <div class="project-card__image-wrap">
-        <Image
-          src={assetUrl(coverImage.src)}
+        <PublicImage
+          src={coverImage.src}
           alt={coverImage.alt}
-          width={640}
-          height={360}
+          widths={[360, 540, 720, 960]}
+          sizes="(max-width: 700px) calc(100vw - 4rem), (max-width: 1100px) calc(50vw - 4rem), 360px"
           class="project-card__image"
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchpriority={priority ? "high" : undefined}
         />
       </div>
     </a>
@@ -64,13 +70,13 @@ const displayTags = tags.slice(0, 3);
       </div>
     </div>
 
-    <h3 class="project-card__title">
+    <Heading class="project-card__title">
       <a href={href} class="project-card__title-link">{title}</a>
-    </h3>
+    </Heading>
 
     <p class="project-card__summary">{summary}</p>
 
-    <a href={href} class="project-card__cta" aria-label={`View ${title} details`}>
+    <a href={href} class="project-card__cta" aria-label={`View project: ${title}`}>
       View project <span aria-hidden="true">→</span>
     </a>
   </div>
@@ -111,7 +117,7 @@ const displayTags = tags.slice(0, 3);
     width: 100%;
     height: 100%;
     object-fit: contain;
-    filter: drop-shadow(var(--shadow-md));
+    /* no CSS drop-shadow: it is costly to paint on phones (16 cards on /projects/) */
     transition: transform var(--dur-slow) var(--ease);
   }
 

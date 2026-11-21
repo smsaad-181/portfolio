@@ -6,11 +6,11 @@ on:
   # Allow manual triggers from the Actions tab
   workflow_dispatch: {}
 
-# Required for actions/deploy-pages
+# Least privilege: read-only by default. Only the deploy job gets
+# pages: write + id-token: write (see below), so nothing the build job runs
+# (npm packages, Lighthouse via npx) can mint a deploy token.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # Cancel an in-flight build when a newer commit lands on main.
 # This covers the race between Saad's manual pushes and Tina Cloud's
@@ -22,6 +22,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read # actions/configure-pages
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -76,6 +79,24 @@ jobs:
       # Known, documented exceptions live in docs/SECURITY.md (none critical).
       - name: Security audit
         run: npm audit --audit-level=critical
+
+      # ── Lighthouse (mobile) on the 4 key pages — WARNING ONLY for now ─────
+      # Never blocks the deploy: failures are ignored (continue-on-error) and a
+      # hang is cut off after 10 min. Target: ≥ 95 in every category
+      # (lighthouserc.json). Reports are kept as a build artifact.
+      - name: Lighthouse CI (warning only)
+        continue-on-error: true
+        timeout-minutes: 10
+        run: npx --yes @lhci/cli@0.15.1 autorun
+
+      - name: Keep Lighthouse reports
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          if-no-files-found: ignore
 
       # Configure the Pages environment before uploading the artifact
       - name: Setup Pages

@@ -109,6 +109,39 @@ function isActive(href: string): boolean {
   });
   syncLabel();
 
+  // Mobile menu (<details>): keep keyboard focus inside while open, close on
+  // Esc / outside click / choosing a link, and return focus to the button.
+  const menu = document.querySelector<HTMLDetailsElement>(".nav__mobile-menu");
+  if (menu) {
+    const summary = menu.querySelector<HTMLElement>("summary")!;
+    const links = () => [...menu.querySelectorAll<HTMLAnchorElement>(".nav__mobile-link")];
+    const close = (refocus = true) => {
+      if (!menu.open) return;
+      menu.open = false;
+      if (refocus) summary.focus();
+    };
+    menu.addEventListener("toggle", () => {
+      if (menu.open) links()[0]?.focus();
+    });
+    menu.addEventListener("keydown", (e) => {
+      if (!menu.open) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const items = [summary, ...links()];
+      const first = items[0]!, last = items[items.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    document.addEventListener("click", (e) => {
+      if (menu.open && !menu.contains(e.target as Node)) close(false);
+    });
+    links().forEach((a) => a.addEventListener("click", () => close(false)));
+  }
+
   // Nav backdrop appears once the page scrolls.
   const nav = document.querySelector<HTMLElement>("[data-nav]");
   const onScroll = () => nav?.classList.toggle("is-scrolled", window.scrollY > 8);

@@ -10,10 +10,13 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import StatusBadge from "@components/StatusBadge.astro";
 import TagChip from "@components/TagChip.astro";
 import BoardViewer from "@components/BoardViewer.astro";
-import { Image } from "astro:assets";
+import PublicImage from "@components/PublicImage.astro";
 import { render } from "astro:content";
 import { getPublishedProjects } from "../../lib/projects";
 import { publicImageSize } from "../../lib/images";
+import { toJsonLd } from "../../lib/jsonld";
+import { getProfile } from "../../lib/profile";
+import { formatTag } from "../../lib/tags";
 import { absoluteUrl, assetUrl, pageUrl, projectSlug, projectUrl, publicFileExists } from "../../lib/urls";
 import type { GetStaticPaths } from "astro";
 
@@ -38,6 +41,8 @@ const canonicalProjectUrl = absoluteUrl(projectUrl(project));
 // Only images that exist are rendered — never a 404 or a placeholder.
 const cover = publicFileExists(data.coverImage.src) ? data.coverImage : null;
 const coverAbsoluteUrl = cover ? absoluteUrl(assetUrl(cover.src)) : undefined;
+// Per-project social preview (src/pages/images/og/[slug].png.ts)
+const ogImageUrl = absoluteUrl(assetUrl(`/images/og/${projectSlug(project)}.png`));
 const gallery = (
   await Promise.all(
     data.gallery.map(async (img) => {
@@ -64,14 +69,14 @@ const jsonLd = {
   name: data.title,
   description: data.summary,
   url: canonicalProjectUrl,
-  keywords: data.tags.join(", "),
-  creator: { "@type": "Person", name: "Sultan Mahmud", url: siteUrl },
+  keywords: data.tags.map(formatTag).join(", "),
+  creator: { "@type": "Person", name: (await getProfile()).data.name, url: siteUrl },
   ...(coverAbsoluteUrl && { image: coverAbsoluteUrl }),
 };
 ---
 
-<BaseLayout title={data.title} description={data.summary} ogImage={coverAbsoluteUrl}>
-  <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+<BaseLayout title={data.title} description={data.summary} ogImage={ogImageUrl} ogImageAlt={`${data.title} — PCB project by Sultan Mahmud`} ogType="article">
+  <script is:inline slot="head" type="application/ld+json" set:html={toJsonLd(jsonLd)} />
 
   <nav class="breadcrumb container" aria-label="Breadcrumb">
     <ol role="list">
@@ -113,13 +118,14 @@ const jsonLd = {
       {(data.specs.length > 0 || cover) && (
         <aside class="spec-card" aria-label="Key specifications">
           {cover && (
-            <Image
-              src={assetUrl(cover.src)}
+            <PublicImage
+              src={cover.src}
               alt={cover.alt}
-              width={720}
-              height={480}
+              widths={[480, 720, 960]}
+              sizes="(max-width: 900px) calc(100vw - 2rem), 460px"
               class="spec-card__img"
               loading="eager"
+              fetchpriority="high"
             />
           )}
           {data.specs.length > 0 && (
@@ -150,7 +156,7 @@ const jsonLd = {
             <li class="version">
               {v.img && (
                 <div class="version__img">
-                  <Image src={assetUrl(v.img.src)} alt={v.img.alt} width={v.img.width} height={v.img.height} loading="lazy" />
+                  <PublicImage src={v.img.src} alt={v.img.alt} widths={[360, 540, 720]} sizes="(max-width: 700px) calc(100vw - 4rem), 360px" />
                 </div>
               )}
               <div class="version__body">
@@ -194,7 +200,7 @@ const jsonLd = {
           {renders.map((img) => (
             <figure class="gallery__item">
               <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="gallery__link" aria-label={`Open full-size image: ${img.caption ?? img.alt}`}>
-                <Image src={assetUrl(img.src)} alt={img.alt} width={img.width} height={img.height} class="gallery__img" loading="lazy" />
+                <PublicImage src={img.src} alt={img.alt} widths={[400, 760, 1140, 1520]} sizes={renders.length === 1 ? "(max-width: 800px) calc(100vw - 2rem), 760px" : "(max-width: 700px) calc(100vw - 2rem), 380px"} class="gallery__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
             </figure>
@@ -212,7 +218,7 @@ const jsonLd = {
           {dashboards.map((img) => (
             <figure class="dashboard">
               <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="dashboard__link" aria-label={`Open full-size image: ${img.caption ?? img.alt}`}>
-                <Image src={assetUrl(img.src)} alt={img.alt} width={img.width} height={img.height} class="dashboard__img" loading="lazy" />
+                <PublicImage src={img.src} alt={img.alt} widths={[390, 800, 1200, 1600]} sizes={dashboards.length > 1 ? "320px" : "(max-width: 900px) calc(100vw - 2rem), 560px"} class="dashboard__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
             </figure>

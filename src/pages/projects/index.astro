@@ -74,7 +74,7 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
         role="list"
         aria-label="Projects"
       >
-        {projects.map((project) => (
+        {projects.map((project, i) => (
           <div
             class="project-item"
             role="listitem"
@@ -88,6 +88,8 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
               tags={project.data.tags}
               status={project.data.status}
               versions={project.data.versions.length}
+              priority={i < 3}
+              headingLevel={2}
             />
           </div>
         ))}

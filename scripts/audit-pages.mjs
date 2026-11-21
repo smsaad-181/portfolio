@@ -5,7 +5,7 @@
  *   • console errors / uncaught exceptions
  *   • failed requests (HTTP ≥ 400 or network failure)
  *   • axe-core WCAG 2 AA colour-contrast violations
- *   • other axe-core violations (informational, Phase 6 target)
+ *   • every other axe-core WCAG 2.1 A/AA violation (Phase 6: must be 0)
  *
  * Usage:
  *   npm run build:site && npm run preview      (in one terminal)
@@ -13,8 +13,8 @@
  *   AUDIT_URL=http://localhost:4321/portfolio/ BROWSER_CHANNEL=msedge|chrome
  *
  * Uses playwright-core with an installed browser (Edge by default — no
- * browser download). Exit code 1 on any console error, failed request, or
- * contrast violation.
+ * browser download). Exit code 1 on any console error, failed request,
+ * contrast or other axe violation.
  */
 import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -136,12 +136,12 @@ await browser.close();
 console.log(`Audited ${pages.length} pages × ${themes.length} themes × ${viewports.length} viewports = ${runs} page loads\n`);
 
 if (otherViolations.size) {
-  console.log("Other axe violations (informational — Phase 6 target):");
-  for (const [id, v] of otherViolations) console.log(`  • ${id}: ${v.help} — ${[...v.pages].join(", ")}`);
+  console.error("✗ axe violations:");
+  for (const [id, v] of otherViolations) console.error(`  • ${id}: ${v.help} — ${[...v.pages].join(", ")}`);
   console.log("");
 }
 
-if (problems.length) {
+if (problems.length || otherViolations.size) {
   const byKind = Object.groupBy(problems, (x) => x.kind);
   for (const [kind, list] of Object.entries(byKind)) {
     console.error(`✗ ${kind}: ${list.length}`);
@@ -155,4 +155,4 @@ if (problems.length) {
   }
   process.exit(1);
 }
-console.log("✓ audit:pages — 0 console errors, 0 failed requests, 0 contrast violations");
+console.log("✓ audit:pages — 0 console errors, 0 failed requests, 0 axe violations (WCAG 2.1 A/AA, incl. contrast)");

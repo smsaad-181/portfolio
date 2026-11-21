@@ -21,6 +21,7 @@ import { getCollection } from "astro:content";
 import { getFeaturedProjects, getPublishedProjects } from "../lib/projects";
 import { getProfile } from "../lib/profile";
 import { getHomeSkills } from "../lib/skills";
+import { personJsonLd, toJsonLd } from "../lib/jsonld";
 import { pageUrl, projectUrl, publicFileExists } from "../lib/urls";
 
 const profile = await getProfile();
@@ -57,6 +58,7 @@ const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true }
 );
 const portrait = Object.values(portraitFiles)[0]?.default;
+const person = await personJsonLd(portrait);
 
 const initials = profile.data.name
   .split(" ")
@@ -87,6 +89,8 @@ const city = profile.data.location.split(",")[0];
   fullTitle
   description={profile.data.summary}
 >
+  <script is:inline slot="head" type="application/ld+json" set:html={toJsonLd(person)} />
+
   <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
   <section class="hero" aria-labelledby="hero-name">
     <div class="hero__bg" aria-hidden="true">
@@ -304,6 +308,13 @@ const city = profile.data.location.split(",")[0];
     padding-block: var(--space-24);
   }
 
+  /* Below-the-fold sections: the browser skips their style and layout until
+     they scroll near (big saving on phones; content stays in the a11y tree). */
+  .section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+
   .section--alt {
     background: var(--bg-surface);
     border-block: 1px solid var(--border-subtle);
@@ -335,6 +346,7 @@ const city = profile.data.location.split(",")[0];
 
   .hero__waves {
     position: absolute;
+    will-change: transform; /* own compositor layer: the slow drift doesn't repaint the page */
     opacity: var(--hero-wave-opacity);
   }
 
@@ -540,7 +552,7 @@ const city = profile.data.location.split(",")[0];
     transform: translateX(-50%);
     border-radius: 50%;
     background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 65%);
-    filter: blur(24px);
+    /* the radial gradient is already soft — a blur filter only cost paint time on phones */
     z-index: -1;
   }
 

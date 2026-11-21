@@ -10,12 +10,14 @@ import Footer from "@components/Footer.astro";
 // Self-hosted fonts: Rubik Variable (text), JetBrains Mono (labels), Mr Dafoe (logo only).
 import "@fontsource-variable/rubik";
 import "@fontsource/mr-dafoe";
-import "@fontsource/jetbrains-mono/400.css";
-import "@fontsource/jetbrains-mono/500.css";
-import "@fontsource/jetbrains-mono/600.css";
+// One variable file covers every JetBrains Mono weight (was three files → three re-layouts).
+import "@fontsource-variable/jetbrains-mono";
+// Body text font, preloaded so the first text paints in its final font (fewer re-layouts).
+import rubikLatin from "@fontsource-variable/rubik/files/rubik-latin-wght-normal.woff2?url";
+import monoLatin from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
 import "@styles/tokens.css";
 import "@styles/global.css";
-import { absoluteUrl, assetUrl, pageUrl } from "../lib/urls";
+import { absoluteUrl, assetUrl } from "../lib/urls";
 
 export interface Props {
   title: string;
@@ -24,6 +26,10 @@ export interface Props {
   description?: string;
   /** Absolute URL to an OG image (should be 1200×630). Falls back to a default. */
   ogImage?: string | undefined;
+  /** Text alternative for the OG image. */
+  ogImageAlt?: string;
+  /** og:type — "article" for project pages. */
+  ogType?: "website" | "article";
   /** Canonical URL for this page. Defaults to the production URL of this path. */
   canonicalUrl?: string;
   /** If true, adds noindex (e.g. for the 404 page). */
@@ -35,11 +41,12 @@ const {
   fullTitle: titleIsFull = false,
   description = "Hardware Engineer specialising in PCB design, embedded systems, and IoT product development.",
   ogImage,
+  ogImageAlt = "Sultan Mahmud — Hardware Engineer portfolio",
+  ogType = "website",
   canonicalUrl,
   noindex = false,
 } = Astro.props;
 
-const siteUrl = absoluteUrl(pageUrl("/")); // https://smsaad-181.github.io/portfolio/
 // Canonical is built from `site` + path, never from the request host
 // (otherwise local builds would publish localhost URLs).
 const canonical = canonicalUrl ?? absoluteUrl(Astro.url.pathname);
@@ -69,6 +76,9 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
       })();
     </script>
 
+    <link rel="preload" href={rubikLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monoLatin} as="font" type="font/woff2" crossorigin />
+
     <!-- Primary meta -->
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
@@ -76,13 +86,14 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter / X card -->
@@ -90,31 +101,19 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
-
-    <!-- JSON-LD: Person (helps Google surface the profile) -->
-    <script is:inline type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Sultan Mahmud",
-      "alternateName": "Saad",
-      "jobTitle": "Hardware Engineer",
-      "url": siteUrl,
-      "sameAs": [
-        "https://github.com/smsaad-181",
-        "https://linkedin.com/in/sultan-mahmud-saad",
-        "https://oshwlab.com/smsaad181"
-      ],
-      "knowsAbout": [
-        "PCB Design", "Embedded Systems", "IoT", "ESP32",
-        "Arduino", "LoRaWAN", "MQTT", "Circuit Design"
-      ]
-    })} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <!-- Per-page extra head content (e.g. project JSON-LD) -->
     <slot name="head" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href={assetUrl("/favicon.svg")} />
+    <link rel="icon" type="image/png" sizes="32x32" href={assetUrl("/icons/32.png")} />
+    <link rel="apple-touch-icon" sizes="180x180" href={assetUrl("/icons/180.png")} />
+    <link rel="manifest" href={assetUrl("/site.webmanifest")} />
+    <!-- Browser UI colour = page background per theme (mirrors --bg-base in tokens.css) -->
+    <meta name="theme-color" content="#0b0614" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#faf7fd" media="(prefers-color-scheme: light)" />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>

@@ -21,6 +21,12 @@ const { dedup, weld, simplify, meshopt, prune } = req("@gltf-transform/functions
 const { KHRMeshQuantization, EXTMeshoptCompression, EXTTextureWebP } = req("@gltf-transform/extensions");
 const { MeshoptSimplifier, MeshoptEncoder } = req("meshoptimizer");
 const ExcelJS = req("exceljs");
+import { existsSync as exists } from "node:fs";
+import { fileURLToPath } from "node:url";
+// Per-board corrections Saad confirmed (e.g. LED colours from the silkscreen).
+const overridesFile = path.join(path.dirname(fileURLToPath(import.meta.url)), "overrides.json");
+const overridesAll = exists(overridesFile) ? JSON.parse(readFileSync(overridesFile, "utf8")) : {};
+const overrides = Object.entries(overridesAll).find(([k]) => output.replace(/\\/g, "/").endsWith(k))?.[1] ?? {};
 const sharp = createRequire(path.join(sharpDir, "package.json"))("sharp");
 
 // ── BOM: designator → line ────────────────────────────────────────────────
@@ -175,19 +181,21 @@ function colourMaterial(rgb, fallback) {
 }
 
 // ── Pick & Place: rotation per designator (for parts EasyEDA exported without a model) ──
-const pnp = new Map(), pnpLayer = new Map();
+const pnp = new Map(), pnpLayer = new Map(), pnpMid = new Map();
 if (pnpPath && pnpPath !== "-") {
   try {
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.readFile(pnpPath);
     const ws = wb.worksheets[0];
     const head = ws.getRow(1).values.map((v) => String(v ?? "").trim());
-    const cRef = head.indexOf("Designator"), cRot = head.indexOf("Rotation"), cLayer = head.indexOf("Layer");
+    const cRef = head.indexOf("Designator"), cRot = head.indexOf("Rotation"), cLayer = head.indexOf("Layer"), cX = head.indexOf("Mid X"), cY = head.indexOf("Mid Y");
+    const mm = (v) => parseFloat(String(v?.result ?? v ?? "").replace(/mm$/i, ""));
     ws.eachRow((r, i) => {
       if (i <= 1) return;
       const layer = cLayer > 0 ? String(r.getCell(cLayer).value ?? "").trim().toUpperCase() : "";
       pnpLayer.set(String(r.getCell(cRef).value).trim(), layer.startsWith("B") ? "bottom" : layer.startsWith("T") ? "top" : null);
       pnp.set(String(r.getCell(cRef).value).trim(), parseFloat(r.getCell(cRot).value) || 0);
+      if (cX > 0 && cY > 0) pnpMid.set(String(r.getCell(cRef).value).trim(), [mm(r.getCell(cX).value), mm(r.getCell(cY).value)]);
     });
   } catch (e) { console.error("P&P read failed:", e.message); }
 }
@@ -229,7 +237,8 @@ function addBoardMesh(parent, m) {
     uvTop[2 * i] = u; uvTop[2 * i + 1] = v; uvBot[2 * i] = 1 - u; uvBot[2 * i + 1] = v;
   }
   const dom = texTop?.dominant;
-  const edgeCol = dom ? [dom.r, dom.g, dom.b].map((v) => Math.pow(v / 255, 2.2) * 0.8) : [0.03, 0.2, 0.06];
+  const edgeCol = dom ? [dom.r, dom.g, dom.b].map((v) => Math.pow(v / 255, 2.2) * 0.8)
+    : m.color ? m.color.map((v) => Math.pow(v, 2.2)) : [0.03, 0.2, 0.06];          // STEP's solder-mask colour
   const edgeMat = doc.createMaterial("board-edge").setBaseColorFactor([...edgeCol, 1]).setRoughnessFactor(0.6).setMetallicFactor(0);
   const texMat = (t, name) => doc.createMaterial(name).setBaseColorTexture(t.tex).setRoughnessFactor(0.62).setMetallicFactor(0.05);
   const prim = (tris, mat, uv) => {
@@ -491,6 +500,44 @@ const SIZES = [
   [/_H(\d+(?:\.\d+)?)/i, null],
 ];
 const synthesized = [];
+// Fit x_step = sx*x_pnp + tx, y_step = sy*y_pnp + ty from parts present in both.
+const stepCentre = (mis) => { const lo = [1e9, 1e9], hi = [-1e9, -1e9]; for (const mi of mis) { const p = result.meshes[mi].attributes.position.array; for (let i = 0; i < p.length; i += 3) for (let k = 0; k < 2; k++) { if (p[i + k] < lo[k]) lo[k] = p[i + k]; if (p[i + k] > hi[k]) hi[k] = p[i + k]; } } return { c: [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2], size: Math.max(hi[0] - lo[0], hi[1] - lo[1]) }; };
+let pnpFit = null;
+{
+  const pairs = [...byRef].filter(([r]) => pnpMid.has(r)).map(([r, e]) => [pnpMid.get(r), stepCentre(e.meshes)]).filter(([, sc]) => sc.size > 1);
+  if (pairs.length >= 4) {
+    for (const sx of [1, -1]) for (const sy of [1, -1]) {
+      const med = (a) => a.sort((x, y) => x - y)[a.length >> 1];
+      const tx = med(pairs.map(([p, sc]) => sc.c[0] - sx * p[0])), ty = med(pairs.map(([p, sc]) => sc.c[1] - sy * p[1]));
+      const err = med(pairs.map(([p, sc]) => Math.hypot(sc.c[0] - (sx * p[0] + tx), sc.c[1] - (sy * p[1] + ty))));
+      if (!pnpFit || err < pnpFit.err) pnpFit = { sx, sy, tx, ty, err };
+    }
+    if (pnpFit.err > 1.5) pnpFit = null;                    // layouts disagree: don't trust P&P positions
+  }
+}
+// Outline of a part's body in the render: flood-fill similar colour from the centre.
+function renderOutline(cx, cy, maxHalf) {
+  if (!renderRaw) return null;
+  const { data, w, h } = renderRaw;
+  const px = (x) => Math.round(((x - bmin[0]) / bw) * (w - 1)), py = (y) => Math.round(((bmax[1] - y) / bh) * (h - 1));
+  const x0 = px(cx), y0 = py(cy), rad = Math.ceil((maxHalf / bw) * w);
+  const at = (x, y) => (y * w + x) * 3;
+  const ref = [0, 1, 2].map((k) => { let sum = 0, n = 0; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { sum += data[at(x0 + dx, y0 + dy) + k]; n++; } return sum / n; });
+  const seen = new Uint8Array(w * h), stack = [[x0, y0]];
+  let lo = [x0, y0], hi = [x0, y0], n = 0;
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    if (x < 0 || y < 0 || x >= w || y >= h || Math.abs(x - x0) > rad || Math.abs(y - y0) > rad || seen[y * w + x]) continue;
+    seen[y * w + x] = 1;
+    const i = at(x, y);
+    if (Math.hypot(data[i] - ref[0], data[i + 1] - ref[1], data[i + 2] - ref[2]) > 60) continue;
+    n++; lo = [Math.min(lo[0], x), Math.min(lo[1], y)]; hi = [Math.max(hi[0], x), Math.max(hi[1], y)];
+    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+  }
+  if (n < 30) return null;
+  const mmX = (x) => bmin[0] + (x / (w - 1)) * bw, mmY = (y) => bmax[1] - (y / (h - 1)) * bh;
+  return { c: [(mmX(lo[0]) + mmX(hi[0])) / 2, (mmY(lo[1]) + mmY(hi[1])) / 2], d: [mmX(hi[0]) - mmX(lo[0]), mmY(lo[1]) - mmY(hi[1])], colour: ref.map((v) => Math.pow(v / 255, 2.2)) };
+}
 for (const [ref, entry] of byRef) {
   let lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9];
   for (const mi of entry.meshes) { const p = result.meshes[mi].attributes.position.array; for (let i = 0; i < p.length; i++) { const k = i % 3; if (p[i] < lo[k]) lo[k] = p[i]; if (p[i] > hi[k]) hi[k] = p[i]; } }
@@ -508,8 +555,22 @@ for (const [ref, entry] of byRef) {
     dims = [fb.long, fb.short, hm ? parseFloat(hm[1]) : pkgH];
   }
   const rot = ((pnp.get(ref) ?? 0) % 180 + 180) % 180;
-  const [dx, dy] = Math.abs(rot - 90) < 1 ? [dims[1], dims[0]] : [dims[0], dims[1]];
-  const cx = (lo[0] + hi[0]) / 2, cy = (lo[1] + hi[1]) / 2;
+  let [dx, dy] = Math.abs(rot - 90) < 1 ? [dims[1], dims[0]] : [dims[0], dims[1]];
+  let cx = (lo[0] + hi[0]) / 2, cy = (lo[1] + hi[1]) / 2, how = "placeholder position";
+  // EasyEDA puts the placeholder at the footprint origin, not the body centre:
+  // use the Pick & Place centre, then the body's outline in the render.
+  const pm = pnpMid.get(ref);
+  if (pm && pnpFit) { cx = pnpFit.sx * pm[0] + pnpFit.tx; cy = pnpFit.sy * pm[1] + pnpFit.ty; how = "Pick & Place"; }
+  const outline = renderOutline(cx, cy, Math.max(dims[0], dims[1]) * 0.75);
+  let bodyColour = null;
+  if (outline) {
+    const fitsA = Math.abs(outline.d[0] - dx) / dx < 0.3 && Math.abs(outline.d[1] - dy) / dy < 0.3;
+    const fitsB = Math.abs(outline.d[0] - dy) / dy < 0.3 && Math.abs(outline.d[1] - dx) / dx < 0.3;
+    if (fitsA || fitsB) {
+      cx = outline.c[0]; cy = outline.c[1]; how += " + render outline"; bodyColour = outline.colour;
+      if (fitsB && !fitsA) [dx, dy] = [dy, dx];
+    }
+  }
   const zMidPart = (lo[2] + hi[2]) / 2, onTop = zMidPart >= zMid;
   const z0 = onTop ? bmax[2] : bmin[2], z1 = onTop ? bmax[2] + dims[2] : bmin[2] - dims[2];
   const X = [cx - dx / 2, cx + dx / 2], Y = [cy - dy / 2, cy + dy / 2], Z = [z0, z1];
@@ -527,7 +588,8 @@ for (const [ref, entry] of byRef) {
   result.meshes.push({ name: ref, color: null, attributes: { position: { array: pos } }, index: { array: index }, brep_faces: [] });
   entry.meshes = [result.meshes.length - 1];
   entry.synthetic = true;
-  synthesized.push(`${ref} ${dims.join("×")} mm`);
+  entry.bodyColour = bodyColour;
+  synthesized.push(`${ref} ${dims.join("×")} mm at ${how}`);
 }
 const types = {};
 let missingBom = [];
@@ -555,8 +617,10 @@ for (const [ref, { meshes: mis, footprint }] of byRef) {
   const line = group ? { footprint: group.footprint, name: `one of ${group.refs.join(", ")}` } : bom.get(baseRef);
   if (!bom.get(baseRef) && bom.size) missingBom.push(baseRef);
   const cls = classifyPart(baseRef, group ? bom.get(baseRef) : line, footprint);
+  const ov = overrides[baseRef];
+  if (ov?.material) cls.o = { ...cls.o, body: ov.material };
   types[cls.type] = (types[cls.type] ?? 0) + 1;
-  const node = doc.createNode(ref).setExtras({ ref: label === ref ? ref : `${label} ${ref.split("·")[1]}`, side, h: +Math.max(above, below).toFixed(2), kind: cls.type, ...(line ? { bom: line } : {}), ...(byRef.get(ref).synthetic ? { synthetic: true } : {}) });
+  const node = doc.createNode(ref).setExtras({ ref: label === ref ? ref : `${label} ${ref.split("·")[1]}`, side, h: +Math.max(above, below).toFixed(2), kind: cls.type, ...(line ? { bom: line } : {}), ...(byRef.get(ref).synthetic ? { synthetic: true } : {}), ...(ov?.note ? { note: ov.note } : {}) });
   root.addChild(node);
   await addPart(node, ref, mis, { cls, side, footprint });
 }

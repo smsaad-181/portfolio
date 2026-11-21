@@ -246,6 +246,7 @@ const first = boards[0];
           b.footprint ? `footprint <code>${esc(b.footprint)}</code>` : "",
           `${d.side} side`,
           (d as any).synthetic ? "shown at datasheet size (the STEP export has no 3D model for this part)" : "",
+          (d as any).note ? esc((d as any).note) : "",
         ].filter(Boolean);
         return `<b>${esc(d.ref)}</b> — ${bits.join(" · ")}`;
       };

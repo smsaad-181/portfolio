@@ -12,13 +12,14 @@ it is not part of the site build.
   almost no colours, so each part's type (from its reference, BOM and
   footprint) decides how its body, pins, plates and markings look. The Clock
   documentation's 3D model is the visual reference.
-- `convert-boards.mjs` converts every board listed in the import manifest
-  (`pcbfacts/manifest.json`: STEP path, BOM table, 2D images, render, output path).
+- `convert-boards.mjs` converts every board listed in `pcbfacts/manifest.json`
+  (STEP path, 2D images, render, output path; BOM tables are in `pcbfacts/*-bom.md`).
+  Run `node convert-boards.mjs <portfolio-dir> [slug or slug/board …]`, one board at a time.
 
 ## One-time setup (outside the site's dependencies)
 
 ```bash
-mkdir pcbtools && cd pcbtools
+cd scripts/pcb3d && mkdir pcbtools && cd pcbtools   # git-ignored
 npm init -y
 npm install occt-import-js@0.0.23 @gltf-transform/core@4 @gltf-transform/extensions@4 @gltf-transform/functions@4 meshoptimizer@1
 ```

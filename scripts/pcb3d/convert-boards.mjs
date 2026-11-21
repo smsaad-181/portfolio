@@ -16,10 +16,10 @@ for (const p of manifest) for (const b of p.boards) {
   // layoutOutdated: the STEP is newer than the 2D images / render / P&P, so use the STEP alone.
   const img = (k) => (!b.layoutOutdated && b.images?.[k]?.from ? path.join("D:/SAAD/PCB", b.images[k].from) : "-");
   // Pick & Place xlsx (folder is "Pick & Place File" or "Pick&Place File")
-  const ppDir = existsSync(b.dir) ? readdirSync(b.dir).find((d) => /pick/i.test(d)) : null;
+  const ppDir = b.dir && existsSync(b.dir) ? readdirSync(b.dir).find((d) => /pick/i.test(d)) : null;
   const ppFile = ppDir ? readdirSync(path.join(b.dir, ppDir)).find((f) => /.xlsx$/i.test(f)) : null;
   const pnp = ppFile && !b.layoutOutdated ? path.join(b.dir, ppDir, ppFile) : "-";
-  jobs.push({ name: `${p.slug}${b.key ? "/" + b.key : ""}`, args: [b.step, path.join(projectDir, "public", b.glb), b.bomMd ?? "-", img("top2d"), img("bottom2d")], render: img("render3d"), pnp });
+  jobs.push({ name: `${p.slug}${b.key ? "/" + b.key : ""}`, args: [b.step, path.join(projectDir, "public", b.glb), b.bomMd ? path.resolve(here, "pcbfacts", b.bomMd) : "-", img("top2d"), img("bottom2d")], render: img("render3d"), pnp });
 }
 const failed = [];
 async function run(job) {

@@ -1,0 +1,1178 @@
+[
+  {
+    "slug": "acqua-node",
+    "folder": "Acqua Node V1.2",
+    "github": "https://github.com/smsaad-181/Acqua_Node_v1.2",
+    "docs": [
+      "D:\\SAAD\\PCB\\Acqua Node V1.2\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Acqua Node V1.2",
+        "dir": "D:/SAAD/PCB/Acqua Node V1.2",
+        "github": "https://github.com/smsaad-181/Acqua_Node_v1.2",
+        "step": "D:/SAAD/PCB/Acqua Node V1.2/3D Step File/3D_PCB1_2026-07-27.step",
+        "glb": "/models/acqua-node/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/acqua-node/render3d.webp",
+            "from": "Acqua Node V1.2/Image/3D/3D_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 1328
+          },
+          "pcbTop": {
+            "src": "/images/projects/acqua-node/pcb-top.webp",
+            "from": "Acqua Node V1.2/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 1528
+          },
+          "pcbBottom": {
+            "src": "/images/projects/acqua-node/pcb-bottom.webp",
+            "from": "Acqua Node V1.2/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
+            "width": 1800,
+            "height": 1528
+          },
+          "top2d": {
+            "src": "/images/projects/acqua-node/top2d.webp",
+            "from": "Acqua Node V1.2/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 1326
+          },
+          "bottom2d": {
+            "src": "/images/projects/acqua-node/bottom2d.webp",
+            "from": "Acqua Node V1.2/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
+            "width": 1800,
+            "height": 1326
+          },
+          "schematics": []
+        },
+        "bomMd": "acqua-node-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "atmega328p-rtc-clock",
+    "folder": "Clock",
+    "github": "https://github.com/smsaad-181/Clock-with-ATmega328P-and-RTC-",
+    "docs": [
+      "D:\\SAAD\\PCB\\Clock\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Clock PCB",
+        "dir": "D:/SAAD/PCB/Clock",
+        "github": "https://github.com/smsaad-181/Clock-with-ATmega328P-and-RTC-",
+        "step": "D:/SAAD/PCB/Clock/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/atmega328p-rtc-clock/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/atmega328p-rtc-clock/render3d.webp",
+            "from": "Clock/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1016
+          },
+          "pcbTop": {
+            "src": "/images/projects/atmega328p-rtc-clock/pcb-top.webp",
+            "from": "Clock/Image/PCB/PCB_PCB1_2026-07-18_top.png",
+            "width": 1800,
+            "height": 910
+          },
+          "pcbBottom": {
+            "src": "/images/projects/atmega328p-rtc-clock/pcb-bottom.webp",
+            "from": "Clock/Image/PCB/PCB_PCB1_2026-07-18_bottom.png",
+            "width": 1800,
+            "height": 910
+          },
+          "top2d": {
+            "src": "/images/projects/atmega328p-rtc-clock/top2d.webp",
+            "from": "Clock/Image/2D/2D_PCB1_2026-07-18_top.png",
+            "width": 1800,
+            "height": 961
+          },
+          "bottom2d": {
+            "src": "/images/projects/atmega328p-rtc-clock/bottom2d.webp",
+            "from": "Clock/Image/2D/2D_PCB1_2026-07-18_bottom.png",
+            "width": 1800,
+            "height": 961
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/atmega328p-rtc-clock/schematic-1.webp",
+              "from": "Clock/Documentation/images/clock-schematic.png",
+              "width": 2000,
+              "height": 1417
+            }
+          ]
+        },
+        "bomMd": "atmega328p-rtc-clock-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "component-tester",
+    "folder": "Component Tester V1.0",
+    "github": "https://github.com/smsaad-181/Component-Tester-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\Component Tester V1.0\\Documentaion\\Component_Tester_V1.0_Documentation.md",
+      "D:\\SAAD\\PCB\\Component Tester V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Component Tester V1.0",
+        "dir": "D:/SAAD/PCB/Component Tester V1.0",
+        "github": "https://github.com/smsaad-181/Component-Tester-V1.0",
+        "step": "D:/SAAD/PCB/Component Tester V1.0/3D Step File/3D_PCB1_2026-10-21.step",
+        "glb": "/models/component-tester/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/component-tester/render3d.webp",
+            "from": "Component Tester V1.0/Image/3D/3D_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1104
+          },
+          "pcbTop": {
+            "src": "/images/projects/component-tester/pcb-top.webp",
+            "from": "Component Tester V1.0/Image/PCB/Top View/PCB_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1128
+          },
+          "pcbBottom": {
+            "src": "/images/projects/component-tester/pcb-bottom.webp",
+            "from": "Component Tester V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-10-21 (1).png",
+            "width": 1800,
+            "height": 1128
+          },
+          "top2d": {
+            "src": "/images/projects/component-tester/top2d.webp",
+            "from": "Component Tester V1.0/Image/2D/Top Side/2D_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1059
+          },
+          "bottom2d": {
+            "src": "/images/projects/component-tester/bottom2d.webp",
+            "from": "Component Tester V1.0/Image/2D/Bottom Side/2D_PCB1_2026-10-21 (1).png",
+            "width": 1800,
+            "height": 1059
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/component-tester/schematic-1.webp",
+              "from": "Component Tester V1.0/Schamatic/PDF/Schematic.png",
+              "width": 2358,
+              "height": 1668
+            }
+          ]
+        },
+        "bomMd": "component-tester-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "ecg-monitor-ads1292r",
+    "folder": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0",
+    "github": "https://github.com/smsaad-181/ECG-Monitor-with-ADS1292R-ESP32-TFT-Display-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\ECG Monitor with ADS1292R & ESP32 TFT Display V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "ECG Monitor V1.0",
+        "dir": "D:/SAAD/PCB/ECG Monitor with ADS1292R & ESP32 TFT Display V1.0",
+        "github": "https://github.com/smsaad-181/ECG-Monitor-with-ADS1292R-ESP32-TFT-Display-V1.0",
+        "step": "D:/SAAD/PCB/ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/3D Step File/3D_PCB1_2026-10-20.step",
+        "glb": "/models/ecg-monitor-ads1292r/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/ecg-monitor-ads1292r/render3d.webp",
+            "from": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/Image/3D/3D_PCB1_2026-10-20.png",
+            "width": 1800,
+            "height": 1851
+          },
+          "pcbTop": {
+            "src": "/images/projects/ecg-monitor-ads1292r/pcb-top.webp",
+            "from": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/Image/PCB/Top View/PCB_PCB1_2026-10-20.png",
+            "width": 1800,
+            "height": 1638
+          },
+          "pcbBottom": {
+            "src": "/images/projects/ecg-monitor-ads1292r/pcb-bottom.webp",
+            "from": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-10-20 (1).png",
+            "width": 1800,
+            "height": 1638
+          },
+          "top2d": {
+            "src": "/images/projects/ecg-monitor-ads1292r/top2d.webp",
+            "from": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/Image/2D/Top Side/2D_PCB1_2026-10-20.png",
+            "width": 1800,
+            "height": 1833
+          },
+          "bottom2d": {
+            "src": "/images/projects/ecg-monitor-ads1292r/bottom2d.webp",
+            "from": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/Image/2D/Bottom Side/2D_PCB1_2026-10-20 (1).png",
+            "width": 1800,
+            "height": 1833
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/ecg-monitor-ads1292r/schematic-1.webp",
+              "from": "ECG Monitor with ADS1292R & ESP32 TFT Display V1.0/Documentaion/images/ecg-schematic.png",
+              "width": 2000,
+              "height": 1415
+            }
+          ]
+        },
+        "bomMd": "ecg-monitor-ads1292r-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "vehicle-motion-analyzer",
+    "folder": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0",
+    "github": "https://github.com/smsaad-181/ESP32-IoT-Vehicle-Motion-Analyzer-With-MPU6050-LIS3MDL-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0\\Documentation\\README.md",
+      "D:\\SAAD\\PCB\\ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Vehicle Motion Analyzer V1.0",
+        "dir": "D:/SAAD/PCB/ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0",
+        "github": "https://github.com/smsaad-181/ESP32-IoT-Vehicle-Motion-Analyzer-With-MPU6050-LIS3MDL-V1.0",
+        "step": "D:/SAAD/PCB/ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/vehicle-motion-analyzer/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/vehicle-motion-analyzer/render3d.webp",
+            "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1480
+          },
+          "pcbTop": {
+            "src": "/images/projects/vehicle-motion-analyzer/pcb-top.webp",
+            "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Image/PCB/Top View/PCB_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1723
+          },
+          "pcbBottom": {
+            "src": "/images/projects/vehicle-motion-analyzer/pcb-bottom.webp",
+            "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1723
+          },
+          "top2d": {
+            "src": "/images/projects/vehicle-motion-analyzer/top2d.webp",
+            "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Image/2D/Top Side/2D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1618
+          },
+          "bottom2d": {
+            "src": "/images/projects/vehicle-motion-analyzer/bottom2d.webp",
+            "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Image/2D/Bottom Side/2D_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1618
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/vehicle-motion-analyzer/schematic-1.webp",
+              "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Documentation/images/sch1-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/vehicle-motion-analyzer/schematic-2.webp",
+              "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Documentation/images/sch2-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/vehicle-motion-analyzer/schematic-3.webp",
+              "from": "ESP32 IoT Vehicle Motion Analyzer With MPU6050 & LIS3MDL V1.0/Documentation/images/sch3-schematic.png",
+              "width": 2000,
+              "height": 1415
+            }
+          ]
+        },
+        "bomMd": "vehicle-motion-analyzer-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "lora-gps-tracker",
+    "folder": "ESP32 LoRa GPS Tracker V1.0",
+    "github": "https://github.com/smsaad-181/ESP32-LoRa-GPS-Tracker-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\ESP32 LoRa GPS Tracker V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "transmitter",
+        "label": "Transmitter",
+        "dir": "D:/SAAD/PCB/ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter",
+        "github": "https://github.com/smsaad-181/ESP32-LoRa-GPS-Tracker-V1.0",
+        "step": "D:/SAAD/PCB/ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/3D Step File/3D_PCB1_2026-11-08.step",
+        "glb": "/models/lora-gps-tracker/transmitter.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/lora-gps-tracker/transmitter-render3d.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Image/3D/3D_PCB1_2026-11-08.png",
+            "width": 1800,
+            "height": 1348
+          },
+          "pcbTop": {
+            "src": "/images/projects/lora-gps-tracker/transmitter-pcb-top.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Image/PCB/Top View/PCB_PCB1_2026-11-08.png",
+            "width": 1800,
+            "height": 1319
+          },
+          "pcbBottom": {
+            "src": "/images/projects/lora-gps-tracker/transmitter-pcb-bottom.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Image/PCB/Bottom View/PCB_PCB1_2026-11-08 (1).png",
+            "width": 1800,
+            "height": 1319
+          },
+          "top2d": {
+            "src": "/images/projects/lora-gps-tracker/transmitter-top2d.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Image/2D/Top Side/2D_PCB1_2026-11-08.png",
+            "width": 1800,
+            "height": 1333
+          },
+          "bottom2d": {
+            "src": "/images/projects/lora-gps-tracker/transmitter-bottom2d.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Image/2D/Bottom Side/2D_PCB1_2026-11-08 (1).png",
+            "width": 1800,
+            "height": 1333
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/lora-gps-tracker/transmitter-schematic-1.webp",
+              "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Documentaion/images/tx-p1-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/lora-gps-tracker/transmitter-schematic-2.webp",
+              "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Documentaion/images/tx-p2-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/lora-gps-tracker/transmitter-schematic-3.webp",
+              "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Transmitter/Documentaion/images/tx-p3-schematic.png",
+              "width": 2000,
+              "height": 1415
+            }
+          ]
+        },
+        "bomMd": "lora-gps-tracker-transmitter-bom.md"
+      },
+      {
+        "key": "receiver",
+        "label": "Receiver",
+        "dir": "D:/SAAD/PCB/ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver",
+        "github": "https://github.com/smsaad-181/ESP32-LoRa-GPS-Tracker-V1.0",
+        "step": "D:/SAAD/PCB/ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/3D Step File/3D_PCB2_2026-11-08.step",
+        "glb": "/models/lora-gps-tracker/receiver.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/lora-gps-tracker/receiver-render3d.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Image/3D/3D_PCB2_2026-11-08.png",
+            "width": 1800,
+            "height": 1091
+          },
+          "pcbTop": {
+            "src": "/images/projects/lora-gps-tracker/receiver-pcb-top.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Image/PCB/Top View/PCB_PCB2_2026-11-08.png",
+            "width": 1800,
+            "height": 1059
+          },
+          "pcbBottom": {
+            "src": "/images/projects/lora-gps-tracker/receiver-pcb-bottom.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Image/PCB/Bottom View/PCB_PCB2_2026-11-08 (1).png",
+            "width": 1800,
+            "height": 1059
+          },
+          "top2d": {
+            "src": "/images/projects/lora-gps-tracker/receiver-top2d.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Image/2D/Top Side/2D_PCB2_2026-11-08.png",
+            "width": 1800,
+            "height": 1058
+          },
+          "bottom2d": {
+            "src": "/images/projects/lora-gps-tracker/receiver-bottom2d.webp",
+            "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Image/2D/Bottom Side/2D_PCB2_2026-11-08 (1).png",
+            "width": 1800,
+            "height": 1058
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/lora-gps-tracker/receiver-schematic-1.webp",
+              "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Documentaion/images/rx-p1-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/lora-gps-tracker/receiver-schematic-2.webp",
+              "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Documentaion/images/rx-p2-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/lora-gps-tracker/receiver-schematic-3.webp",
+              "from": "ESP32 LoRa GPS Tracker V1.0/ESP32 LoRa GPS Receiver/Documentaion/images/rx-p3-schematic.png",
+              "width": 2000,
+              "height": 1415
+            }
+          ]
+        },
+        "bomMd": "lora-gps-tracker-receiver-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "ir-thermal-camera",
+    "folder": "ESP32 MLX90640 IR Thermal Camera V1.0",
+    "github": "https://github.com/smsaad-181/ESP32-MLX90640-IR-Thermal-Camera-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\ESP32 MLX90640 IR Thermal Camera V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "IR Thermal Camera V1.0",
+        "dir": "D:/SAAD/PCB/ESP32 MLX90640 IR Thermal Camera V1.0",
+        "github": "https://github.com/smsaad-181/ESP32-MLX90640-IR-Thermal-Camera-V1.0",
+        "step": "D:/SAAD/PCB/ESP32 MLX90640 IR Thermal Camera V1.0/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/ir-thermal-camera/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/ir-thermal-camera/render3d.webp",
+            "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1839
+          },
+          "pcbTop": {
+            "src": "/images/projects/ir-thermal-camera/pcb-top.webp",
+            "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Image/PCB/Top View/PCB_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1751
+          },
+          "pcbBottom": {
+            "src": "/images/projects/ir-thermal-camera/pcb-bottom.webp",
+            "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1751
+          },
+          "top2d": {
+            "src": "/images/projects/ir-thermal-camera/top2d.webp",
+            "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Image/2D/Top Side/2D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1625
+          },
+          "bottom2d": {
+            "src": "/images/projects/ir-thermal-camera/bottom2d.webp",
+            "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Image/2D/Bottom Side/2D_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1625
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/ir-thermal-camera/schematic-1.webp",
+              "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Documentaion/images/sch1-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/ir-thermal-camera/schematic-2.webp",
+              "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Documentaion/images/sch2-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/ir-thermal-camera/schematic-3.webp",
+              "from": "ESP32 MLX90640 IR Thermal Camera V1.0/Documentaion/images/sch3-schematic.png",
+              "width": 2000,
+              "height": 1415
+            }
+          ]
+        },
+        "bomMd": "ir-thermal-camera-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "esp32-standalone-board",
+    "folder": "ESP32 Standalone Board V1.0",
+    "github": "https://github.com/smsaad-181/ESP32-Standalone-Board-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\ESP32 Standalone Board V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "ESP32 Standalone Board V1.0",
+        "dir": "D:/SAAD/PCB/ESP32 Standalone Board V1.0",
+        "github": "https://github.com/smsaad-181/ESP32-Standalone-Board-V1.0",
+        "step": "D:/SAAD/PCB/ESP32 Standalone Board V1.0/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/esp32-standalone-board/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/esp32-standalone-board/render3d.webp",
+            "from": "ESP32 Standalone Board V1.0/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1233
+          },
+          "pcbTop": {
+            "src": "/images/projects/esp32-standalone-board/pcb-top.webp",
+            "from": "ESP32 Standalone Board V1.0/Image/PCB/PCB_PCB1_2026-07-18_top.png",
+            "width": 1800,
+            "height": 1303
+          },
+          "pcbBottom": {
+            "src": "/images/projects/esp32-standalone-board/pcb-bottom.webp",
+            "from": "ESP32 Standalone Board V1.0/Image/PCB/PCB_PCB1_2026-07-18_bottom.png",
+            "width": 1800,
+            "height": 1303
+          },
+          "top2d": {
+            "src": "/images/projects/esp32-standalone-board/top2d.webp",
+            "from": "ESP32 Standalone Board V1.0/Image/2D/2D_PCB1_2026-07-18_top.png",
+            "width": 1800,
+            "height": 945
+          },
+          "bottom2d": {
+            "src": "/images/projects/esp32-standalone-board/bottom2d.webp",
+            "from": "ESP32 Standalone Board V1.0/Image/2D/2D_PCB1_2026-07-18_bottom.png",
+            "width": 1800,
+            "height": 945
+          },
+          "schematics": [
+            {
+              "src": "/images/projects/esp32-standalone-board/schematic-1.webp",
+              "from": "ESP32 Standalone Board V1.0/Documentation/images/p1-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/esp32-standalone-board/schematic-2.webp",
+              "from": "ESP32 Standalone Board V1.0/Documentation/images/p2-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/esp32-standalone-board/schematic-3.webp",
+              "from": "ESP32 Standalone Board V1.0/Documentation/images/p3-schematic.png",
+              "width": 2000,
+              "height": 1415
+            },
+            {
+              "src": "/images/projects/esp32-standalone-board/schematic-4.webp",
+              "from": "ESP32 Standalone Board V1.0/Image/Schematic/Schematic_Page1_ESP32_MCU.png",
+              "width": 2400,
+              "height": 1698
+            },
+            {
+              "src": "/images/projects/esp32-standalone-board/schematic-5.webp",
+              "from": "ESP32 Standalone Board V1.0/Image/Schematic/Schematic_Page2_Power.png",
+              "width": 2400,
+              "height": 1698
+            },
+            {
+              "src": "/images/projects/esp32-standalone-board/schematic-6.webp",
+              "from": "ESP32 Standalone Board V1.0/Image/Schematic/Schematic_Page3_USB_Connectors.png",
+              "width": 2400,
+              "height": 1698
+            }
+          ]
+        },
+        "bomMd": "esp32-standalone-board-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "fingerprint-v1-1",
+    "folder": "Fingerprint V1.1",
+    "github": null,
+    "docs": [],
+    "boards": [
+      {
+        "key": "",
+        "label": "Fingerprint V1.1",
+        "dir": "D:/SAAD/PCB/Fingerprint V1.1",
+        "github": null,
+        "step": "D:/SAAD/PCB/Fingerprint V1.1/3D Step File/3D_PCB1_2026-11-21.step",
+        "glb": "/models/fingerprint-v1-1/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/fingerprint-v1-1/render3d.webp",
+            "from": "Fingerprint V1.1/Image/3D/3D_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 1803
+          },
+          "pcbTop": {
+            "src": "/images/projects/fingerprint-v1-1/pcb-top.webp",
+            "from": "Fingerprint V1.1/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 1845
+          },
+          "pcbBottom": {
+            "src": "/images/projects/fingerprint-v1-1/pcb-bottom.webp",
+            "from": "Fingerprint V1.1/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
+            "width": 1800,
+            "height": 1845
+          },
+          "top2d": {
+            "src": "/images/projects/fingerprint-v1-1/top2d.webp",
+            "from": "Fingerprint V1.1/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 1830
+          },
+          "bottom2d": {
+            "src": "/images/projects/fingerprint-v1-1/bottom2d.webp",
+            "from": "Fingerprint V1.1/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
+            "width": 1800,
+            "height": 1830
+          },
+          "schematics": []
+        },
+        "bomMd": "fingerprint-v1-1-bom.md",
+        "layoutOutdated": "2D images, render and Pick & Place are from 27 Jul 2026; the STEP file (21 Nov 2026) has a newer layout"
+      }
+    ]
+  },
+  {
+    "slug": "fingerprint-v1-2",
+    "folder": "Fingerprint V1.2",
+    "github": null,
+    "docs": [],
+    "boards": [
+      {
+        "key": "",
+        "label": "Fingerprint V1.2",
+        "dir": "D:/SAAD/PCB/Fingerprint V1.2",
+        "github": null,
+        "step": "D:/SAAD/PCB/Fingerprint V1.2/3D Step File/3D_PCB1_2026-07-27.step",
+        "glb": "/models/fingerprint-v1-2/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/fingerprint-v1-2/render3d.webp",
+            "from": "Fingerprint V1.2/Image/3D/3D_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 2753
+          },
+          "pcbTop": {
+            "src": "/images/projects/fingerprint-v1-2/pcb-top.webp",
+            "from": "Fingerprint V1.2/Image/PCB/Top Side/PCB_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 2321
+          },
+          "pcbBottom": {
+            "src": "/images/projects/fingerprint-v1-2/pcb-bottom.webp",
+            "from": "Fingerprint V1.2/Image/PCB/Bottom Side/PCB_PCB1_2026-07-27 (1).png",
+            "width": 1800,
+            "height": 2321
+          },
+          "top2d": {
+            "src": "/images/projects/fingerprint-v1-2/top2d.webp",
+            "from": "Fingerprint V1.2/Image/2D/Top Side/2D_PCB1_2026-07-27.png",
+            "width": 1800,
+            "height": 2752
+          },
+          "bottom2d": {
+            "src": "/images/projects/fingerprint-v1-2/bottom2d.webp",
+            "from": "Fingerprint V1.2/Image/2D/Bottom Side/2D_PCB1_2026-07-27 (1).png",
+            "width": 1800,
+            "height": 2752
+          },
+          "schematics": []
+        },
+        "bomMd": "fingerprint-v1-2-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "fingerprint-voting-machine",
+    "folder": "Fingerprint Voting Machine V1.0",
+    "github": "https://github.com/smsaad-181/Fingerprint-Voting-Machine-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\Fingerprint Voting Machine V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Fingerprint Voting Machine V1.0",
+        "dir": "D:/SAAD/PCB/Fingerprint Voting Machine V1.0",
+        "github": "https://github.com/smsaad-181/Fingerprint-Voting-Machine-V1.0",
+        "step": "D:/SAAD/PCB/Fingerprint Voting Machine V1.0/3D Step File/3D_PCB1_2026-10-21.step",
+        "glb": "/models/fingerprint-voting-machine/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/fingerprint-voting-machine/render3d.webp",
+            "from": "Fingerprint Voting Machine V1.0/Image/3D/3D_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1053
+          },
+          "pcbTop": {
+            "src": "/images/projects/fingerprint-voting-machine/pcb-top.webp",
+            "from": "Fingerprint Voting Machine V1.0/Image/PCB/Top View/PCB_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1091
+          },
+          "pcbBottom": {
+            "src": "/images/projects/fingerprint-voting-machine/pcb-bottom.webp",
+            "from": "Fingerprint Voting Machine V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-10-21 (1).png",
+            "width": 1800,
+            "height": 1091
+          },
+          "top2d": {
+            "src": "/images/projects/fingerprint-voting-machine/top2d.webp",
+            "from": "Fingerprint Voting Machine V1.0/Image/2D/Top Side/2D_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1034
+          },
+          "bottom2d": {
+            "src": "/images/projects/fingerprint-voting-machine/bottom2d.webp",
+            "from": "Fingerprint Voting Machine V1.0/Image/2D/Bottom Side/2D_PCB1_2026-10-21 (1).png",
+            "width": 1800,
+            "height": 1034
+          },
+          "schematics": []
+        },
+        "bomMd": "fingerprint-voting-machine-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "home-automation",
+    "folder": "Home Automation",
+    "github": null,
+    "docs": [
+      "D:\\SAAD\\PCB\\Home Automation\\4 Channel Relay TH V1\\README.md",
+      "D:\\SAAD\\PCB\\Home Automation\\6 Channel Relay TH V2.1\\README.md",
+      "D:\\SAAD\\PCB\\Home Automation\\6 Channel Relay TH V2.2\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "4ch-v1",
+        "label": "4-Channel Relay V1",
+        "dir": "D:/SAAD/PCB/Home Automation/4 Channel Relay TH V1",
+        "github": "https://github.com/smsaad-181/4-Channel-Relay-TH-V1.0-Home-Assistant",
+        "step": "D:/SAAD/PCB/Home Automation/4 Channel Relay TH V1/3D Step File/3D_PCB1_2026-07-17.step",
+        "glb": "/models/home-automation/4ch-v1.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/home-automation/4ch-v1-render3d.webp",
+            "from": "Home Automation/4 Channel Relay TH V1/Image/3D/3D_PCB1_2026-07-17.png",
+            "width": 1800,
+            "height": 1440
+          },
+          "pcbTop": {
+            "src": "/images/projects/home-automation/4ch-v1-pcb-top.webp",
+            "from": "Home Automation/4 Channel Relay TH V1/Image/PCB/Top View/PCB_PCB1_2026-07-17.png",
+            "width": 1800,
+            "height": 1408
+          },
+          "pcbBottom": {
+            "src": "/images/projects/home-automation/4ch-v1-pcb-bottom.webp",
+            "from": "Home Automation/4 Channel Relay TH V1/Image/PCB/Bottom View/PCB_PCB1_2026-07-17 (1).png",
+            "width": 1800,
+            "height": 1408
+          },
+          "top2d": {
+            "src": "/images/projects/home-automation/4ch-v1-top2d.webp",
+            "from": "Home Automation/4 Channel Relay TH V1/Image/2D/Top Side/2D_PCB1_2026-07-17.png",
+            "width": 1800,
+            "height": 1444
+          },
+          "bottom2d": {
+            "src": "/images/projects/home-automation/4ch-v1-bottom2d.webp",
+            "from": "Home Automation/4 Channel Relay TH V1/Image/2D/Bottom Side/2D_PCB1_2026-07-17 (1).png",
+            "width": 1800,
+            "height": 1444
+          },
+          "schematics": []
+        },
+        "bomMd": "home-automation-4ch-v1-bom.md"
+      },
+      {
+        "key": "6ch-v2-1",
+        "label": "6-Channel Relay V2.1",
+        "dir": "D:/SAAD/PCB/Home Automation/6 Channel Relay TH V2.1",
+        "github": null,
+        "step": "D:/SAAD/PCB/Home Automation/6 Channel Relay TH V2.1/3D Step File/3D_PCB1_2026-07-31.step",
+        "glb": "/models/home-automation/6ch-v2-1.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/home-automation/6ch-v2-1-render3d.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.1/Image/3D/3D_PCB1_2026-07-31.png",
+            "width": 1800,
+            "height": 1440
+          },
+          "pcbTop": {
+            "src": "/images/projects/home-automation/6ch-v2-1-pcb-top.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.1/Image/PCB view/Top View/PCB_PCB1_2026-07-31.png",
+            "width": 1800,
+            "height": 1294
+          },
+          "pcbBottom": {
+            "src": "/images/projects/home-automation/6ch-v2-1-pcb-bottom.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.1/Image/PCB view/Bottom View/PCB_PCB1_2026-07-31 (1).png",
+            "width": 1800,
+            "height": 1294
+          },
+          "top2d": {
+            "src": "/images/projects/home-automation/6ch-v2-1-top2d.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.1/Image/2D/Top view/2D_PCB1_2026-07-31.png",
+            "width": 1800,
+            "height": 1439
+          },
+          "bottom2d": {
+            "src": "/images/projects/home-automation/6ch-v2-1-bottom2d.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.1/Image/2D/Bottom view/2D_PCB1_2026-07-31 (1).png",
+            "width": 1800,
+            "height": 1439
+          },
+          "schematics": []
+        },
+        "bomMd": "home-automation-6ch-v2-1-bom.md"
+      },
+      {
+        "key": "6ch-v2-2",
+        "label": "6-Channel Relay V2.2",
+        "dir": "D:/SAAD/PCB/Home Automation/6 Channel Relay TH V2.2",
+        "github": null,
+        "step": "D:/SAAD/PCB/Home Automation/6 Channel Relay TH V2.2/3D Step File/3D_PCB1_2026-07-17.step",
+        "glb": "/models/home-automation/6ch-v2-2.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/home-automation/6ch-v2-2-render3d.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.2/Image/3D/3D_PCB1_2026-07-17.png",
+            "width": 1800,
+            "height": 1442
+          },
+          "pcbTop": {
+            "src": "/images/projects/home-automation/6ch-v2-2-pcb-top.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.2/Image/PCB view/Top View/PCB_PCB1_2026-07-17.png",
+            "width": 1800,
+            "height": 1387
+          },
+          "pcbBottom": {
+            "src": "/images/projects/home-automation/6ch-v2-2-pcb-bottom.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.2/Image/PCB view/Bottom View/PCB_PCB1_2026-07-17 (1).png",
+            "width": 1800,
+            "height": 1387
+          },
+          "top2d": {
+            "src": "/images/projects/home-automation/6ch-v2-2-top2d.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.2/Image/2D/Top view/2D_PCB1_2026-07-17.png",
+            "width": 1800,
+            "height": 1454
+          },
+          "bottom2d": {
+            "src": "/images/projects/home-automation/6ch-v2-2-bottom2d.webp",
+            "from": "Home Automation/6 Channel Relay TH V2.2/Image/2D/Bottom view/2D_PCB1_2026-07-17 (1).png",
+            "width": 1800,
+            "height": 1454
+          },
+          "schematics": []
+        },
+        "bomMd": "home-automation-6ch-v2-2-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "iot-activity-tracker",
+    "folder": "IoT Activity Tracker-Accelerometer-Gyroscope V1.0",
+    "github": "https://github.com/smsaad-181/IoT-Activity-Tracker-Accelerometer-Gyroscope",
+    "docs": [
+      "D:\\SAAD\\PCB\\IoT Activity Tracker-Accelerometer-Gyroscope V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Activity Tracker V1.0",
+        "dir": "D:/SAAD/PCB/IoT Activity Tracker-Accelerometer-Gyroscope V1.0",
+        "github": "https://github.com/smsaad-181/IoT-Activity-Tracker-Accelerometer-Gyroscope",
+        "step": "D:/SAAD/PCB/IoT Activity Tracker-Accelerometer-Gyroscope V1.0/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/iot-activity-tracker/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/iot-activity-tracker/render3d.webp",
+            "from": "IoT Activity Tracker-Accelerometer-Gyroscope V1.0/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1643
+          },
+          "pcbTop": {
+            "src": "/images/projects/iot-activity-tracker/pcb-top.webp",
+            "from": "IoT Activity Tracker-Accelerometer-Gyroscope V1.0/Image/PCB/Top View/PCB_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1558
+          },
+          "pcbBottom": {
+            "src": "/images/projects/iot-activity-tracker/pcb-bottom.webp",
+            "from": "IoT Activity Tracker-Accelerometer-Gyroscope V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1558
+          },
+          "top2d": {
+            "src": "/images/projects/iot-activity-tracker/top2d.webp",
+            "from": "IoT Activity Tracker-Accelerometer-Gyroscope V1.0/Image/2D/Top Side/2D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1795
+          },
+          "bottom2d": {
+            "src": "/images/projects/iot-activity-tracker/bottom2d.webp",
+            "from": "IoT Activity Tracker-Accelerometer-Gyroscope V1.0/Image/2D/Bottom Side/2D_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1795
+          },
+          "schematics": []
+        },
+        "bomMd": "iot-activity-tracker-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "air-quality-monitor",
+    "folder": "IoT Based PM & Air Quality Monitoring System V1.0",
+    "github": "https://github.com/smsaad-181/IoT-Based-PM-Air-Quality-Monitoring-System-V1.0",
+    "docs": [
+      "D:\\SAAD\\PCB\\IoT Based PM & Air Quality Monitoring System V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Air Quality Monitor V1.0",
+        "dir": "D:/SAAD/PCB/IoT Based PM & Air Quality Monitoring System V1.0",
+        "github": "https://github.com/smsaad-181/IoT-Based-PM-Air-Quality-Monitoring-System-V1.0",
+        "step": "D:/SAAD/PCB/IoT Based PM & Air Quality Monitoring System V1.0/3D Step File/3D_PCB1_2026-10-22.step",
+        "glb": "/models/air-quality-monitor/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/air-quality-monitor/render3d.webp",
+            "from": "IoT Based PM & Air Quality Monitoring System V1.0/Image/3D/3D_PCB1_2026-10-22.png",
+            "width": 1800,
+            "height": 1035
+          },
+          "pcbTop": {
+            "src": "/images/projects/air-quality-monitor/pcb-top.webp",
+            "from": "IoT Based PM & Air Quality Monitoring System V1.0/Image/PCB/Top View/PCB_PCB1_2026-10-22.png",
+            "width": 1800,
+            "height": 1015
+          },
+          "pcbBottom": {
+            "src": "/images/projects/air-quality-monitor/pcb-bottom.webp",
+            "from": "IoT Based PM & Air Quality Monitoring System V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-10-22 (1).png",
+            "width": 1800,
+            "height": 1015
+          },
+          "top2d": {
+            "src": "/images/projects/air-quality-monitor/top2d.webp",
+            "from": "IoT Based PM & Air Quality Monitoring System V1.0/Image/2D/Top Side/2D_PCB1_2026-10-22.png",
+            "width": 1800,
+            "height": 992
+          },
+          "bottom2d": {
+            "src": "/images/projects/air-quality-monitor/bottom2d.webp",
+            "from": "IoT Based PM & Air Quality Monitoring System V1.0/Image/2D/Bottom Side/2D_PCB1_2026-10-22 (1).png",
+            "width": 1800,
+            "height": 992
+          },
+          "schematics": []
+        },
+        "bomMd": "air-quality-monitor-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "battery-soc-monitor",
+    "folder": "IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main",
+    "github": "https://github.com/smsaad-181/IoT-based-Battery-SoC-Monitoring-System-with-ESP32",
+    "docs": [
+      "D:\\SAAD\\PCB\\IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Battery SoC Monitor",
+        "dir": "D:/SAAD/PCB/IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main/IoT based Battery SoC (%) Monitoring System with ESP32",
+        "github": "https://github.com/smsaad-181/IoT-based-Battery-SoC-Monitoring-System-with-ESP32",
+        "step": "D:/SAAD/PCB/IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main/IoT based Battery SoC (%) Monitoring System with ESP32/Step file/3D_PCB1_2026-02-22.step",
+        "glb": "/models/battery-soc-monitor/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/battery-soc-monitor/render3d.webp",
+            "from": "IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main/IoT based Battery SoC (%) Monitoring System with ESP32/Image/3D/Top Layer/3D_PCB1_2026-02-22.png",
+            "width": 1800,
+            "height": 1479
+          },
+          "top2d": {
+            "src": "/images/projects/battery-soc-monitor/top2d.webp",
+            "from": "IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main/IoT based Battery SoC (%) Monitoring System with ESP32/Image/2D/Top Layer/2D_PCB1_2026-02-22.png",
+            "width": 1800,
+            "height": 1157
+          },
+          "bottom2d": {
+            "src": "/images/projects/battery-soc-monitor/bottom2d.webp",
+            "from": "IoT-based-Battery-SoC-Monitoring-System-with-ESP32-main/IoT based Battery SoC (%) Monitoring System with ESP32/Image/2D/Buttom Layer/2D_PCB1_2026-02-22 (1).png",
+            "width": 1800,
+            "height": 1157
+          },
+          "schematics": []
+        },
+        "bomMd": "battery-soc-monitor-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "patient-health-monitor",
+    "folder": "Iot Patient Health Monitoring V1.0",
+    "github": null,
+    "docs": [
+      "D:\\SAAD\\PCB\\Iot Patient Health Monitoring V1.0\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "",
+        "label": "Patient Health Monitor V1.0",
+        "dir": "D:/SAAD/PCB/Iot Patient Health Monitoring V1.0",
+        "github": null,
+        "step": "D:/SAAD/PCB/Iot Patient Health Monitoring V1.0/3D Step File/3D_PCB1_2026-10-21.step",
+        "glb": "/models/patient-health-monitor/board.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/patient-health-monitor/render3d.webp",
+            "from": "Iot Patient Health Monitoring V1.0/Image/3D/3D_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1449
+          },
+          "pcbTop": {
+            "src": "/images/projects/patient-health-monitor/pcb-top.webp",
+            "from": "Iot Patient Health Monitoring V1.0/Image/PCB/Top View/PCB_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1317
+          },
+          "pcbBottom": {
+            "src": "/images/projects/patient-health-monitor/pcb-bottom.webp",
+            "from": "Iot Patient Health Monitoring V1.0/Image/PCB/Bottom View/PCB_PCB1_2026-10-21 (1).png",
+            "width": 1800,
+            "height": 1317
+          },
+          "top2d": {
+            "src": "/images/projects/patient-health-monitor/top2d.webp",
+            "from": "Iot Patient Health Monitoring V1.0/Image/2D/Top Side/2D_PCB1_2026-10-21.png",
+            "width": 1800,
+            "height": 1469
+          },
+          "bottom2d": {
+            "src": "/images/projects/patient-health-monitor/bottom2d.webp",
+            "from": "Iot Patient Health Monitoring V1.0/Image/2D/Bottom Side/2D_PCB1_2026-10-21 (1).png",
+            "width": 1800,
+            "height": 1469
+          },
+          "schematics": []
+        },
+        "bomMd": "patient-health-monitor-bom.md"
+      }
+    ]
+  },
+  {
+    "slug": "simon-memory-game",
+    "folder": "Simon Memory Game",
+    "github": null,
+    "docs": [
+      "D:\\SAAD\\PCB\\Simon Memory Game\\Simon Memory Game V.1.0\\README.md",
+      "D:\\SAAD\\PCB\\Simon Memory Game\\Simon Memory Game V1.2\\README.md"
+    ],
+    "boards": [
+      {
+        "key": "v1-0",
+        "label": "Simon V1.0",
+        "dir": "D:/SAAD/PCB/Simon Memory Game/Simon Memory Game V.1.0",
+        "github": null,
+        "step": "D:/SAAD/PCB/Simon Memory Game/Simon Memory Game V.1.0/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/simon-memory-game/v1-0.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/simon-memory-game/v1-0-render3d.webp",
+            "from": "Simon Memory Game/Simon Memory Game V.1.0/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1302
+          },
+          "pcbTop": {
+            "src": "/images/projects/simon-memory-game/v1-0-pcb-top.webp",
+            "from": "Simon Memory Game/Simon Memory Game V.1.0/Image/PCB/Top View/PCB_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1380
+          },
+          "pcbBottom": {
+            "src": "/images/projects/simon-memory-game/v1-0-pcb-bottom.webp",
+            "from": "Simon Memory Game/Simon Memory Game V.1.0/Image/PCB/Bottom View/PCB_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1380
+          },
+          "top2d": {
+            "src": "/images/projects/simon-memory-game/v1-0-top2d.webp",
+            "from": "Simon Memory Game/Simon Memory Game V.1.0/Image/2D/Top Side/2D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1288
+          },
+          "bottom2d": {
+            "src": "/images/projects/simon-memory-game/v1-0-bottom2d.webp",
+            "from": "Simon Memory Game/Simon Memory Game V.1.0/Image/2D/Bottom Side/2D_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1288
+          },
+          "schematics": []
+        },
+        "bomMd": "simon-memory-game-v1-0-bom.md"
+      },
+      {
+        "key": "v1-2",
+        "label": "Simon V1.2",
+        "dir": "D:/SAAD/PCB/Simon Memory Game/Simon Memory Game V1.2",
+        "github": "https://github.com/smsaad-181/Simon-Memory-game-V1.2",
+        "step": "D:/SAAD/PCB/Simon Memory Game/Simon Memory Game V1.2/3D Step File/3D_PCB1_2026-07-18.step",
+        "glb": "/models/simon-memory-game/v1-2.glb",
+        "images": {
+          "render3d": {
+            "src": "/images/projects/simon-memory-game/v1-2-render3d.webp",
+            "from": "Simon Memory Game/Simon Memory Game V1.2/Image/3D/3D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1289
+          },
+          "pcbTop": {
+            "src": "/images/projects/simon-memory-game/v1-2-pcb-top.webp",
+            "from": "Simon Memory Game/Simon Memory Game V1.2/Image/PCB/Top View/PCB_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1459
+          },
+          "pcbBottom": {
+            "src": "/images/projects/simon-memory-game/v1-2-pcb-bottom.webp",
+            "from": "Simon Memory Game/Simon Memory Game V1.2/Image/PCB/Bottom View/PCB_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1459
+          },
+          "top2d": {
+            "src": "/images/projects/simon-memory-game/v1-2-top2d.webp",
+            "from": "Simon Memory Game/Simon Memory Game V1.2/Image/2D/Top Side/2D_PCB1_2026-07-18.png",
+            "width": 1800,
+            "height": 1288
+          },
+          "bottom2d": {
+            "src": "/images/projects/simon-memory-game/v1-2-bottom2d.webp",
+            "from": "Simon Memory Game/Simon Memory Game V1.2/Image/2D/Bottom Side/2D_PCB1_2026-07-18 (1).png",
+            "width": 1800,
+            "height": 1288
+          },
+          "schematics": []
+        },
+        "bomMd": "simon-memory-game-v1-2-bom.md"
+      }
+    ]
+  }
+]

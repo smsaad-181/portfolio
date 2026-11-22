@@ -52,9 +52,26 @@ jobs:
         run: npm run check
 
       # ── Gate 2: Build the Tina admin bundle ───────────────────────────────
-      # Generates the static /admin UI into public/admin/. The only step that
-      # needs the Tina Cloud credentials — secrets are scoped to it alone.
+      # Generates the static /admin UI into public/admin/. The only steps that
+      # see the Tina Cloud credentials — secrets are scoped to them alone.
+      # Until Saad adds the TINA_CLIENT_ID / TINA_TOKEN secrets, /admin is
+      # skipped (with a warning) and the public site still deploys. Once both
+      # secrets exist, the admin build runs and must pass like every gate.
+      - name: Check Tina Cloud credentials
+        id: tina
+        env:
+          TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
+          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
+        run: |
+          if [ -n "$TINA_PUBLIC_CLIENT_ID" ] && [ -n "$TINA_TOKEN" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Tina admin skipped::TINA_CLIENT_ID / TINA_TOKEN secrets are not set, so /admin is not built. The public site still deploys."
+          fi
+
       - name: Build Tina admin
+        if: steps.tina.outputs.configured == 'true'
         run: npx tinacms build
         env:
           TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}

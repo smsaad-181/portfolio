@@ -271,7 +271,7 @@ const areas = [
         </div>
         <ul class="about__cards" role="list" data-reveal-stagger>
           {about.map((a, i) => (
-            <li class="about__card" data-reveal>
+            <li class="about__card" data-reveal data-tilt>
               <span class="about__card-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
               <h3 class="about__card-title">{a.label}</h3>
               <p class="about__card-text">{a.value}</p>
@@ -295,7 +295,7 @@ const areas = [
       </div>
       <ul class="areas" role="list" data-reveal-stagger>
         {areas.map((a, i) => (
-          <li class="area" data-reveal>
+          <li class="area" data-reveal data-tilt>
             <div class="area__top">
               <span class="area__icon"><Icon name={a.icon} size={24} /></span>
               <span class="area__num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
@@ -359,7 +359,7 @@ const areas = [
       <div data-reveal>
         <SectionHeading label="// journey" title="Experience & education" id="journey-heading" />
       </div>
-      <ol class="timeline" role="list">
+      <ol class="timeline" role="list" data-draw data-reveal-stagger>
         {currentJob && (
           <li class="timeline__item" data-reveal>
             <span class="timeline__dot"><Icon name="briefcase" size={18} /></span>
@@ -1067,6 +1067,30 @@ const areas = [
     border: 2px solid var(--accent);
     background: var(--bg-base);
     color: var(--accent);
+  }
+
+  /* Scroll animation: the line draws down from the top and each dot pops in
+     with its card (only with .reveal-on, i.e. motion allowed + JS). */
+  :global(:root.reveal-on) .timeline[data-draw]::before {
+    scale: 1 0;
+    transform-origin: top;
+    transition: scale 1.4s var(--ease);
+  }
+
+  :global(:root.reveal-on) .timeline.is-drawn::before {
+    scale: 1 1;
+  }
+
+  .timeline__dot {
+    transition: scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--reveal-delay, 0ms) + 150ms);
+  }
+
+  :global(:root.reveal-on) .timeline__item[data-reveal]:not(.is-visible) .timeline__dot {
+    scale: 0;
+  }
+
+  @media print {
+    :global(:root.reveal-on) .timeline[data-draw]::before { scale: 1 1; }
   }
 
   .timeline__card {

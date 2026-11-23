@@ -48,7 +48,7 @@ const BLURB: Record<string, string> = {
   <section class="skills-section" aria-label="Skills by area">
     <div class="container skill-groups" data-reveal-stagger>
       {groups.map((g) => (
-        <article class="skill-group" aria-labelledby={`grp-${g.category.replace(/\W+/g, "-")}`} data-reveal>
+        <article class="skill-group" aria-labelledby={`grp-${g.category.replace(/\W+/g, "-")}`} data-reveal data-tilt>
           <header class="skill-group__head">
             <span class="skill-group__icon"><Icon name={ICON[g.category] ?? "wrench"} size={22} /></span>
             <div>

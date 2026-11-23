@@ -44,7 +44,7 @@ const hasCover = publicFileExists(coverImage.src);
 const displayTags = tags.slice(0, 3);
 ---
 
-<article class:list={["project-card", { "project-card--stack": multi }]} aria-label={title} data-reveal={priority ? undefined : ""}>
+<article class:list={["project-card", { "project-card--stack": multi }]} aria-label={title} data-reveal={priority ? undefined : ""} data-tilt>
   {hasCover ? (
     <a href={href} class="project-card__image-link" tabindex="-1" aria-hidden="true">
       <div class="project-card__image-wrap">

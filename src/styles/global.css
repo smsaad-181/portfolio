@@ -372,6 +372,40 @@ ul, ol {
   }
 }
 
+/* ─── Page transitions ──────────────────────────────────────────────────────
+   Native cross-document view transitions: the page fades and slides into the
+   next one; the sticky nav stays put. No JS. Browsers without support (and
+   visitors who asked for reduced motion) simply load the next page. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root) {
+    animation: vt-out 0.2s var(--ease) both;
+  }
+
+  ::view-transition-new(root) {
+    animation: vt-in 0.4s var(--ease) both;
+  }
+}
+
+@keyframes vt-out {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes vt-in {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+/* ─── Card tilt + spotlight (BaseLayout adds .tilt-on: mouse, motion OK) ────
+   [data-tilt] cards lean slightly toward the pointer and a soft accent glow
+   follows it. BaseLayout sets --tilt-x/-y and --glow-x/-y on pointer move. */
+:root.tilt-on [data-tilt]:hover {
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-4px);
+  background-image: radial-gradient(360px circle at var(--glow-x, 50%) var(--glow-y, 50%), var(--accent-glow), transparent 65%);
+}
+
 /* ─── Project grid (Home + Projects): cards line up row by row ────────────── */
 /* Each card spans 6 rows of a subgrid (image, meta, title, summary, versions,
    link), so titles, summaries and links sit on the same line across a row. */

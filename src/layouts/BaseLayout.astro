@@ -79,6 +79,8 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
         // class every [data-reveal] element is simply visible.
         var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!still && "IntersectionObserver" in window) document.documentElement.classList.add("reveal-on");
+        // Card tilt only with a real mouse (no touch) and motion allowed.
+        if (!still && window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) document.documentElement.classList.add("tilt-on");
       })();
     </script>
 
@@ -159,6 +161,7 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
               const el = e.target as HTMLElement;
               io.unobserve(el);
               if (el.dataset["count"] !== undefined) countUp(el);
+              if (el.hasAttribute("data-draw")) el.classList.add("is-drawn");
               if (!el.hasAttribute("data-reveal")) continue;
               el.classList.add("is-visible");
               // Hand the element back to its own CSS once it has arrived.
@@ -172,7 +175,29 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
           },
           { rootMargin: "0px 0px -8% 0px", threshold: 0.12 }
         );
-        document.querySelectorAll<HTMLElement>("[data-reveal], [data-count]").forEach((el) => io.observe(el));
+        document.querySelectorAll<HTMLElement>("[data-reveal], [data-count], [data-draw]").forEach((el) => io.observe(el));
+      }
+
+      // Card tilt: [data-tilt] leans up to 4° toward the pointer; a glow follows it.
+      if (root.classList.contains("tilt-on")) {
+        document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
+          let frame = 0;
+          card.addEventListener("pointermove", (e) => {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => {
+              const r = card.getBoundingClientRect();
+              const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+              card.style.setProperty("--tilt-y", `${((x - 0.5) * 8).toFixed(2)}deg`);
+              card.style.setProperty("--tilt-x", `${((0.5 - y) * 8).toFixed(2)}deg`);
+              card.style.setProperty("--glow-x", `${(x * 100).toFixed(1)}%`);
+              card.style.setProperty("--glow-y", `${(y * 100).toFixed(1)}%`);
+            });
+          });
+          card.addEventListener("pointerleave", () => {
+            cancelAnimationFrame(frame);
+            for (const p of ["--tilt-x", "--tilt-y", "--glow-x", "--glow-y"]) card.style.removeProperty(p);
+          });
+        });
       }
     </script>
   </body>

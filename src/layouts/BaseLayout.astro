@@ -8,6 +8,7 @@
 import Nav from "@components/Nav.astro";
 import Footer from "@components/Footer.astro";
 import CircuitField from "@components/CircuitField.astro";
+import PageTransition from "@components/PageTransition.astro";
 // Self-hosted fonts: Rubik Variable (text), JetBrains Mono (labels), Mr Dafoe (logo only).
 import "@fontsource-variable/rubik";
 import "@fontsource/mr-dafoe";
@@ -79,6 +80,14 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
         // class every [data-reveal] element is simply visible.
         var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (!still && "IntersectionObserver" in window) document.documentElement.classList.add("reveal-on");
+        // Arrived by an animated page link (PageTransition): start covered,
+        // the CSS sweeps the cover away. One-shot flag.
+        try {
+          if (sessionStorage.getItem("pt")) {
+            sessionStorage.removeItem("pt");
+            if (!still) document.documentElement.classList.add("pt-enter");
+          }
+        } catch (e) {}
         // Card tilt only with a real mouse (no touch) and motion allowed.
         if (!still && window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) document.documentElement.classList.add("tilt-on");
       })();
@@ -125,6 +134,7 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
   </head>
   <body>
     <CircuitField />
+    <PageTransition />
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <Nav />
     <main id="main-content">

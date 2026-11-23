@@ -1,0 +1,200 @@
+---
+/**
+ * PageTransition.astro — branded page-to-page transition (Saad, 24 Nov 2026:
+ * "when I move from one page to another it needs animation").
+ *
+ * Clicking an internal page link: three panels (pink, violet, page colour)
+ * sweep up over the page with the < Sultan Mahmud /> mark and a loading bar,
+ * then the browser navigates. The next page opens by sweeping the panels
+ * away upward. Works in every browser.
+ *
+ * Safe by design:
+ *  • The entry sweep is pure CSS (forwards animation), so the page is never
+ *    left covered even if JS fails; the cover only exists while the class
+ *    set by BaseLayout's head script (pt-enter) or by a click (pt-leave) is on.
+ *  • Skipped for reduced motion, new-tab / modifier clicks, downloads, files
+ *    (PDF), external links, /admin and same-page (#hash) links.
+ *  • Back/forward cache: the cover is removed when a page is restored.
+ */
+import Wordmark from "@components/Wordmark.astro";
+---
+
+<div class="pt" aria-hidden="true">
+  <span class="pt__panel pt__panel--1"></span>
+  <span class="pt__panel pt__panel--2"></span>
+  <span class="pt__panel pt__panel--3">
+    <span class="pt__mark"><Wordmark compact={false} /></span>
+    <span class="pt__bar"><span class="pt__bar-fill"></span></span>
+  </span>
+</div>
+
+<script>
+  const root = document.documentElement;
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+  const LEAVE_MS = 640;
+
+  // The entry sweep has finished: drop the class so the next leave starts clean.
+  if (root.classList.contains("pt-enter")) setTimeout(() => root.classList.remove("pt-enter"), 1300);
+
+  document.addEventListener("click", (e) => {
+    if (still.matches || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+    if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || !url.pathname.startsWith(base)) return;
+    if (url.pathname.startsWith(`${base}admin`) || /\.[a-z0-9]+$/i.test(url.pathname)) return;
+    if (url.pathname === location.pathname && url.search === location.search) return;
+    e.preventDefault();
+    try { sessionStorage.setItem("pt", "1"); } catch {}
+    root.classList.remove("pt-enter");
+    root.classList.add("pt-leave");
+    setTimeout(() => location.assign(url.href), LEAVE_MS);
+  });
+
+  // Restored from the back/forward cache with the cover still up: lift it.
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) root.classList.remove("pt-leave", "pt-enter");
+  });
+</script>
+
+<style is:global>
+  .pt {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  :root.pt-leave .pt,
+  :root.pt-enter .pt {
+    visibility: visible;
+  }
+
+  :root.pt-leave .pt {
+    pointer-events: auto; /* no double clicks while leaving */
+  }
+
+  .pt__panel {
+    position: absolute;
+    inset: 0;
+    transform: translateY(100%);
+  }
+
+  .pt__panel--1 { background: var(--accent); }
+  .pt__panel--2 { background: var(--circuit-pulse-2); }
+
+  .pt__panel--3 {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-6);
+    background: var(--bg-base);
+  }
+
+  .pt__mark {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+
+  .pt__mark .wordmark__name {
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    background: var(--gradient-name);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .pt__mark .wordmark__bracket {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: var(--text-secondary);
+  }
+
+  .pt__bar {
+    width: min(220px, 50vw);
+    height: 2px;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--border);
+    opacity: 0;
+  }
+
+  .pt__bar-fill {
+    display: block;
+    height: 100%;
+    background: var(--gradient-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  /* ── Leaving: panels sweep up over the page, mark + bar appear ── */
+  :root.pt-leave .pt__panel {
+    animation: pt-cover 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+  }
+  :root.pt-leave .pt__panel--2 { animation-delay: 0.06s; }
+  :root.pt-leave .pt__panel--3 { animation-delay: 0.12s; }
+
+  :root.pt-leave .pt__mark {
+    animation: pt-mark-in 0.4s var(--ease) 0.4s forwards;
+  }
+
+  :root.pt-leave .pt__bar {
+    animation: pt-fade-in 0.2s linear 0.45s forwards;
+  }
+
+  :root.pt-leave .pt__bar-fill {
+    animation: pt-load 1.6s cubic-bezier(0.2, 0.6, 0.3, 1) 0.45s forwards;
+  }
+
+  /* ── Entering: page starts covered, panels sweep away upward ── */
+  :root.pt-enter .pt__panel {
+    transform: none;
+    animation: pt-uncover 0.6s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+  }
+  :root.pt-enter .pt__panel--3 { animation-delay: 0.15s; }
+  :root.pt-enter .pt__panel--2 { animation-delay: 0.22s; }
+  :root.pt-enter .pt__panel--1 { animation-delay: 0.29s; }
+
+  :root.pt-enter .pt__mark {
+    opacity: 1;
+    transform: none;
+    animation: pt-mark-out 0.25s var(--ease) forwards;
+  }
+
+  :root.pt-enter .pt__bar { opacity: 0; }
+
+  @keyframes pt-cover {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes pt-uncover {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100%); }
+  }
+
+  @keyframes pt-mark-in {
+    to { opacity: 1; transform: none; }
+  }
+
+  @keyframes pt-mark-out {
+    to { opacity: 0; transform: translateY(-14px) scale(0.98); }
+  }
+
+  @keyframes pt-fade-in {
+    to { opacity: 1; }
+  }
+
+  @keyframes pt-load {
+    to { transform: scaleX(0.9); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pt { display: none; }
+  }
+
+  @media print {
+    .pt { display: none; }
+  }
+</style>

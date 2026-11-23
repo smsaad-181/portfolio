@@ -81,14 +81,17 @@ const links = [
             <div class="field">
               <label for="cf-name">Name</label>
               <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="100" />
+              <p class="field__error" id="cf-name-err" data-error-for="cf-name" hidden>Please enter your name.</p>
             </div>
             <div class="field">
               <label for="cf-email">Email</label>
-              <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="200" />
+              <input id="cf-email" name="email" type="email" autocomplete="email" spellcheck="false" required maxlength="200" />
+              <p class="field__error" id="cf-email-err" data-error-for="cf-email" hidden>Please enter a valid email address.</p>
             </div>
             <div class="field">
               <label for="cf-message">Message</label>
               <textarea id="cf-message" name="message" rows="6" required maxlength="4000"></textarea>
+              <p class="field__error" id="cf-message-err" data-error-for="cf-message" hidden>Please write a message.</p>
             </div>
             <button type="submit" class="btn btn--primary form__submit"><Icon name="send" size={16} /><span data-submit-label>Send message</span></button>
             <p class="form__status" role="status" aria-live="polite" data-status></p>
@@ -129,11 +132,46 @@ const links = [
       out.textContent = msg;
       out.dataset.state = kind;
     };
+    const fields = [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input[required], textarea[required]")];
+    const errorFor = (f: HTMLElement) => form.querySelector<HTMLElement>(`[data-error-for="${f.id}"]`);
+    // The error text is linked to its field only while it is shown, so screen
+    // readers don't read "Please enter…" on a field that is fine.
+    const markField = (f: HTMLInputElement | HTMLTextAreaElement) => {
+      const bad = !f.validity.valid;
+      const err = errorFor(f);
+      if (bad) {
+        f.setAttribute("aria-invalid", "true");
+        if (err) f.setAttribute("aria-describedby", err.id);
+      } else {
+        f.removeAttribute("aria-invalid");
+        f.removeAttribute("aria-describedby");
+      }
+      if (err) err.hidden = !bad;
+      return bad;
+    };
+    // Errors clear as soon as the field is fixed.
+    fields.forEach((f) => f.addEventListener("input", () => { if (f.hasAttribute("aria-invalid")) markField(f); }));
+
+    // Don't lose a typed, unsent message on navigation. The guard is only
+    // registered while something is typed (keeps the back/forward cache), and
+    // data-unsaved tells PageTransition to let the browser ask plainly.
+    const guard = (e: BeforeUnloadEvent) => e.preventDefault();
+    let dirty = false;
+    const setDirty = (on: boolean) => {
+      if (on === dirty) return;
+      dirty = on;
+      document.documentElement.toggleAttribute("data-unsaved", on);
+      if (on) window.addEventListener("beforeunload", guard);
+      else window.removeEventListener("beforeunload", guard);
+    };
+    form.addEventListener("input", () => setDirty(fields.some((f) => f.value.trim() !== "")));
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        setState("error", "Please fill in your name, a valid email and a message.");
+      const invalid = fields.filter(markField);
+      if (invalid.length) {
+        invalid[0]!.focus();
+        setState("error", "Please fix the highlighted fields.");
         return;
       }
       submit.disabled = true;
@@ -148,12 +186,13 @@ const links = [
         const json = await res.json().catch(() => ({}));
         if (res.ok && json.success) {
           form.reset();
-          setState("ok", "Thanks — your message was sent. I'll reply by email.");
+          setDirty(false);
+          setState("ok", "Thanks — your message was sent. I’ll reply by email.");
         } else {
-          setState("error", "The message couldn't be sent. Please try again or email me directly.");
+          setState("error", "The message couldn’t be sent. Please try again or email me directly.");
         }
       } catch {
-        setState("error", "The message couldn't be sent (network error). Please try again or email me directly.");
+        setState("error", "The message couldn’t be sent (network error). Please try again or email me directly.");
       } finally {
         submit.disabled = false;
         label.textContent = "Send message";
@@ -169,7 +208,7 @@ const links = [
 
   .contact__head {
     max-width: 640px;
-    margin-bottom: var(--space-10);
+    margin-bottom: var(--space-12);
   }
 
   .contact__title {
@@ -379,6 +418,16 @@ const links = [
   .field textarea {
     resize: vertical;
     min-height: 8rem;
+  }
+
+  .field [aria-invalid] {
+    border-color: var(--accent);
+  }
+
+  .field__error {
+    margin-top: var(--space-1);
+    font-size: 0.85rem;
+    color: var(--accent);
   }
 
   .form__submit {

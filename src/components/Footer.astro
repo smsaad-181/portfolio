@@ -67,8 +67,35 @@ const socialLinks = [
       &amp; edited via
       <a href="https://tina.io" target="_blank" rel="noopener noreferrer">Tina CMS</a>.
     </p>
+
+    <!-- WCAG 2.2.2: a way to stop the looping background + hero motion.
+         Remembered per visitor; BaseLayout's head script applies it before paint. -->
+    <button type="button" class="footer__motion" data-motion-toggle hidden>
+      Pause animations
+    </button>
   </div>
 </footer>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>("[data-motion-toggle]");
+  const root = document.documentElement;
+  // The label says what a press does (no aria-pressed: that would announce a
+  // second, conflicting state). Shown only with JS, where it works.
+  const sync = () => {
+    if (!btn) return;
+    btn.textContent = root.classList.contains("motion-paused") ? "Play animations" : "Pause animations";
+  };
+  sync();
+  if (btn) btn.hidden = false;
+  btn?.addEventListener("click", () => {
+    const pause = !root.classList.contains("motion-paused");
+    root.classList.toggle("motion-paused", pause);
+    if (pause) root.classList.remove("tilt-on");
+    try { localStorage.setItem("motion", pause ? "paused" : "on"); } catch {}
+    document.dispatchEvent(new Event("motion-toggle"));
+    sync();
+  });
+</script>
 
 <style>
   .footer {
@@ -147,6 +174,31 @@ const socialLinks = [
     color: var(--text-secondary);
   }
 
+  .footer__motion {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: start;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text-secondary);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  }
+
+  .footer__motion:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* Nothing moves for reduced-motion visitors: no control needed. */
+  @media (prefers-reduced-motion: reduce) {
+    .footer__motion { display: none; }
+  }
+
   @media (max-width: 640px) {
     .footer__inner {
       grid-template-columns: 1fr;
@@ -163,6 +215,10 @@ const socialLinks = [
 
     .footer__copy {
       grid-row: 3;
+    }
+
+    .footer__motion {
+      grid-row: 4;
     }
   }
 </style>

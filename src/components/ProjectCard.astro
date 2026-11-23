@@ -69,11 +69,11 @@ const displayTags = tags.slice(0, 3);
 
     <div class="project-card__meta">
       <StatusBadge status={status} />
-      <div class="project-card__tags" aria-label="Project tags">
+      <div class="project-card__tags">
         {displayTags.map((tag) => <TagChip tag={tag} />)}
         {tags.length > 3 && (
-          <span class="project-card__tags-more" aria-label={`${tags.length - 3} more tags`}>
-            +{tags.length - 3}
+          <span class="project-card__tags-more">
+            +{tags.length - 3}<span class="sr-only"> more tags</span>
           </span>
         )}
       </div>
@@ -95,7 +95,7 @@ const displayTags = tags.slice(0, 3);
     ) : <div aria-hidden="true"></div>}
 
     <a href={href} class="project-card__cta" aria-label={`View project: ${title}${multi ? `, ${versions.length} versions` : ""}`}>
-      View project <span aria-hidden="true">→</span>
+      View project <span class="project-card__cta-arrow" aria-hidden="true">→</span>
     </a>
 </article>
 
@@ -107,13 +107,27 @@ const displayTags = tags.slice(0, 3);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    transition:
+      border-color var(--dur-base) ease,
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
   }
 
   .project-card:hover {
     border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+  }
+
+  /* Movement only with a real mouse (a tap would leave the card stuck). With
+     tilt on, the tilt is the one hover motion — no extra lift or image zoom. */
+  @media (hover: hover) and (pointer: fine) {
+    :global(:root:not(.tilt-on)) .project-card:hover {
+      transform: translateY(-2px);
+    }
+
+    :global(:root:not(.tilt-on)) .project-card:hover .project-card__image {
+      transform: scale(1.03);
+    }
   }
 
   /* Several board versions: two cards peek out behind this one. */
@@ -198,10 +212,6 @@ const displayTags = tags.slice(0, 3);
     object-fit: contain;
     /* no CSS drop-shadow: it is costly to paint on phones (16 cards on /projects/) */
     transition: transform var(--dur-slow) var(--ease);
-  }
-
-  .project-card:hover .project-card__image {
-    transform: scale(1.03);
   }
 
   .project-card__meta {
@@ -295,11 +305,19 @@ const displayTags = tags.slice(0, 3);
     display: inline-flex;
     gap: var(--space-2);
     align-items: center;
-    transition: gap 0.15s, color 0.15s;
+    transition: color var(--dur-fast) ease;
+  }
+
+  .project-card__cta-arrow {
+    display: inline-block;
+    transition: transform 160ms var(--ease-out);
   }
 
   .project-card__cta:hover {
     color: var(--accent-dim);
-    gap: var(--space-3);
+  }
+
+  .project-card__cta:hover .project-card__cta-arrow {
+    transform: translateX(4px);
   }
 </style>

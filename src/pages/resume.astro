@@ -30,8 +30,8 @@ const others = (await getPublishedProjects()).filter((p) => !p.data.featured);
 const skillGroups = await getSkillGroups();
 const portfolio = absoluteUrl(pageUrl("/"));
 const host = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
-const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 ---
 
 <BaseLayout title="Resume" description={`CV of ${data.name}, ${data.title} in ${data.location}: experience, projects, skills and education.`}>

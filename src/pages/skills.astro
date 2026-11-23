@@ -102,7 +102,13 @@ const BLURB: Record<string, string> = {
 
   .skill-group:hover {
     border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-    transform: translateY(-2px);
+  }
+
+  /* Lift only with a real mouse, and only when the tilt isn't running. */
+  @media (hover: hover) and (pointer: fine) {
+    :global(:root:not(.tilt-on)) .skill-group:hover {
+      transform: translateY(-2px);
+    }
   }
 
   .skill-group__head {

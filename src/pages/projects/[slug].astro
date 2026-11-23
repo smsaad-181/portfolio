@@ -99,17 +99,17 @@ const jsonLd = {
         <h1 class="project-head__title" id="project-title">{data.title}</h1>
         <p class="project-head__summary">{data.summary}</p>
         {data.tags.length > 0 && (
-          <div class="project-head__tags" aria-label="Technologies">
+          <div class="project-head__tags" role="group" aria-label="Technologies">
             {data.tags.map((tag) => <TagChip tag={tag} />)}
           </div>
         )}
         {(data.links.oshwlab || data.links.liveDemo) && (
           <div class="project-head__links">
             {data.links.oshwlab && (
-              <a href={data.links.oshwlab} class="btn btn--secondary" target="_blank" rel="noopener noreferrer">OSHWLab</a>
+              <a href={data.links.oshwlab} class="btn btn--secondary" target="_blank" rel="noopener noreferrer">OSHWLab<span class="sr-only"> (opens in new tab)</span></a>
             )}
             {data.links.liveDemo && (
-              <a href={data.links.liveDemo} class="btn btn--secondary" target="_blank" rel="noopener noreferrer">Live demo</a>
+              <a href={data.links.liveDemo} class="btn btn--secondary" target="_blank" rel="noopener noreferrer">Live demo<span class="sr-only"> (opens in new tab)</span></a>
             )}
           </div>
         )}
@@ -199,7 +199,7 @@ const jsonLd = {
         <div class:list={["gallery", { "gallery--single": renders.length === 1 }]}>
           {renders.map((img) => (
             <figure class="gallery__item">
-              <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="gallery__link" aria-label={`Open full-size image: ${img.caption ?? img.alt}`}>
+              <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="gallery__link" aria-label={`Open full-size image: ${img.caption ?? img.alt} (opens in new tab)`}>
                 <PublicImage src={img.src} alt={img.alt} widths={[400, 760, 1140, 1520]} sizes={renders.length === 1 ? "(max-width: 800px) calc(100vw - 2rem), 760px" : "(max-width: 700px) calc(100vw - 2rem), 380px"} class="gallery__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
@@ -217,7 +217,7 @@ const jsonLd = {
         <div class:list={["dashboards", { "dashboards--phone": dashboards.every((d) => d.height > d.width * 1.6) }]}>
           {dashboards.map((img) => (
             <figure class="dashboard">
-              <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="dashboard__link" aria-label={`Open full-size image: ${img.caption ?? img.alt}`}>
+              <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="dashboard__link" aria-label={`Open full-size image: ${img.caption ?? img.alt} (opens in new tab)`}>
                 <PublicImage src={img.src} alt={img.alt} widths={[390, 800, 1200, 1600]} sizes={dashboards.length > 1 ? "320px" : "(max-width: 900px) calc(100vw - 2rem), 560px"} class="dashboard__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
@@ -231,14 +231,14 @@ const jsonLd = {
     <nav class="container project-nav" aria-label="More projects">
       {prev ? (
         <a href={projectUrl(prev)} class="project-nav__link">
-          <span class="project-nav__dir">← Previous</span>
+          <span class="project-nav__dir"><span aria-hidden="true">←</span> Previous</span>
           <span class="project-nav__name">{prev.data.title}</span>
         </a>
       ) : <span />}
       <a href={pageUrl("/projects/")} class="project-nav__all">All projects</a>
       {next ? (
         <a href={projectUrl(next)} class="project-nav__link project-nav__link--next">
-          <span class="project-nav__dir">Next →</span>
+          <span class="project-nav__dir">Next <span aria-hidden="true">→</span></span>
           <span class="project-nav__name">{next.data.title}</span>
         </a>
       ) : <span />}

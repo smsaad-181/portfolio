@@ -32,29 +32,81 @@ import Wordmark from "@components/Wordmark.astro";
   const root = document.documentElement;
   const still = window.matchMedia("(prefers-reduced-motion: reduce)");
   const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
-  const LEAVE_MS = 640;
+  const panel1 = document.querySelector<HTMLElement>(".pt__panel--1");
+  const panel3 = document.querySelector<HTMLElement>(".pt__panel--3");
 
-  // The entry sweep has finished: drop the class so the next leave starts clean.
-  if (root.classList.contains("pt-enter")) setTimeout(() => root.classList.remove("pt-enter"), 1300);
+  // Entry sweep finished (last panel gone): drop the class so a later leave
+  // starts clean. Timer = fallback if animationend never fires.
+  if (root.classList.contains("pt-enter")) {
+    const done = () => root.classList.remove("pt-enter");
+    panel1?.addEventListener("animationend", done, { once: true });
+    setTimeout(done, 1000);
+  }
+
+  /** Same-site page link that should get the transition, else null. */
+  const pageLink = (target: EventTarget | null): URL | null => {
+    const a = (target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+    if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return null;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || !url.pathname.startsWith(base)) return null;
+    if (url.pathname.startsWith(`${base}admin`) || /\.[a-z0-9]+$/i.test(url.pathname)) return null;
+    if (url.pathname === location.pathname && url.search === location.search) return null;
+    return url;
+  };
+
+  // Warm the next page while the pointer is on its link (and during the cover).
+  const warmed = new Set<string>();
+  const prefetch = (url: URL) => {
+    if (warmed.has(url.pathname)) return;
+    warmed.add(url.pathname);
+    const l = document.createElement("link");
+    l.rel = "prefetch"; l.href = url.pathname;
+    document.head.append(l);
+  };
+  document.addEventListener("pointerover", (e) => { const u = pageLink(e.target); if (u) prefetch(u); }, { passive: true });
+  document.addEventListener("focusin", (e) => { const u = pageLink(e.target); if (u) prefetch(u); });
 
   document.addEventListener("click", (e) => {
-    if (still.matches || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    const a = (e.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
-    if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return;
-    const url = new URL(a.href, location.href);
-    if (url.origin !== location.origin || !url.pathname.startsWith(base)) return;
-    if (url.pathname.startsWith(`${base}admin`) || /\.[a-z0-9]+$/i.test(url.pathname)) return;
-    if (url.pathname === location.pathname && url.search === location.search) return;
+    if (still.matches || root.classList.contains("motion-paused") || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    // A page with unsaved input (contact form) may show "Leave page?": let the
+    // browser navigate plainly so that dialog appears over the visible page.
+    if (root.hasAttribute("data-unsaved")) return;
+    const url = pageLink(e.target);
+    if (!url) return;
     e.preventDefault();
+    prefetch(url);
     try { sessionStorage.setItem("pt", "1"); } catch {}
-    root.classList.remove("pt-enter");
+    // Clicked while this page is still uncovering: go now, no restart jump.
+    if (root.classList.contains("pt-enter") || root.classList.contains("pt-leave")) {
+      location.assign(url.href);
+      return;
+    }
     root.classList.add("pt-leave");
-    setTimeout(() => location.assign(url.href), LEAVE_MS);
+    let gone = false;
+    const go = () => {
+      if (gone) return;
+      gone = true;
+      location.assign(url.href);
+      // Still here long after (navigation cancelled / stopped): lift the cover.
+      setTimeout(lift, 8000);
+    };
+    // Only panel 3's own sweep (its children's animations bubble up earlier).
+    panel3?.addEventListener("animationend", (ev) => { if (ev.target === panel3) go(); });
+    setTimeout(go, 600); // fallback
   });
+
+  /** Remove any cover and the one-shot flag; the page is usable again. */
+  const lift = () => {
+    root.classList.remove("pt-leave", "pt-enter");
+    try { sessionStorage.removeItem("pt"); } catch {}
+  };
+
+  // Visitor pressed Esc (stops loading in most browsers) while covered.
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && root.classList.contains("pt-leave")) lift(); });
 
   // Restored from the back/forward cache with the cover still up: lift it.
   window.addEventListener("pageshow", (e) => {
-    if (e.persisted) root.classList.remove("pt-leave", "pt-enter");
+    if (e.persisted) lift();
   });
 </script>
 
@@ -129,37 +181,38 @@ import Wordmark from "@components/Wordmark.astro";
   }
 
   /* ── Leaving: panels sweep up over the page, mark + bar appear ── */
+  /* Timings per Emil Kowalski's standards: drawer curve, 30–80 ms stagger,
+     the mark is fully in before the browser navigates (no pop). */
   :root.pt-leave .pt__panel {
-    animation: pt-cover 0.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation: pt-cover 400ms var(--ease-drawer) forwards;
   }
-  :root.pt-leave .pt__panel--2 { animation-delay: 0.06s; }
-  :root.pt-leave .pt__panel--3 { animation-delay: 0.12s; }
+  :root.pt-leave .pt__panel--2 { animation-delay: 40ms; }
+  :root.pt-leave .pt__panel--3 { animation-delay: 80ms; }
 
   :root.pt-leave .pt__mark {
-    animation: pt-mark-in 0.4s var(--ease) 0.4s forwards;
+    animation: pt-mark-in 200ms var(--ease-out) 250ms forwards;
   }
 
   :root.pt-leave .pt__bar {
-    animation: pt-fade-in 0.2s linear 0.45s forwards;
+    animation: pt-fade-in 150ms linear 300ms forwards;
   }
 
   :root.pt-leave .pt__bar-fill {
-    animation: pt-load 1.6s cubic-bezier(0.2, 0.6, 0.3, 1) 0.45s forwards;
+    animation: pt-load 1.6s var(--ease-out) 300ms forwards;
   }
 
   /* ── Entering: page starts covered, panels sweep away upward ── */
   :root.pt-enter .pt__panel {
     transform: none;
-    animation: pt-uncover 0.6s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+    animation: pt-uncover 450ms var(--ease-out) forwards;
   }
-  :root.pt-enter .pt__panel--3 { animation-delay: 0.15s; }
-  :root.pt-enter .pt__panel--2 { animation-delay: 0.22s; }
-  :root.pt-enter .pt__panel--1 { animation-delay: 0.29s; }
+  :root.pt-enter .pt__panel--2 { animation-delay: 50ms; }
+  :root.pt-enter .pt__panel--1 { animation-delay: 90ms; }
 
   :root.pt-enter .pt__mark {
     opacity: 1;
     transform: none;
-    animation: pt-mark-out 0.25s var(--ease) forwards;
+    animation: pt-mark-out 150ms var(--ease-out) forwards;
   }
 
   :root.pt-enter .pt__bar { opacity: 0; }

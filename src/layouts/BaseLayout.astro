@@ -79,13 +79,22 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
         // when the visitor has not asked for reduced motion. Without this
         // class every [data-reveal] element is simply visible.
         var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        // Visitor pressed "Pause animations" (Footer): treat like reduced motion.
+        try {
+          if (localStorage.getItem("motion") === "paused") {
+            document.documentElement.classList.add("motion-paused");
+            still = true;
+          }
+        } catch (e) {}
         if (!still && "IntersectionObserver" in window) document.documentElement.classList.add("reveal-on");
         // Arrived by an animated page link (PageTransition): start covered,
         // the CSS sweeps the cover away. One-shot flag.
         try {
           if (sessionStorage.getItem("pt")) {
             sessionStorage.removeItem("pt");
-            if (!still) document.documentElement.classList.add("pt-enter");
+            // pt-enter = cover is up (removed after the sweep);
+            // pt-arrived stays, so the hero doesn't run a 2nd entrance later.
+            if (!still) document.documentElement.classList.add("pt-enter", "pt-arrived");
           }
         } catch (e) {}
         // Card tilt only with a real mouse (no touch) and motion allowed.
@@ -150,7 +159,9 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
       if (root.classList.contains("reveal-on")) {
         document.querySelectorAll<HTMLElement>("[data-reveal-stagger]").forEach((group) => {
           group.querySelectorAll<HTMLElement>(":scope > [data-reveal], :scope > * > [data-reveal]").forEach((el, i) => {
-            el.style.setProperty("--reveal-delay", `${Math.min(i, 8) * 70}ms`);
+            // Non-uniform steps, capped: later cards don't wait long.
+            const steps = [0, 50, 90, 120, 145, 165];
+            el.style.setProperty("--reveal-delay", `${steps[Math.min(i, steps.length - 1)]}ms`);
           });
         });
         const countUp = (el: HTMLElement) => {
@@ -224,7 +235,6 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud`;
     color: var(--text-inverse);
     border-radius: var(--radius-md);
     font-weight: 600;
-    transition: top 0.15s ease;
   }
 
   .skip-link:focus {

@@ -30,7 +30,7 @@ const portraitFiles = import.meta.glob<{ default: ImageMetadata }>("../assets/pr
 const portrait = Object.values(portraitFiles)[0]?.default;
 const person = await personJsonLd(portrait);
 
-const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
 const links = [
   data.socialLinks.linkedin && { name: "linkedin" as const, label: "LinkedIn", href: data.socialLinks.linkedin },
   data.socialLinks.github && { name: "github" as const, label: "GitHub", href: data.socialLinks.github },

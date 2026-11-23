@@ -18,6 +18,14 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* Anchors / focused elements land below the sticky nav, not under it. */
+  scroll-padding-top: calc(var(--nav-height) + var(--space-4));
+}
+
+a,
+button,
+summary {
+  -webkit-tap-highlight-color: transparent; /* own focus/hover states exist */
 }
 
 body {
@@ -55,8 +63,19 @@ body {
 
 .btn--primary:hover {
   color: var(--text-on-accent);
-  transform: translateY(-1px);
   box-shadow: var(--button-shadow);
+}
+
+/* Lift only with a real mouse (a tap would leave it stuck "lifted");
+   a quick press-down on every pointer. */
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn--secondary {
@@ -75,6 +94,7 @@ body {
   *, *::before, *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important; /* endless loops would flicker */
     scroll-behavior: auto !important;
   }
 }

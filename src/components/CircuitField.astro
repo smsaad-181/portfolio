@@ -175,16 +175,24 @@
       for (const p of pulses) { p.s = p.t.len * (0.3 + Math.random() * 0.5); drawPulse(p); }
     };
 
+    // Sized to the canvas box (100lvh = large viewport), so the phone address
+    // bar showing/hiding while scrolling doesn't change it.
+    const size = () => {
+      const r = canvas.getBoundingClientRect();
+      return [Math.round(r.width) || window.innerWidth, Math.round(r.height) || window.innerHeight] as const;
+    };
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      W = window.innerWidth; H = window.innerHeight;
+      [W, H] = size();
       canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       build();
     };
 
+    // Visitor's "Pause animations" choice (Footer toggle → .motion-paused).
+    const paused = () => document.documentElement.classList.contains("motion-paused");
     const start = () => {
-      if (still.matches) { drawStill(); return; }
+      if (still.matches || paused()) { drawStill(); return; }
       if (running || document.hidden) return;
       running = true; last = 0; raf = requestAnimationFrame(frame);
     };
@@ -196,10 +204,16 @@
       let rt = 0;
       window.addEventListener("resize", () => {
         clearTimeout(rt);
-        rt = window.setTimeout(() => { resize(); if (!running) drawStill(); }, 150);
+        rt = window.setTimeout(() => {
+          const [w, h] = size();
+          // Same size and pixel density (e.g. phone address bar): keep the pattern.
+          if (w === W && h === H && Math.min(window.devicePixelRatio || 1, 1.5) === dpr) return;
+          resize(); if (!running) drawStill();
+        }, 150);
       }, { passive: true });
       document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
       still.addEventListener("change", () => { stop(); start(); });
+      document.addEventListener("motion-toggle", () => { stop(); start(); });
       new MutationObserver(() => { readColours(); drawLayer(); if (!running) drawStill(); })
         .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     };
@@ -216,6 +230,7 @@
     z-index: -1;
     width: 100vw;
     height: 100vh;
+    height: 100lvh;
     pointer-events: none;
     opacity: 0;
     transition: opacity 1.2s var(--ease);

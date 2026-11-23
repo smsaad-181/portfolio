@@ -108,15 +108,33 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
   const countEl = document.getElementById("projects-count");
   const allItems = Array.from(document.querySelectorAll<HTMLElement>(".project-item"));
 
-  let activeStatus = "all";
+  const statusValues = new Set(
+    Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter-type="status"]')).map((b) => b.dataset["filterValue"])
+  );
+  // ?status=… makes a filtered view linkable and keeps it on Back.
+  const fromUrl = new URLSearchParams(location.search).get("status");
+  let activeStatus = fromUrl && statusValues.has(fromUrl) ? fromUrl : "all";
 
-  function applyFilters() {
+  const root = document.documentElement;
+  const motionOk = () =>
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches && !root.classList.contains("motion-paused");
+
+  function applyFilters(animate = false) {
     let visible = 0;
     for (const item of allItems) {
       const status = item.dataset["status"] ?? "";
       const show = activeStatus === "all" || status === activeStatus;
       item.hidden = !show;
-      if (show) visible++;
+      item.classList.remove("filter-in");
+      if (show) {
+        // Remaining cards settle in (30 ms stagger, capped) instead of jumping.
+        if (animate) item.style.setProperty("--fi", `${Math.min(visible, 6) * 30}ms`);
+        visible++;
+      }
+    }
+    if (animate) {
+      void document.body.offsetWidth; // one reflow restarts every animation
+      for (const item of allItems) if (!item.hidden) item.classList.add("filter-in");
     }
     if (countEl) {
       countEl.textContent = `${visible} project${visible !== 1 ? "s" : ""}`;
@@ -140,15 +158,35 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
     if (!btn) return;
     const type = btn.dataset["filterType"]!;
     const value = btn.dataset["filterValue"]!;
-    if (type === "status") activeStatus = value;
+    if (type === "status") {
+      activeStatus = value;
+      const url = new URL(location.href);
+      if (value === "all") url.searchParams.delete("status");
+      else url.searchParams.set("status", value);
+      history.replaceState(null, "", url);
+    }
     updateButtons(type, value);
-    applyFilters();
+    applyFilters(motionOk());
   });
+
+  if (activeStatus !== "all") {
+    updateButtons("status", activeStatus);
+    applyFilters();
+  }
 </script>
 
 <style>
   .projects-section {
     padding-bottom: var(--space-24);
+  }
+
+  /* Filter change: cards that stay settle in (set by the script above). */
+  :global(.project-item.filter-in) {
+    animation: filter-in 200ms var(--ease-out) var(--fi, 0ms) both;
+  }
+
+  @keyframes filter-in {
+    from { opacity: 0; transform: scale(0.97); }
   }
 
   /* Filters */
@@ -199,7 +237,7 @@ const statusLabel = { completed: "Completed", "in-progress": "In progress", prot
     background: var(--bg-elevated);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   }
 
   .filter-btn:hover {

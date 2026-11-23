@@ -160,7 +160,7 @@ const areas = [
 
     <div class="container hero__inner">
       <div class="hero__content">
-        <p class="hero__greeting hero-in" style="--in: 0">Hello, I'm</p>
+        <p class="hero__greeting hero-in" style="--in: 0">Hello, I’m</p>
         <h1 class="hero__name" id="hero-name">{profile.data.name}</h1>
 
         <p class="hero__badge hero-in" style="--in: 1">
@@ -346,7 +346,7 @@ const areas = [
         </div>
         <div class="projects-cta">
           <a href={pageUrl("/projects/")} class="btn btn--secondary">
-            All {published.length} projects →
+            All {published.length} projects <span aria-hidden="true">→</span>
           </a>
         </div>
       </div>
@@ -408,7 +408,7 @@ const areas = [
         <p class="section-label">// work with me</p>
         <h2 class="cta-title">Looking to collaborate or hire?</h2>
         <p class="cta-body">
-          I'm open to hardware engineering roles and IoT product development projects.
+          I’m open to hardware engineering roles and IoT product development projects.
           Grab my CV or reach out directly.
         </p>
       </div>
@@ -491,6 +491,10 @@ const areas = [
     .hero__waves--bottom {
       animation: none;
     }
+  }
+
+  :global(:root.motion-paused) .hero__waves {
+    animation-play-state: paused;
   }
 
   @keyframes drift {
@@ -644,12 +648,26 @@ const areas = [
   .hero__social-link:hover {
     color: var(--text-primary);
     border-color: var(--brand-bg);
-    transform: translateY(-2px);
     box-shadow: 0 6px 18px color-mix(in srgb, var(--brand-bg) 30%, transparent);
   }
 
-  .hero__social-link:hover .hero__social-icon {
-    transform: rotate(-8deg) scale(1.08);
+  /* Hover movement only with a real mouse (taps would leave it stuck). */
+  @media (hover: hover) and (pointer: fine) {
+    .hero__social-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero__social-link:hover .hero__social-icon {
+      transform: rotate(-8deg) scale(1.08);
+    }
+
+    :global(:root:not(.tilt-on)) .about__card:hover {
+      transform: translateY(-2px);
+    }
+
+    :global(:root:not(.tilt-on)) .area:hover {
+      transform: translateY(-4px);
+    }
   }
 
   /* Protocols / MCUs he works with */
@@ -693,6 +711,10 @@ const areas = [
   @media (prefers-reduced-motion: reduce) {
     .hero-in { animation: none; }
   }
+
+  /* Arrived via the page transition: the sweep is the entrance (one entrance
+     per view), so the text doesn't also slide in behind the cover. */
+  :global(:root.pt-arrived) .hero-in { animation: none; }
 
   @keyframes hero-in {
     from { opacity: 0; transform: translateY(14px); }
@@ -860,7 +882,6 @@ const areas = [
 
   .about__card:hover {
     border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-    transform: translateY(-2px);
   }
 
   .about__card-num {
@@ -936,7 +957,6 @@ const areas = [
 
   .area:hover {
     border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-    transform: translateY(-4px);
     box-shadow: var(--shadow-md);
   }
 
@@ -1074,7 +1094,7 @@ const areas = [
   :global(:root.reveal-on) .timeline[data-draw]::before {
     scale: 1 0;
     transform-origin: top;
-    transition: scale 1.4s var(--ease);
+    transition: scale 700ms var(--ease-out);
   }
 
   :global(:root.reveal-on) .timeline.is-drawn::before {
@@ -1082,11 +1102,15 @@ const areas = [
   }
 
   .timeline__dot {
-    transition: scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(var(--reveal-delay, 0ms) + 150ms);
+    transition:
+      scale 300ms var(--ease-out) calc(var(--reveal-delay, 0ms) + 150ms),
+      opacity 300ms var(--ease-out) calc(var(--reveal-delay, 0ms) + 150ms);
   }
 
+  /* Never from scale(0): a small settle from 0.9 reads as crisp, not bouncy. */
   :global(:root.reveal-on) .timeline__item[data-reveal]:not(.is-visible) .timeline__dot {
-    scale: 0;
+    scale: 0.9;
+    opacity: 0;
   }
 
   @media print {

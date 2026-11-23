@@ -19,8 +19,9 @@ const labels: Record<typeof status, string> = {
 const label = labels[status];
 ---
 
-<span class:list={["status-badge", `status-badge--${status}`]} aria-label={`Project status: ${label}`}>
+<span class:list={["status-badge", `status-badge--${status}`]}>
   <span class="status-badge__dot" aria-hidden="true"></span>
+  <span class="sr-only">Project status: </span>
   {label}
 </span>
 

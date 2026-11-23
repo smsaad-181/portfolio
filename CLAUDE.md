@@ -4,6 +4,8 @@ Hiring-facing portfolio for a **Hardware Engineer** (PCB design, embedded
 firmware, IoT — ESP32, LoRaWAN, Modbus, MQTT). Visitors are recruiters and
 hiring managers. Every page must be accurate, fast, and accessible.
 
+- **Start here:** `docs/HANDOFF.md` — current state, open tasks, gotchas. Read it
+  first instead of re-exploring; update it (and push) after every finished task.
 - **Current plan:** `docs/PLAN-v2.md` — work **one phase at a time**; a phase is
   done only when its acceptance criteria pass, with evidence.
 - **Spec:** `docs/spec/` (requirements, design, tasks).
@@ -114,3 +116,5 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
 4. Open the changed page in the local browser for Saad and give the URL.
 5. Report each acceptance criterion as pass/fail with evidence; list what Saad
    must provide or do manually.
+6. Update `docs/HANDOFF.md` (state, open tasks, a one-line log entry with the
+   commit) and push it with the work. No secrets, emails or private links in it.

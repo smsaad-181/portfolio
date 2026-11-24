@@ -52,6 +52,7 @@ private links in this file.
 
 ## 4. Session log (newest first)
 
+- **2026-11-24** — README trimmed to intro + live/CMS links only (setup and commands live in `CLAUDE.md`).
 - **2026-11-24** — Installed Vercel + Emil skills locally; fixed all high/medium findings (commit `f49a09b`); QA caught and fixed a stuck-cover bug (transition + "Leave page?"). my-skills repo updated with these lessons. Added this handoff file.
 - **2026-11-23** — Branded page transition (`e0a09d9`), card tilt / timeline draw (`e5a0f1a`), CI skips Tina build without secrets (`c42d2f0`) → site live.
 - **2026-11-22** — Circuit background (`05227eb`), audit fix (`c5dfa7a`).

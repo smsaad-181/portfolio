@@ -14,10 +14,7 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 import Icon from "@components/Icon.astro";
 import CvText from "@components/CvText.astro";
 import { Image } from "astro:assets";
-import "@fontsource/charis-sil/latin-400.css";
-import "@fontsource/charis-sil/latin-400-italic.css";
-import "@fontsource/charis-sil/latin-700.css";
-import "@fontsource/charis-sil/latin-700-italic.css";
+import "../styles/charter.css";
 import photo from "../assets/profile/cv-photo.jpg";
 import { getProfile, getResume, getResumeUrl, resumeFileName } from "../lib/profile";
 import { getAllProjectIds, getPublishedProjects } from "../lib/projects";
@@ -257,16 +254,15 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     color: var(--paper-ink);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
-    font-family: "Charis SIL", Charter, "Bitstream Charter", Georgia, serif;
+    font-family: "Charter", "Bitstream Charter", Georgia, serif;
     font-size: 10pt;
     line-height: 12.6pt;
     font-kerning: normal;
-    /* LaTeX justifies text and microtype squeezes lines a little; Charis SIL
-       is ~2% wider than Charter. Justify + slightly tighter letter and word
-       spacing gives the PDF's line breaks (measured: 110 of 111 lines). */
+    /* LaTeX justifies text and its word spaces may shrink: justify + slightly
+       tighter word spacing gives the PDF's line breaks (measured: all 970 words
+       break on the same line as in the PDF) */
     text-align: justify;
-    letter-spacing: -0.01em;
-    word-spacing: -0.06em;
+    word-spacing: -0.07em;
     hyphens: manual;
   }
 
@@ -296,11 +292,8 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     font-weight: 700;
   }
 
-  /* Italic Charis already matches Charter's width */
   .cv__i {
     font-style: italic;
-    letter-spacing: 0;
-    word-spacing: normal;
   }
 
   .cv__sm {
@@ -322,15 +315,16 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     padding-inline: calc(2.5cm + 4mm);
   }
 
-  /* \scshape in LaTeX: capitals + small capitals at 80% (the web font has no
-     real small caps, and the browser's fake ones are only 70%) */
+  /* \scshape in LaTeX: capitals + small capitals at 80% (Charter has no real
+     small caps; the browser's fake ones would be only 70%) */
   .cv__name {
     margin: 0;
     font-family: inherit;
     font-size: 26pt;
     line-height: 30pt;
     font-weight: 400;
-    letter-spacing: 0.025em;
+    letter-spacing: 0;
+    word-spacing: 0.048em;
     color: var(--paper-ink);
     text-box: trim-start cap alphabetic;
   }
@@ -341,9 +335,13 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     }
   }
 
+  /* LaTeX's scaled capitals sit a little apart and are set a little wider;
+     word spaces in the name are wider too (all measured on the PDF) */
   .cv__sc {
+    margin-left: 0.06em;
     font-size: 0.8em;
     line-height: 1;
+    letter-spacing: 0.047em;
     text-transform: uppercase;
   }
 
@@ -555,7 +553,6 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     .cv {
       padding: var(--space-6) var(--space-4);
       text-align: left;
-      letter-spacing: normal;
       word-spacing: normal;
     }
 

@@ -20,7 +20,7 @@ private links in this file.
 | Checks | `npm run check` 0/0/0 · `check:links` 0 broken · `check:drafts` clean · `audit:pages` 0 issues (92 loads) |
 
 **Recently finished (Nov 21–26):**
-- Resume page = Saad's own CV PDF (26 Nov): the page copies his LaTeX CV (`D:\CV\CV\main.tex`) word for word and in the same layout (Charis SIL ≈ Charter, photo, references); "Download PDF" is his exact PDF. All text lives in the `resume` singleton (`src/content/resume/cv.json`, "Resume (CV)" in /admin). Verified by text, visual and QA agents.
+- Resume page = Saad's own CV PDF (26 Nov): the page copies his LaTeX CV (`D:\CV\CV\main.tex`) word for word and in the same layout (real Bitstream Charter font, photo, references; all 970 words wrap as in the PDF); "Download PDF" is his exact PDF. All text lives in the `resume` singleton (`src/content/resume/cv.json`, "Resume (CV)" in /admin). Verified by text, visual and QA agents.
 - 8-point feedback round: Home redesign (focus chips, stats, "What I do", experience timeline), Skills page, Blog section (3 drafts), aligned project cards with version stacks.
 - Fingerprint V1.1 3D board rebuilt correctly.
 - Site-wide circuit-trace canvas background (`CircuitField.astro`) — owner wants it small and dim.
@@ -41,7 +41,7 @@ private links in this file.
 - Phase 7: run `qa-reviewer` against the live site (see PLAN-v2 Phase 7).
 - Low-priority review leftovers: BoardViewer keyboard pan + `?board=` in URL; theme-color meta follows the toggle; preload the Mr Dafoe font; box-shadow hovers → opacity of a pseudo-element.
 - Home Lighthouse back above 95 (last single run 92 at 2× CPU).
-- Resume look (26 Nov, optional): Charis SIL's "+" is wider than Charter's ("C/C+ +"); self-hosting real Charter (XCharter, free licence) would make it pixel-identical. One line break differs (Activity Tracker "STILL / MOVE / WALK") — TeX paragraph breaking, not fixable in CSS. Measuring scripts from the visual check: `render-pdf.mjs`, `measure-web.mjs`, `breaks.mjs`, `gaps.mjs` (were in the session scratchpad; recreate if needed).
+- Resume look: done (26 Nov) — real Bitstream Charter (Butterick's free WOFF2 package) replaced Charis SIL; "+" now matches. Measured against the PDF: 0 of 970 words wrap differently, spacing within 0.5 px, name width within 1 px, print = same 3 pages. Measuring scripts (pdf.js render, line dump, `breaks`/`gaps` compare) were in the session scratchpad; recreate if the CV changes a lot.
 - Saad (optional): his PDF embeds the photo's camera metadata (Canon EOS 50D, Photoshop, 2023 date — no location). To drop it: strip `photo.jpg` (e.g. `exiftool -all= photo.jpg`), recompile in Overleaf, `npm run cv:import`.
 - Resume QA nits (25 Nov): training courses show in file-name order, not the CV's (IPS, IOSH, EOSH, Fire); certifications have no `order` field. Old required-ness mismatches between the two schemas: profile `avatar`, experience `bullets`/`tags` (required in Astro, optional in Tina).
 
@@ -59,6 +59,8 @@ private links in this file.
 - **Audit the contact form** by building once with a dummy `PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000`, then rebuild normally.
 
 ## 4. Session log (newest first)
+
+- **2026-11-26** — Resume sheet now uses real Bitstream Charter (self-hosted, licence included); `@fontsource/charis-sil` removed; name small caps and word spacing tuned so every line wraps as in the PDF.
 
 - **2026-11-26** — Resume page now copies Saad's own CV PDF exactly (text, layout, photo, phone, references — his choice); download = his exact PDF via `cv:import` (`cv:pdf` removed). Experience `achievements` / education `startYear` dropped again (CV text lives in `cv.json`). Verified by text, visual and QA agents. (`8858f2d`, deployed; live PDF byte-identical)
 - **2026-11-25** — Resume page and PDF rebuilt from Saad's new CV; new `resume` singleton (Astro + Tina, lock regenerated), experience `achievements`, year-only dates, education `startYear`; About bio updated to SouthernIoT / B.Sc. 2023. QA fixes: absolute links in the PDF (+ `cv:pdf` now fails on localhost links), blank CMS fields no longer break the build, impossible dates rejected. (`1e02c3d`, deployed)

@@ -83,8 +83,9 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   copper direction**: deep violet-black, pink → violet → blue gradient,
   flowing line-art hero with his cut-out portrait, "Hello, I'm" + gradient
   name + role pill. Fonts: Rubik (text), JetBrains Mono (labels), Mr Dafoe
-  (signature logo only); Charis SIL only on the resume sheet, to match his
-  LaTeX CV (Charter). Don't redesign away from it without asking him.
+  (signature logo only); Bitstream Charter only on the resume sheet, to
+  match his LaTeX CV (`src/styles/charter.css`, free licence in
+  `src/assets/fonts/charter/LICENSE.txt`). Don't redesign away from it without asking him.
 - WCAG AA contrast in **both** themes. No hard-coded colours outside
   `src/styles/tokens.css` (exceptions: the OG image generator and the SVG
   favicon, which keep their own copy of the values).

@@ -11,11 +11,6 @@
     "Design and lay out printed circuit boards (PCBs) for embedded systems using EasyEDA and KiCad",
     "Optimize firmware for performance, power efficiency and memory usage in resource-constrained environments"
   ],
-  "achievements": [
-    "Designed and fabricated custom PCBs in EasyEDA that passed manufacturing DRC checks on the first revision",
-    "Designed the Office Automation PCB and a working prototype for SouthernIoT",
-    "Delivered production-grade embedded firmware for IoT devices deployed in live industrial environments"
-  ],
   "tags": [
     "esp32",
     "freertos",

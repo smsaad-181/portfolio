@@ -16,7 +16,12 @@ export async function getProfile(): Promise<Profile> {
   return profile;
 }
 
-/** Loads src/content/resume/cv.json (the CV-only parts of the resume page). */
+/** File name the browser saves the CV as: "Sultan Mahmud Saad" → "Sultan_Mahmud_Saad_CV.pdf". */
+export function resumeFileName(name: string): string {
+  return `${name.trim().replace(/[^\p{L}\p{N}]+/gu, "_")}_CV.pdf`;
+}
+
+/** Loads src/content/resume/cv.json (Saad's CV text for the resume page). */
 export async function getResume(): Promise<CollectionEntry<"resume">> {
   const resume = await getEntry("resume", "cv");
   if (!resume) {

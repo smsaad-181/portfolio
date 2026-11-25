@@ -87,7 +87,7 @@ const profileCollection: Collection = {
       name: "resume",
       label: "Resume PDF",
       required: true,
-      description: "Generated from the Resume page by `npm run cv:pdf` (run it after content changes). Don't upload a different file.",
+      description: "Your own CV PDF, published byte for byte. Upload the new PDF here (or run npm run cv:import) and update Resume (CV) to the same text.",
     },
     {
       type: "object" as const,
@@ -138,8 +138,14 @@ const profileCollection: Collection = {
 };
 
 // ─── Resume (singleton) ───────────────────────────────────────────────────────
-// CV-only parts; the resume page adds profile, experience, education and
-// training. Public site: no phone number or referees' contact details.
+// Saad's CV word for word, as in his own PDF (the "Download PDF"). Email,
+// LinkedIn, GitHub and location come from Profile. Text may mark bold with
+// **double asterisks**. Public site: the phone and referees are shown as in
+// the PDF (Saad's choice, 25 Nov 2026).
+
+const cvItemLabel = (key: string, fallback: string) => (item: Record<string, string | undefined>) => ({
+  label: item?.[key] || fallback,
+});
 
 const resumeCollection: Collection = {
   name: "resume",
@@ -164,6 +170,7 @@ const resumeCollection: Collection = {
       required: true,
       description: "Full name as on your CV. The rest of the site uses the Profile name.",
     },
+    { type: "string" as const, name: "phone", label: "Phone", description: "Shown in the CV header (public)." },
     {
       type: "string" as const,
       name: "summary",
@@ -173,20 +180,44 @@ const resumeCollection: Collection = {
     },
     {
       type: "object" as const,
+      name: "education",
+      label: "Education",
+      list: true,
+      ui: { itemProps: cvItemLabel("school", "New entry") },
+      fields: [
+        { type: "string" as const, name: "school", label: "School / University", required: true },
+        { type: "string" as const, name: "dates", label: "Dates", required: true, description: "As printed, e.g. 2018 – 2023." },
+        { type: "string" as const, name: "degree", label: "Degree line", required: true, description: "The whole italic line, e.g. Bachelor of Science (B.Sc.) in …, CGPA: 3.59/4.00" },
+        { type: "string" as const, name: "location", label: "Location" },
+      ],
+    },
+    {
+      type: "object" as const,
+      name: "experience",
+      label: "Work experience",
+      list: true,
+      ui: { itemProps: cvItemLabel("org", "New job") },
+      fields: [
+        { type: "string" as const, name: "org", label: "Company", required: true },
+        { type: "string" as const, name: "dates", label: "Dates", required: true, description: "As printed, e.g. January 2025 – Present." },
+        { type: "string" as const, name: "role", label: "Role", required: true },
+        { type: "string" as const, name: "location", label: "Location" },
+        { type: "string" as const, name: "responsibilities", label: "Responsibilities", list: true, ui: { component: "list" as const } },
+        { type: "string" as const, name: "achievements", label: "Achievements", list: true, ui: { component: "list" as const }, description: "Mark bold words with **double asterisks**." },
+      ],
+    },
+    {
+      type: "object" as const,
       name: "projects",
       label: "Projects",
       list: true,
       description: "Tick \"Ongoing\" to list a project under Ongoing projects.",
-      ui: {
-        itemProps: (item: { title?: string }) => ({ label: item?.title || "New project" }),
-      },
+      ui: { itemProps: cvItemLabel("title", "New project") },
       fields: [
         { type: "string" as const, name: "title", label: "Title", required: true },
         { type: "string" as const, name: "note", label: "Right-hand label", description: "Employer or scope, e.g. SouthernIoT or Schematic, PCB and Firmware." },
         { type: "string" as const, name: "tech", label: "Technologies", description: "Comma-separated, e.g. ESP32, MQTT, EasyEDA." },
-        { type: "string" as const, name: "bullets", label: "Bullets", list: true, ui: { component: "list" as const }, description: "At most 4." },
-        { type: "string" as const, name: "objective", label: "Objective", ui: { component: "textarea" as const } },
-        { type: "string" as const, name: "use", label: "Real-world use", ui: { component: "textarea" as const } },
+        { type: "string" as const, name: "bullets", label: "Bullets", list: true, ui: { component: "list" as const }, description: "e.g. **Objective:** deliver …" },
         { type: "string" as const, name: "project", label: "Project page to link", description: "Optional. File name of the project without .mdx, e.g. lora-gps-tracker." },
         { type: "boolean" as const, name: "ongoing", label: "Ongoing" },
       ],
@@ -194,15 +225,20 @@ const resumeCollection: Collection = {
     {
       type: "object" as const,
       name: "skills",
-      label: "Technical skills (as on the CV)",
+      label: "Technical skills",
       list: true,
-      ui: {
-        itemProps: (item: { label?: string }) => ({ label: item?.label || "New row" }),
-      },
+      ui: { itemProps: cvItemLabel("label", "New row") },
       fields: [
         { type: "string" as const, name: "label", label: "Group", required: true },
         { type: "string" as const, name: "items", label: "Skills", required: true, description: "Comma-separated." },
       ],
+    },
+    {
+      type: "string" as const,
+      name: "training",
+      label: "Training courses",
+      list: true,
+      ui: { component: "list" as const },
     },
     {
       type: "string" as const,
@@ -212,10 +248,19 @@ const resumeCollection: Collection = {
       ui: { component: "list" as const },
     },
     {
-      type: "string" as const,
+      type: "object" as const,
       name: "references",
-      label: "References line",
-      description: "e.g. Available on request. Don't put referees' phone numbers or emails on the public site.",
+      label: "References",
+      list: true,
+      description: "Shown publicly, as in your PDF. Ask referees before adding their email or phone.",
+      ui: { itemProps: cvItemLabel("name", "New referee") },
+      fields: [
+        { type: "string" as const, name: "name", label: "Name", required: true },
+        { type: "string" as const, name: "title", label: "Title" },
+        { type: "string" as const, name: "org", label: "Organisation" },
+        { type: "string" as const, name: "email", label: "Email" },
+        { type: "string" as const, name: "phone", label: "Phone" },
+      ],
     },
   ],
 };
@@ -260,14 +305,6 @@ const experienceCollection: Collection = {
     },
     {
       type: "string" as const,
-      name: "achievements",
-      label: "Achievements",
-      list: true,
-      ui: { component: "list" as const },
-      description: "At most 4. Real results only. Shown under \"Achievements\" on the resume.",
-    },
-    {
-      type: "string" as const,
       name: "tags",
       label: "Tags / Technologies",
       list: true,
@@ -287,7 +324,6 @@ const educationCollection: Collection = {
     { type: "string" as const, name: "degree", label: "Degree", required: true },
     { type: "string" as const, name: "institute", label: "Institute", required: true },
     { type: "string" as const, name: "group", label: "Group / Department", required: true },
-    { type: "number" as const, name: "startYear", label: "Start Year", description: "Optional. The resume then shows e.g. 2018 – 2023." },
     { type: "number" as const, name: "year", label: "Graduation Year", required: true },
     { type: "string" as const, name: "result", label: "Result / GPA", required: true },
   ],

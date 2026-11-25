@@ -1,0 +1,30 @@
+---
+/**
+ * CvText.astro — one line of CV text set like Saad's LaTeX CV:
+ * **double asterisks** mark bold, and a hyphenated word ("4-channel",
+ * "real-time") never breaks at its hyphen (\exhyphenpenalty=10000).
+ */
+export interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+const parts = text
+  .split(/\*\*(.+?)\*\*/g)
+  .flatMap((chunk, i) =>
+    chunk
+      .split(/(\S*\w-\w\S*)/g)
+      .filter(Boolean)
+      .map((t) => ({ text: t, bold: i % 2 === 1, keep: /\w-\w/.test(t) }))
+  );
+---
+{parts.map((p) => (p.bold || p.keep ? <span class:list={[p.bold && "b", p.keep && "keep"]}>{p.text}</span> : p.text))}
+
+<style>
+  .b {
+    font-weight: 700;
+  }
+
+  .keep {
+    white-space: nowrap;
+  }
+</style>

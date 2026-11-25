@@ -5,7 +5,7 @@ instead of re-exploring the codebase. Updated at the end of every finished
 task (newest entry on top of the log). Public repo: no secrets, emails or
 private links in this file.
 
-**Last updated:** 2026-11-25 · **Last commit:** see `git log -1`
+**Last updated:** 2026-11-26 · **Last commit:** see `git log -1`
 
 ---
 
@@ -19,8 +19,8 @@ private links in this file.
 | CI | `.github/workflows/deploy.yml` — all gates green; Tina admin build is **skipped** until Tina secrets exist |
 | Checks | `npm run check` 0/0/0 · `check:links` 0 broken · `check:drafts` clean · `audit:pages` 0 issues (92 loads) |
 
-**Recently finished (Nov 21–25):**
-- Resume page rebuilt from Saad's new CV (25 Nov): CV order, Responsibilities/Achievements, work + ongoing projects, CV skill rows, training, activities. CV-only parts live in the `resume` singleton (`src/content/resume/cv.json`, "Resume (CV)" in /admin). PDF regenerated: 2 pages with ~5 mm to spare.
+**Recently finished (Nov 21–26):**
+- Resume page = Saad's own CV PDF (26 Nov): the page copies his LaTeX CV (`D:\CV\CV\main.tex`) word for word and in the same layout (Charis SIL ≈ Charter, photo, references); "Download PDF" is his exact PDF. All text lives in the `resume` singleton (`src/content/resume/cv.json`, "Resume (CV)" in /admin). Verified by text, visual and QA agents.
 - 8-point feedback round: Home redesign (focus chips, stats, "What I do", experience timeline), Skills page, Blog section (3 drafts), aligned project cards with version stacks.
 - Fingerprint V1.1 3D board rebuilt correctly.
 - Site-wide circuit-trace canvas background (`CircuitField.astro`) — owner wants it small and dim.
@@ -41,6 +41,8 @@ private links in this file.
 - Phase 7: run `qa-reviewer` against the live site (see PLAN-v2 Phase 7).
 - Low-priority review leftovers: BoardViewer keyboard pan + `?board=` in URL; theme-color meta follows the toggle; preload the Mr Dafoe font; box-shadow hovers → opacity of a pseudo-element.
 - Home Lighthouse back above 95 (last single run 92 at 2× CPU).
+- Resume look (26 Nov, optional): Charis SIL's "+" is wider than Charter's ("C/C+ +"); self-hosting real Charter (XCharter, free licence) would make it pixel-identical. One line break differs (Activity Tracker "STILL / MOVE / WALK") — TeX paragraph breaking, not fixable in CSS. Measuring scripts from the visual check: `render-pdf.mjs`, `measure-web.mjs`, `breaks.mjs`, `gaps.mjs` (were in the session scratchpad; recreate if needed).
+- Saad (optional): his PDF embeds the photo's camera metadata (Canon EOS 50D, Photoshop, 2023 date — no location). To drop it: strip `photo.jpg` (e.g. `exiftool -all= photo.jpg`), recompile in Overleaf, `npm run cv:import`.
 - Resume QA nits (25 Nov): training courses show in file-name order, not the CV's (IPS, IOSH, EOSH, Fire); certifications have no `order` field. Old required-ness mismatches between the two schemas: profile `avatar`, experience `bullets`/`tags` (required in Astro, optional in Tina).
 
 ## 3. Know before you start (saves time)
@@ -50,14 +52,15 @@ private links in this file.
 - **Local-only skills** (not in git, listed in `.git/info/exclude`): `.claude/skills/web-design-guidelines/`, `.claude/skills/emil-*/`. Reinstall from `github.com/vercel-labs/agent-skills` and `github.com/emilkowalski/skills` on a new machine.
 - **Tool quirks:** the Edit/Write tools decode `<` / ` ` → write such strings from a script with `String.fromCharCode(...)` and verify with `od -c`. Bash heredocs/one-liners break on apostrophes → write scripts to the scratchpad. Use `set -o pipefail` before outward-facing commands. Stage files **by name** (a locked `src/pages/404.astro.tmp.*` file exists; it's excluded and harmless — delete after a reboot).
 - **Ports stuck after stopping a background server:** `netstat -ano | grep 4321` → `taskkill //PID <pid> //T //F`.
-- **CV facts:** the newest CV (25 Nov) is summarised in `.claude/skills/portfolio-content-seed/references/cv-data.md`. Full name "Sultan Mahmud Saad" on the resume only. Never publish the CV's phone number or referees' details. Experience dates may be year-only (`"2021"`) — format them with `formatMonthYear()` in `src/lib/dates.ts`, never `new Date().toLocaleDateString` directly.
+- **CV facts:** the newest CV (25 Nov) is summarised in `.claude/skills/portfolio-content-seed/references/cv-data.md`. Full name "Sultan Mahmud Saad" on the resume only. Saad chose to publish his phone and referees exactly as in his PDF — keep them only in `cv.json`. Experience dates may be year-only (`"2021"`) — format them with `formatMonthYear()` in `src/lib/dates.ts`, never `new Date().toLocaleDateString` directly.
 - **Tina lock:** after any change to `tina/config.ts`, regenerate and commit `tina/tina-lock.json` (Tina Cloud indexes it; CI's Tina build fails on a stale one). `tinacms dev` hangs at "initializing" here; instead run `node node_modules/@tinacms/cli/bin/tinacms build --local --skip-indexing --skip-cloud-checks --skip-search-index --noTelemetry` in the background, wait until the lock file's time changes, then stop it (its server never exits). Its local `public/admin/` is git-ignored.
 - **Blank CMS fields:** Tina saves a cleared optional field as `""`. Wrap optional non-string fields (dates, numbers, URLs) in `blankable()` in `src/content.config.ts`.
-- **CV PDF:** `npm run cv:pdf` needs a server on :4321 (dev, or `preview` after a build on the same day). It fails above 2 pages; measure with a print-media Playwright check before cutting content (the header contact grid is what made it fit).
+- **CV update flow:** Saad edits `D:\CV\CV\main.tex` (Overleaf/LaTeX) → `npm run cv:import -- "D:\CV\CV\Sultan_Mahmud_Saad_CV.pdf"` (byte-for-byte copy + date) → make `src/content/resume/cv.json` match `main.tex` word for word (`--` → "–", `\textbf{x}` → `**x**`) → build → verify text and look against the PDF. No LaTeX is installed here, so the PDF can't be rebuilt locally. CV text renders through `CvText.astro` (bold + no breaks at hyphens, like LaTeX).
 - **Audit the contact form** by building once with a dummy `PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000`, then rebuild normally.
 
 ## 4. Session log (newest first)
 
+- **2026-11-26** — Resume page now copies Saad's own CV PDF exactly (text, layout, photo, phone, references — his choice); download = his exact PDF via `cv:import` (`cv:pdf` removed). Experience `achievements` / education `startYear` dropped again (CV text lives in `cv.json`).
 - **2026-11-25** — Resume page and PDF rebuilt from Saad's new CV; new `resume` singleton (Astro + Tina, lock regenerated), experience `achievements`, year-only dates, education `startYear`; About bio updated to SouthernIoT / B.Sc. 2023. QA fixes: absolute links in the PDF (+ `cv:pdf` now fails on localhost links), blank CMS fields no longer break the build, impossible dates rejected. (`1e02c3d`, deployed)
 
 - **2026-11-24** — README trimmed to intro + live/CMS links only (setup and commands live in `CLAUDE.md`).

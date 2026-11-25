@@ -297,6 +297,8 @@ repo, oshwlab, demo: url
 
 **Acceptance:** no rating widgets · the resume prints to 1–2 clean A4 pages · the form submits successfully in a test · all external links return 200.
 
+> **26 Nov 2026 — changed by Saad:** the resume page is now an exact copy of his own LaTeX CV (3 A4 pages), and "Download PDF" is his PDF itself (`npm run cv:import`). The 1–2 page limit no longer applies.
+
 > **Prompt:** Implement Phase 5 of `docs/PLAN-v2.md`. For the contact form use **[Web3Forms / Formspree]** with the access key read from an env var. Print the resume page to PDF with Playwright and show me the result.
 
 ---

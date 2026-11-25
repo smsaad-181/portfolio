@@ -2,14 +2,17 @@
 
 ## New CV — 25 Nov 2026 (supersedes the older notes below where they differ)
 Saad sent an updated CV and asked for the resume page to follow it. The full
-CV text now lives in the content files: `src/content/resume/cv.json` (summary,
-projects, ongoing projects, CV skill rows, activities), `src/content/experience/*.json`,
-`src/content/education/*.json`, `src/content/certifications/*.json`.
+CV text, word for word, lives in `src/content/resume/cv.json` (source of truth:
+his `D:\CV\CV\main.tex` / `Sultan_Mahmud_Saad_CV.pdf`). The About/Home pages
+use the shorter `src/content/experience/*.json`, `education/*.json` and
+`certifications/*.json`, which agree with it on the facts.
 - Name on the CV: **Sultan Mahmud Saad**. Saad's choice: full name on the
   resume page/PDF only; the rest of the site stays "Sultan Mahmud".
 - Email on the CV: smsaad181@gmail.com (same as the site).
-- **Never publish** the CV's phone number or the referees' names/emails/phones
-  (public repo and site). The resume says "References: Available on request."
+- **Resume page = his PDF, exactly** (Saad, 25–26 Nov 2026): the page copies
+  `D:\CV\CV\main.tex` word for word and "Download PDF" is his exact PDF. He
+  chose to publish his phone and both referees' contact details as in the PDF;
+  they live only in `src/content/resume/cv.json`. Don't add them anywhere else.
 - Experience: **SouthernIoT** — Embedded System and PCB Designer, Jan 2025–Present
   (replaces "Assistant Officer, SIOT Solutions"). **Project-Based Work** —
   Freelance Embedded Systems Engineer, 2021–2025 (year-only dates).

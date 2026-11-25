@@ -90,6 +90,9 @@
   --paper-muted: #574a6b;
   --paper-rule: #e2d8ee;
   --paper-accent: #9c1f4d;
+  /* Resume sheet = Saad's LaTeX CV: black text and rules, #333 technology lines */
+  --paper-ink: #000000;
+  --paper-subtle: #333333;
 
   /* 7-segment display faces on the 3D Clock board */
   --viewer-seg-on: #ff3b30;

@@ -1,41 +1,37 @@
 ---
 /**
  * Resume page — /resume/
- * An HTML CV in the section order of Saad's own CV: summary, education,
- * experience, projects, ongoing projects, skills, training, activities,
- * references. Built from the content collections: profile, experience,
- * education, certifications, plus the resume singleton (CV-only parts).
- * On screen it sits on a paper-like sheet with Download / Print buttons;
- * when printed (or exported by `npm run cv:pdf`) it becomes a clean A4 CV
- * without the site chrome. The PDF in public/resume/ is generated from this
- * page, so both always match. No phone number or referees' contact details
- * (public site).
+ * Saad's CV, laid out like his own PDF (LaTeX, Charter, A4, black on white):
+ * centred small-caps name with contact line and framed photo, then
+ * Professional Summary, Education, Work Experience, Projects, Ongoing
+ * Projects, Technical Skills, Training Courses, Extracurricular Activities
+ * and References. The text comes word for word from the resume singleton
+ * (src/content/resume/cv.json); email, LinkedIn, GitHub and location from
+ * the profile. "Download PDF" serves his exact PDF (npm run cv:import).
+ * Saad chose to publish the phone number and referees as in the PDF.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import Icon from "@components/Icon.astro";
-import { getCollection } from "astro:content";
-import { getProfile, getResume, getResumeUrl } from "../lib/profile";
+import CvText from "@components/CvText.astro";
+import { Image } from "astro:assets";
+import "@fontsource/charis-sil/latin-400.css";
+import "@fontsource/charis-sil/latin-400-italic.css";
+import "@fontsource/charis-sil/latin-700.css";
+import "@fontsource/charis-sil/latin-700-italic.css";
+import photo from "../assets/profile/cv-photo.jpg";
+import { getProfile, getResume, getResumeUrl, resumeFileName } from "../lib/profile";
 import { getAllProjectIds, getPublishedProjects } from "../lib/projects";
-import { getSkillGroups } from "../lib/skills";
-import { formatRange } from "../lib/dates";
-import { absoluteUrl, pageUrl, projectUrl } from "../lib/urls";
+import { projectUrl } from "../lib/urls";
 import resumeMeta from "../data/resume.json";
 
 const profile = await getProfile();
 const { data } = profile;
 const cv = (await getResume()).data;
 const resumeUrl = getResumeUrl(profile);
-const experiences = (await getCollection("experience")).sort((a, b) => {
-  if (a.data.current !== b.data.current) return a.data.current ? -1 : 1;
-  return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
-});
-const educations = (await getCollection("education")).sort((a, b) => b.data.year - a.data.year);
-const certs = await getCollection("certifications");
 
-// CV projects may link to their project page. An unknown slug fails the build
-// (a typo in /admin); a draft project is listed without a link. Links are
-// absolute: in the exported PDF a relative link would point at the local
-// server that printed it.
+// Project titles may link to their project page (shown as plain text, like
+// the PDF's hidden links). An unknown slug fails the build (a typo in
+// /admin); a draft project is listed without a link.
 const projectIds = await getAllProjectIds();
 const published = await getPublishedProjects();
 const cvProjects = cv.projects.map((p) => {
@@ -44,20 +40,15 @@ const cvProjects = cv.projects.map((p) => {
     throw new Error(`src/content/resume/cv.json: project "${p.title}" links to unknown project "${slug}"`);
   }
   const entry = slug ? published.find((e) => e.id === slug) : undefined;
-  return { ...p, href: entry ? absoluteUrl(projectUrl(entry)) : undefined };
+  return { ...p, href: entry ? projectUrl(entry) : undefined };
 });
-const workProjects = cvProjects.filter((p) => !p.ongoing);
-const ongoingProjects = cvProjects.filter((p) => p.ongoing);
+const projectSections = [
+  { heading: "Projects", items: cvProjects.filter((p) => !p.ongoing) },
+  { heading: "Ongoing Projects", items: cvProjects.filter((p) => p.ongoing) },
+].filter((s) => s.items.length > 0);
 
-// Skills as on the CV; falls back to the site's skill groups if left empty.
-const skillRows = cv.skills.length
-  ? cv.skills
-  : (await getSkillGroups()).map((g) => ({ label: g.label, items: g.skills.map((s) => s.skill.data.name).join(", ") }));
-
-const portfolio = absoluteUrl(pageUrl("/"));
-const projectsPage = absoluteUrl(pageUrl("/projects/"));
 const host = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-const years = (e: (typeof educations)[number]) => (e.data.startYear ? `${e.data.startYear} – ${e.data.year}` : String(e.data.year));
+const tel = (n: string) => `tel:${n.replace(/[^+\d]/g, "")}`;
 const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 ---
 
@@ -72,7 +63,7 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
         </div>
         <div class="resume-bar__actions">
           {resumeUrl && (
-            <a href={resumeUrl} download class="btn btn--primary"><Icon name="download" />Download PDF</a>
+            <a href={resumeUrl} download={resumeFileName(cv.name)} class="btn btn--primary"><Icon name="download" />Download PDF</a>
           )}
           <button type="button" class="btn btn--secondary" data-print><Icon name="print" />Print</button>
         </div>
@@ -80,130 +71,132 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
 
       <article class="cv" aria-label={`CV of ${cv.name}`}>
         <header class="cv__head">
-          <div>
-            <h2 class="cv__name">{cv.name}</h2>
-            <p class="cv__title">{data.title}</p>
+          <div class="cv__id">
+            <h2 class="cv__name" aria-label={cv.name}>{cv.name.split(" ").map((w, i) => <Fragment>{i > 0 && " "}{w.charAt(0)}<span class="cv__sc">{w.slice(1)}</span></Fragment>)}</h2>
+            <p class="cv__loc">{data.location}</p>
+            <p class="cv__contact">
+              {cv.phone && (
+                <span class="cv__ci"><Icon name="phone" size={12} class="cv__ico cv__ico--phone" /><span class="sr-only">Phone: </span><a href={tel(cv.phone)}>{cv.phone}</a></span>
+              )}
+              <span class="cv__ci"><Icon name="envelope" size={12} class="cv__ico cv__ico--envelope" /><span class="sr-only">Email: </span><a href={`mailto:${data.email}`}>{data.email}</a></span>
+            </p>
+            <p class="cv__contact cv__contact--2">
+              {data.socialLinks.linkedin && (
+                <span class="cv__ci"><Icon name="linkedin-box" size={12} class="cv__ico cv__ico--linkedin" /><span class="sr-only">LinkedIn: </span><a href={data.socialLinks.linkedin}>{host(data.socialLinks.linkedin)}</a></span>
+              )}
+              {data.socialLinks.github && (
+                <span class="cv__ci"><Icon name="github" size={12} class="cv__ico" /><span class="sr-only">GitHub: </span><a href={data.socialLinks.github}>{host(data.socialLinks.github)}</a></span>
+              )}
+            </p>
           </div>
-          <ul class="cv__contact" role="list">
-            <li>{data.location}</li>
-            <li><a href={`mailto:${data.email}`}>{data.email}</a></li>
-            {data.socialLinks.linkedin && <li><a href={data.socialLinks.linkedin}>{host(data.socialLinks.linkedin)}</a></li>}
-            {data.socialLinks.github && <li><a href={data.socialLinks.github}>{host(data.socialLinks.github)}</a></li>}
-            {data.socialLinks.oshwlab && <li><a href={data.socialLinks.oshwlab}>{host(data.socialLinks.oshwlab)}</a></li>}
-            <li><a href={portfolio}>{host(portfolio)}</a></li>
-          </ul>
+          <Image src={photo} alt={`Photo of ${cv.name}`} widths={[95, 190, 285]} sizes="95px" class="cv__photo" loading="eager" />
         </header>
 
         <section class="cv__section">
-          <h3 class="cv__h">Professional summary</h3>
-          <p>{cv.summary}</p>
-          {data.availability && <p class="cv__avail">{data.availability}</p>}
+          <h3 class="cv__h">Professional Summary</h3>
+          <p><CvText text={cv.summary} /></p>
         </section>
 
-        <section class="cv__section">
-          <h3 class="cv__h">Education</h3>
-          {educations.map((e) => (
-            <div class="cv__item cv__item--tight">
-              <div class="cv__row">
-                <p class="cv__strong">{e.data.institute}</p>
-                <p class="cv__date">{years(e)}</p>
+        {cv.education.length > 0 && (
+          <section class="cv__section">
+            <h3 class="cv__h">Education</h3>
+            {cv.education.map((e) => (
+              <div class="cv__entry">
+                <p class="cv__row"><span class="cv__b">{e.school}</span><span class="cv__b">{e.dates}</span></p>
+                <p class="cv__row"><span class="cv__i">{e.degree}</span>{e.location && <span class="cv__i cv__sm">{e.location}</span>}</p>
               </div>
-              <p class="cv__muted">{e.data.degree}{e.data.group && ` in ${e.data.group}`}{e.data.result && ` · ${e.data.result}`}</p>
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        )}
 
-        <section class="cv__section">
-          <h3 class="cv__h">Work experience</h3>
-          {experiences.map((e) => (
-            <div class="cv__item">
-              <div class="cv__row">
-                <p class="cv__strong">{e.data.company}</p>
-                <p class="cv__date">{formatRange(e.data.startDate, e.data.endDate, e.data.current)}</p>
+        {cv.experience.length > 0 && (
+          <section class="cv__section">
+            <h3 class="cv__h">Work Experience</h3>
+            {cv.experience.map((e) => (
+              <div class="cv__entry cv__entry--job">
+                <p class="cv__row"><span class="cv__b">{e.org}</span><span class="cv__b">{e.dates}</span></p>
+                <p class="cv__row"><span class="cv__i">{e.role}</span>{e.location && <span class="cv__i cv__sm">{e.location}</span>}</p>
+                {e.responsibilities.length > 0 && (
+                  <Fragment>
+                    <p class="cv__sub">Responsibilities</p>
+                    <ul class="cv__list">{e.responsibilities.map((b) => <li><CvText text={b} /></li>)}</ul>
+                  </Fragment>
+                )}
+                {e.achievements.length > 0 && (
+                  <Fragment>
+                    <p class="cv__sub">Achievements</p>
+                    <ul class="cv__list">{e.achievements.map((b) => <li><CvText text={b} /></li>)}</ul>
+                  </Fragment>
+                )}
               </div>
-              <p class="cv__role">{e.data.role}</p>
-              {e.data.achievements.length > 0 && <p class="cv__sub">Responsibilities</p>}
-              <ul class="cv__bullets">
-                {e.data.bullets.map((b) => <li>{b}</li>)}
-              </ul>
-              {e.data.achievements.length > 0 && (
-                <Fragment>
-                  <p class="cv__sub">Achievements</p>
-                  <ul class="cv__bullets">
-                    {e.data.achievements.map((b) => <li>{b}</li>)}
-                  </ul>
-                </Fragment>
-              )}
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        )}
 
-        {[
-          { heading: "Projects", items: workProjects },
-          { heading: "Ongoing projects", items: ongoingProjects },
-        ].filter((s) => s.items.length > 0).map((s) => (
+        {projectSections.map((s) => (
           <section class="cv__section">
             <h3 class="cv__h">{s.heading}</h3>
             {s.items.map((p) => (
-              <div class="cv__item">
-                <div class="cv__row">
-                  <p class="cv__strong">{p.href ? <a href={p.href}>{p.title}</a> : p.title}</p>
-                  {p.note && <p class="cv__note">{p.note}</p>}
-                </div>
+              <div class="cv__entry cv__entry--project">
+                <p class="cv__row">
+                  <span class="cv__b">{p.href ? <a class="cv__plain" href={p.href}>{p.title}</a> : p.title}</span>
+                  {p.note && <span class="cv__i cv__sm">{p.note}</span>}
+                </p>
                 {p.tech && <p class="cv__tech">Technologies: {p.tech}</p>}
-                <ul class="cv__bullets">
-                  {p.bullets.map((b) => <li>{b}</li>)}
-                  {p.objective && <li><b>Objective:</b> {p.objective}</li>}
-                  {p.use && <li><b>Real-world use:</b> {p.use}</li>}
-                </ul>
+                {p.bullets.length > 0 && (
+                  <ul class="cv__list">{p.bullets.map((b) => <li><CvText text={b} /></li>)}</ul>
+                )}
               </div>
             ))}
-            {s.items === ongoingProjects && (
-              <p class="cv__muted cv__small">Interactive 3D boards and full write-ups: <a href={projectsPage}>{host(projectsPage)}/</a></p>
-            )}
           </section>
         ))}
 
-        <section class="cv__section">
-          <h3 class="cv__h">Technical skills</h3>
-          <dl class="cv__skills">
-            {skillRows.map((r) => (
-              <div class="cv__skillrow">
-                <dt>{r.label}</dt>
-                <dd>{r.items}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+        {cv.skills.length > 0 && (
+          <section class="cv__section">
+            <h3 class="cv__h">Technical Skills</h3>
+            <dl class="cv__skills">
+              {cv.skills.map((r) => (
+                <div class="cv__skillrow">
+                  <dt>{r.label}</dt>
+                  <dd>{r.items}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
-        {(certs.length > 0 || cv.activities.length > 0) && (
-          <section class="cv__section cv__two">
-            {certs.length > 0 && (
-              <div>
-                <h3 class="cv__h">Training courses</h3>
-                <ul class="cv__bullets">
-                  {certs.map((c) => <li>{c.data.name}{c.data.issuer && <span class="cv__muted"> — {c.data.issuer}</span>}</li>)}
-                </ul>
-              </div>
-            )}
-            {(cv.activities.length > 0 || cv.references) && (
-              <div>
-                {cv.activities.length > 0 && (
-                  <Fragment>
-                    <h3 class="cv__h">Extracurricular activities</h3>
-                    <ul class="cv__bullets">
-                      {cv.activities.map((a) => <li>{a}</li>)}
-                    </ul>
-                  </Fragment>
-                )}
-                {cv.references && (
-                  <Fragment>
-                    <h3 class="cv__h cv__h--next">References</h3>
-                    <p>{cv.references}</p>
-                  </Fragment>
-                )}
-              </div>
-            )}
+        {cv.training.length > 0 && (
+          <section class="cv__section">
+            <h3 class="cv__h">Training Courses</h3>
+            <ul class="cv__list">{cv.training.map((t) => <li><CvText text={t} /></li>)}</ul>
+          </section>
+        )}
+
+        {cv.activities.length > 0 && (
+          <section class="cv__section">
+            <h3 class="cv__h">Extracurricular Activities</h3>
+            <ul class="cv__list">{cv.activities.map((a) => <li><CvText text={a} /></li>)}</ul>
+          </section>
+        )}
+
+        {cv.references.length > 0 && (
+          <section class="cv__section">
+            <h3 class="cv__h">References</h3>
+            <div class="cv__refs">
+              {cv.references.map((r) => (
+                <div class="cv__ref">
+                  <p class="cv__b">{r.name}</p>
+                  {r.title && <p class="cv__i">{r.title}</p>}
+                  {r.org && <p>{r.org}</p>}
+                  {r.email && (
+                    <p><span class="cv__refico"><Icon name="envelope" size={12} class="cv__ico cv__ico--ref-envelope" /></span><span class="sr-only">Email: </span><a class="cv__plain" href={`mailto:${r.email}`}>{r.email}</a></p>
+                  )}
+                  {r.phone && (
+                    <p><span class="cv__refico"><Icon name="phone" size={12} class="cv__ico cv__ico--ref-phone" /></span><span class="sr-only">Phone: </span>{r.phone}</p>
+                  )}
+                </div>
+              ))}
+            </div>
           </section>
         )}
       </article>
@@ -254,17 +247,27 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     gap: var(--space-2);
   }
 
-  /* ── The CV sheet (paper colours in both themes) ───────────────────────── */
+  /* ── The CV sheet: Saad's LaTeX CV (article 10pt, charter, A4,
+        margins 1.6 cm × 1.1 cm, \linespread{1.05}) ─────────────────────── */
   .cv {
     max-width: 210mm;
     margin-inline: auto;
-    padding: 14mm;
+    padding: 1.1cm 1.6cm;
     background: var(--paper-bg);
-    color: var(--paper-text);
+    color: var(--paper-ink);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
-    font-size: 9.4pt;
-    line-height: 1.4;
+    font-family: "Charis SIL", Charter, "Bitstream Charter", Georgia, serif;
+    font-size: 10pt;
+    line-height: 12.6pt;
+    font-kerning: normal;
+    /* LaTeX justifies text and microtype squeezes lines a little; Charis SIL
+       is ~2% wider than Charter. Justify + slightly tighter letter and word
+       spacing gives the PDF's line breaks (measured: 110 of 111 lines). */
+    text-align: justify;
+    letter-spacing: -0.01em;
+    word-spacing: -0.06em;
+    hyphens: manual;
   }
 
   .cv p {
@@ -272,217 +275,340 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
   }
 
   .cv a {
-    color: var(--paper-text);
+    color: inherit;
     text-decoration: underline;
-    text-decoration-color: var(--paper-rule);
-    text-underline-offset: 2px;
+    text-decoration-thickness: 0.5pt;
+    text-underline-offset: 1.5pt;
   }
 
-  /* Wraps the contact block under the name when the sheet is too narrow */
+  /* \href without \ulink: a link that looks like plain text (hidelinks) */
+  .cv a.cv__plain {
+    text-decoration: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .cv a.cv__plain:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .cv__b {
+    font-weight: 700;
+  }
+
+  /* Italic Charis already matches Charter's width */
+  .cv__i {
+    font-style: italic;
+    letter-spacing: 0;
+    word-spacing: normal;
+  }
+
+  .cv__sm {
+    font-size: 9pt;
+  }
+
+  /* Header: text centred on the full width, photo overlaid at the right margin */
   .cv__head {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(3.1cm + 1pt);
+  }
+
+  /* Room for the photo on both sides keeps the text centred and clear of it */
+  .cv__id {
+    text-align: center;
+    padding-inline: calc(2.5cm + 4mm);
+  }
+
+  /* \scshape in LaTeX: capitals + small capitals at 80% (the web font has no
+     real small caps, and the browser's fake ones are only 70%) */
+  .cv__name {
+    margin: 0;
+    font-family: inherit;
+    font-size: 26pt;
+    line-height: 30pt;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+    color: var(--paper-ink);
+    text-box: trim-start cap alphabetic;
+  }
+
+  @supports not (text-box: trim-start cap alphabetic) {
+    .cv__name {
+      margin-top: -8pt;
+    }
+  }
+
+  .cv__sc {
+    font-size: 0.8em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .cv__loc {
+    margin-top: 1.3pt !important;
+    font-size: 9pt;
+    line-height: 11.5pt;
+  }
+
+  .cv__contact {
+    margin-top: 4pt !important;
+    font-size: 9pt;
+    line-height: 11.5pt;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 6mm;
-    padding-bottom: 4mm;
-    border-bottom: 2px solid var(--paper-accent);
-    margin-bottom: 4mm;
+    justify-content: center;
+    column-gap: 1.75em;
   }
 
-  .cv__name {
-    font-size: 20pt;
-    font-weight: 700;
-    line-height: 1.1;
-    margin: 0;
-    color: var(--paper-text);
+  .cv__contact--2 {
+    margin-top: 3pt !important;
   }
 
-  .cv__title {
-    margin-top: 1mm;
-    font-size: 11pt;
-    font-weight: 500;
-    color: var(--paper-accent);
+  /* \underline: a thin rule below the descenders (a CSS underline rounds up
+     to 1 px and breaks around descenders) */
+  .cv__contact a {
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) 0 calc(100% - 1.6px) / 100% 0.4pt no-repeat;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  /* Two columns × three rows, so the header stays as short as the name block */
-  .cv__contact {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    justify-content: end;
-    column-gap: 5mm;
-    row-gap: 0.5mm;
-    text-align: right;
-    font-size: 8.5pt;
-    color: var(--paper-muted);
-  }
-
-  .cv__contact li {
+  .cv__ci {
     white-space: nowrap;
   }
 
+  /* The <svg> is rendered by Icon.astro, outside this page's style scope.
+     Sizes and the phone's direction match the PDF's Font Awesome icons. */
+  .cv :global(.cv__ico) {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.28em;
+    vertical-align: -0.12em;
+  }
+
+  .cv :global(.cv__ico--phone) {
+    scale: -1.33 1.33;
+  }
+
+  .cv :global(.cv__ico--envelope) {
+    scale: 1.2;
+  }
+
+  .cv :global(.cv__ico--linkedin) {
+    scale: 0.875;
+  }
+
+  .cv :global(.cv__ico--ref-envelope) {
+    scale: 1.18;
+  }
+
+  .cv :global(.cv__ico--ref-phone) {
+    scale: -1.3 1.3;
+  }
+
+  /* \fcolorbox 0.5pt around a full 2.5 × 3.1 cm photo */
+  .cv__photo {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    translate: 0 -50%;
+    box-sizing: content-box;
+    width: 2.5cm;
+    height: 3.1cm;
+    object-fit: cover;
+    border: 0.5pt solid var(--paper-ink);
+  }
+
+  /* \section: \large\bfseries, uppercase, 0.5pt rule (drawn as a background
+     so it stays 0.5pt on high-density screens); spacing measured on the PDF */
   .cv__section {
-    margin-top: 3.2mm;
+    margin-top: 10.5pt;
   }
 
   .cv__h {
-    font-family: var(--font-mono);
-    font-size: 8.5pt;
+    margin: 0 0 3.3pt;
+    padding-bottom: 2pt;
+    background: linear-gradient(var(--paper-ink), var(--paper-ink)) left bottom / 100% 0.5pt no-repeat;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    font-family: inherit;
+    font-size: 12pt;
+    line-height: 14.5pt;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
-    color: var(--paper-accent);
-    margin: 0 0 2mm;
-    padding-bottom: 1mm;
-    border-bottom: 1px solid var(--paper-rule);
+    color: var(--paper-ink);
+    break-after: avoid;
   }
 
-  .cv__h--next {
-    margin-top: 3.2mm;
-  }
-
-  .cv__avail {
-    margin-top: 1.5mm !important;
-    font-weight: 600;
-  }
-
-  .cv__item {
-    margin-bottom: 2.5mm;
-    break-inside: avoid;
-  }
-
-  .cv__item--tight {
-    margin-bottom: 1.8mm;
-  }
-
+  /* \entry / \project: bold line + italic line, right-aligned dates/notes */
   .cv__row {
     display: flex;
     justify-content: space-between;
-    gap: 4mm;
+    align-items: baseline;
+    gap: 1em;
   }
 
-  .cv__strong {
-    font-weight: 600;
-  }
-
-  .cv__date {
-    font-family: var(--font-mono);
-    font-size: 8.5pt;
-    color: var(--paper-muted);
+  .cv__row > :last-child:not(:first-child) {
+    text-align: right;
     white-space: nowrap;
   }
 
-  .cv__note {
-    font-size: 8.5pt;
-    font-style: italic;
-    color: var(--paper-muted);
-    white-space: nowrap;
+  /* \entry adds 2pt after the italic line */
+  .cv__entry > .cv__row + .cv__row {
+    padding-bottom: 1.5pt;
   }
 
-  .cv__role {
-    font-style: italic;
-    color: var(--paper-muted);
+  .cv__entry + .cv__entry {
+    margin-top: 6pt;
+  }
+
+  .cv__entry {
+    break-inside: avoid;
+  }
+
+  .cv__entry--job {
+    break-inside: auto;
   }
 
   .cv__sub {
-    margin-top: 1mm !important;
-    font-size: 8.5pt;
-    font-weight: 600;
+    margin-top: 3.5pt !important;
+    font-size: 9pt;
+    line-height: 11.5pt;
+    font-weight: 700;
     font-style: italic;
+    break-after: avoid;
   }
 
   .cv__tech {
-    font-size: 8.5pt;
+    font-size: 9pt;
+    line-height: 11.5pt;
     font-style: italic;
-    color: var(--paper-muted);
+    color: var(--paper-subtle);
   }
 
-  .cv__bullets b {
-    font-weight: 600;
+  /* itemize: leftmargin 1.3em, \textbullet, topsep 2pt, itemsep 1pt; the
+     space after a list is padding (a margin would collapse away) */
+  .cv__list {
+    margin: 2pt 0 0;
+    padding: 0 0 2pt 1.3em;
+    list-style: none;
   }
 
-  .cv__muted {
-    color: var(--paper-muted);
+  .cv__list li {
+    position: relative;
   }
 
-  .cv__small {
-    margin-top: 1mm !important;
-    font-size: 8.5pt;
+  .cv__list li::before {
+    content: "•";
+    position: absolute;
+    left: -0.95em;
+    scale: 1.3;
   }
 
-  .cv__bullets {
-    margin: 1mm 0 0;
-    padding-left: 4.5mm;
+  .cv__list li + li {
+    margin-top: 1pt;
   }
 
-  .cv__bullets li + li {
-    margin-top: 0.6mm;
-  }
-
+  /* Skills: tabularx, bold first column 3.6 cm (+12pt column padding),
+     \arraystretch 1.25 */
   .cv__skills {
     margin: 0;
-    display: grid;
-    gap: 1mm;
+    padding-top: 2pt;
   }
 
   .cv__skillrow {
     display: grid;
-    grid-template-columns: 42mm 1fr;
-    gap: 3mm;
+    grid-template-columns: calc(3.6cm + 12pt) 1fr;
+    padding-block: 1.6pt;
   }
 
   .cv__skillrow dt {
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .cv__skillrow dd {
     margin: 0;
-    color: var(--paper-muted);
   }
 
-  .cv__two {
+  /* References: two equal columns, icons in a 1.4em slot */
+  .cv__refs {
     display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    gap: 8mm;
+    grid-template-columns: 1fr 1fr;
   }
 
-  /* Phone layout on screens only — the A4 print area is also under 720 px wide */
+  .cv__refico {
+    display: inline-block;
+    width: 1.4em;
+  }
+
+  .cv__refico :global(.cv__ico) {
+    margin-right: 0;
+  }
+
+  /* Phones: photo on top, dates under titles, single columns */
   @media screen and (max-width: 720px) {
+    /* Justified text leaves wide gaps on a narrow screen */
     .cv {
       padding: var(--space-6) var(--space-4);
+      text-align: left;
+      letter-spacing: normal;
+      word-spacing: normal;
     }
 
-    .cv__head,
+    .cv__head {
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .cv__id {
+      padding-inline: 0;
+    }
+
+    .cv__photo {
+      position: static;
+      translate: none;
+      order: -1;
+    }
+
+    .cv__name {
+      margin-top: 0;
+      font-size: 20pt;
+      line-height: 24pt;
+    }
+
     .cv__row {
       flex-direction: column;
-      gap: var(--space-2);
+      gap: 0;
     }
 
-    .cv__contact {
-      grid-template-columns: 1fr;
-      justify-content: start;
+    .cv__row > :last-child:not(:first-child) {
       text-align: left;
+      white-space: normal;
     }
 
-    /* Long labels typed in /admin wrap instead of widening the page */
-    .cv__contact li,
-    .cv__note {
+    .cv__ci {
       white-space: normal;
       overflow-wrap: anywhere;
     }
 
     .cv__skillrow,
-    .cv__two {
+    .cv__refs {
       grid-template-columns: 1fr;
+    }
+
+    .cv__ref + .cv__ref {
+      margin-top: var(--space-4);
     }
   }
 
-  /* ── Print: only the CV sheet, A4 ──────────────────────────────────────── */
+  /* ── Print: only the CV sheet, A4 with the PDF's margins ─────────────── */
   @page {
     size: A4;
-    margin: 7mm 13mm 6mm;
+    margin: 1.1cm 1.6cm;
   }
 
   @media print {
@@ -511,9 +637,11 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
       max-width: none;
       border-radius: 0;
       box-shadow: none;
-      font-size: 9.2pt;
-      line-height: 1.34;
       padding: 0;
+    }
+
+    .cv a.cv__plain {
+      text-decoration: none;
     }
   }
 </style>

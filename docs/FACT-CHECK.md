@@ -36,12 +36,17 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 22 | Fingerprint V1.1 | **Resolved (21 Nov 2026).** Card and gallery image = EasyEDA render from the project folder, which matches the current layout (see #18). Board 59.8 × 60.8 mm confirmed by the STEP outline (59.79 × 60.81 mm). | No action needed. |
 | 23 | Blog (3 drafts) | New posts written only from the project write-ups and the 3D pipeline README: `lora-gps-tracker-without-sim-or-cloud`, `home-automation-relay-board-revisions`, `interactive-3d-boards-from-easyeda`. They are `draft: true`, visible only on the local dev server. | **Saad: read each post on localhost, then untick Draft in /admin (or set `draft: false`) and set the real publish date.** The Blog menu link appears once one post is published. |
 
-### From Saad's new CV — 25 Nov 2026 (supersedes older entries below)
+### Resume = Saad's own PDF — 25/26 Nov 2026 (supersedes the entries below)
+- Saad: "add that exactly as the PDF looks … no need to change, this is fully updated." The resume page copies his LaTeX CV (`D:\CV\CV\main.tex`) word for word and in the same layout; "Download PDF" is his exact `Sultan_Mahmud_Saad_CV.pdf`.
+- **Saad chose to publish everything exactly as the PDF**, including his phone number and both referees' names, emails and phones (he was told referees should agree first).
+- His CV photo is on the resume page (metadata stripped; the original's GPS field held no coordinates).
+
+### From Saad's new CV — 25 Nov 2026
 - The resume page now follows the new CV: summary, education, experience (responsibilities + achievements), projects, ongoing projects, technical skills, training, activities.
 - Employer and role: **SouthernIoT — Embedded System and PCB Designer** (replaces "Assistant Officer, SIOT Solutions — Southern Innovation of Technology"). Added **Project-Based Work — Freelance Embedded Systems Engineer, 2021–2025**.
 - B.Sc. **2018–2023** (was 2022); HSC at **Police Lines School and College**, 2015–2017. SSC kept (Saad's choice).
 - Name **Sultan Mahmud Saad** on the resume page and PDF only (Saad's choice).
-- Not published (privacy): the CV's phone number and the referees' contact details → "References: Available on request."
+- ~~Not published (privacy): the CV's phone number and the referees' contact details~~ → published since 26 Nov 2026 by Saad's choice (see above).
 - **Please confirm:** the updated first About bio paragraph in `src/content/profile/saad.json`.
 
 ### Confirmed by Saad — 21 Nov 2026
@@ -58,7 +63,7 @@ Pages were written only from each project's README, documentation, BOM and sourc
 ### Confirmed by Saad — 21 Nov 2026 (Phase 5)
 - Availability: **Open to hardware / embedded roles · Dhaka or remote**.
 - OSHWLab profile https://oshwlab.com/smsaad181 is correct (the site blocks automated checks). GitHub and LinkedIn return 200.
-- The CV PDF is generated from the site's resume page (`npm run cv:pdf`), not uploaded.
+- ~~The CV PDF is generated from the site's resume page~~ → since 25 Nov 2026 the download is Saad's own LaTeX PDF (`npm run cv:import`), and the resume page copies it word for word.
 - Contact form: Web3Forms. **Waiting for Saad's access key** (put it in `.env` as `PUBLIC_WEB3FORMS_KEY`).
 - Experience bullets state no numbers or outcomes — add measurable results (boards shipped, devices deployed, …) if you can confirm them.
 - **Please confirm the new wording** (written from the CV + GitHub profile): the three About bio paragraphs in `src/content/profile/saad.json` and the six experience bullets in `src/content/experience/southern-iot.json`. Python is shown as "Python (basic)" as in the CV.

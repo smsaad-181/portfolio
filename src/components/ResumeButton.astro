@@ -4,7 +4,7 @@
  * "Download CV" when the PDF exists in public/; otherwise a mailto
  * "CV available on request" so visitors never hit a 404.
  */
-import { getProfile, getResumeUrl } from "../lib/profile";
+import { getProfile, getResume, getResumeUrl, resumeFileName } from "../lib/profile";
 
 export interface Props {
   variant?: "primary" | "secondary";
@@ -13,11 +13,12 @@ export interface Props {
 const { variant = "secondary" } = Astro.props;
 const profile = await getProfile();
 const resumeUrl = getResumeUrl(profile);
+const fileName = resumeFileName((await getResume()).data.name);
 const mailto = `mailto:${profile.data.email}?subject=${encodeURIComponent("CV request")}`;
 ---
 
 {resumeUrl ? (
-  <a href={resumeUrl} class={`btn btn--${variant}`} download>
+  <a href={resumeUrl} class={`btn btn--${variant}`} download={fileName}>
     Download CV
   </a>
 ) : (

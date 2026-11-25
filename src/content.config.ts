@@ -81,10 +81,9 @@ const experience = defineCollection({
     startDate: dateString, // e.g. "2025-01-14", or "2021" when only the year is known
     current: z.boolean(),
     endDate: blankable(dateString), // only set when current === false
-    // Responsibilities (verb + what), at most 6 per role.
+    // Responsibilities (verb + what), at most 6 per role. (The resume page
+    // uses the CV's own text from the resume singleton, not this.)
     bullets: z.array(z.string().min(1)).max(6),
-    // Results, shown under "Achievements" on the resume.
-    achievements: z.array(z.string().min(1)).max(4).default([]),
     tags: z.array(z.string()),
   }),
 });
@@ -97,7 +96,6 @@ const education = defineCollection({
     degree: z.string(),
     institute: z.string(),
     group: z.string(),
-    startYear: blankable(z.number().int()), // resume shows "2018 – 2023"
     year: z.number().int(), // year finished
     result: z.string(),
   }),
@@ -214,34 +212,70 @@ const blog = defineCollection({
 });
 
 // ─── resume (singleton) ─────────────────────────────────────────────────────
-// The parts of Saad's CV that live nowhere else on the site. The resume page
-// combines this with profile, experience, education and certifications.
-// Never put a phone number or referees' contact details here (public repo).
+// Saad's CV, word for word as in his own PDF (D:\CV\CV\main.tex), so the
+// resume page looks and reads exactly like the PDF it offers for download.
+// Text may mark bold with **double asterisks**. Email, LinkedIn, GitHub and
+// location come from the profile. Saad chose (25 Nov 2026) to publish the
+// phone number and referees' contact details exactly as in the PDF.
+
+const cvList = z.array(z.string().min(1)).default([]);
 
 const resume = defineCollection({
   loader: jsonFolder("resume"),
   schema: z.object({
     name: z.string().min(1), // full name as on the CV, e.g. "Sultan Mahmud Saad"
+    phone: z.string().optional(),
     summary: z.string().min(1), // "Professional summary"
+    education: z
+      .array(
+        z.object({
+          school: z.string().min(1),
+          dates: z.string().min(1), // as printed, e.g. "2018 – 2023"
+          degree: z.string().min(1), // whole italic line, incl. the result
+          location: z.string().optional(),
+        })
+      )
+      .default([]),
+    experience: z
+      .array(
+        z.object({
+          org: z.string().min(1),
+          dates: z.string().min(1), // e.g. "January 2025 – Present"
+          role: z.string().min(1),
+          location: z.string().optional(),
+          responsibilities: cvList,
+          achievements: cvList,
+        })
+      )
+      .default([]),
     projects: z
       .array(
         z.object({
           title: z.string().min(1),
           note: z.string().optional(), // right-hand label: employer or scope
           tech: z.string().optional(), // "Technologies: …" line
-          bullets: z.array(z.string().min(1)).max(4).default([]),
-          objective: z.string().optional(),
-          use: z.string().optional(), // "Real-world use"
+          bullets: cvList,
           // Slug of the project page to link (file name without .mdx).
           project: z.string().optional(),
           ongoing: z.boolean().default(false), // listed under "Ongoing projects"
         })
       )
       .default([]),
-    // CV skill rows, e.g. { label: "Protocols", items: "UART, SPI, I²C" }.
+    // CV skill rows, e.g. { label: "Protocols", items: "UART, SPI, I2C" }.
     skills: z.array(z.object({ label: z.string().min(1), items: z.string().min(1) })).default([]),
-    activities: z.array(z.string().min(1)).default([]),
-    references: z.string().optional(), // e.g. "Available on request."
+    training: cvList,
+    activities: cvList,
+    references: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          title: z.string().optional(),
+          org: z.string().optional(),
+          email: blankable(z.email()),
+          phone: z.string().optional(),
+        })
+      )
+      .default([]),
   }),
 });
 

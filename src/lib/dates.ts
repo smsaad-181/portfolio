@@ -21,9 +21,3 @@ export function formatMonthYear(value: string): string {
   if (/^\d{4}$/.test(value)) return value;
   return new Date(value).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
 }
-
-/** "2021" → "2021"; "2025-01-14" → "Jan 2025 – Present"; never a dangling dash. */
-export function formatRange(start: string, end: string | undefined, current: boolean): string {
-  const to = current ? "Present" : end ? formatMonthYear(end) : "";
-  return to ? `${formatMonthYear(start)} – ${to}` : formatMonthYear(start);
-}

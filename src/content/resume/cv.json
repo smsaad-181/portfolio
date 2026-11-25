@@ -1,6 +1,57 @@
 {
   "name": "Sultan Mahmud Saad",
+  "phone": "+8801717270421",
   "summary": "Embedded Systems and PCB Design Engineer with 4+ years of hands-on experience building IoT products with ESP32, Arduino and Raspberry Pi. Skilled in embedded C/C++ firmware, FreeRTOS and 2-layer PCB design in EasyEDA and KiCad. Builds real-time, sensor-based systems that connect hardware to the cloud over LoRaWAN, MQTT, Wi-Fi and RS485/Modbus for smart manufacturing and industrial automation.",
+  "education": [
+    {
+      "school": "Gono University (Gono Bishwabidyalay)",
+      "dates": "2018 – 2023",
+      "degree": "Bachelor of Science (B.Sc.) in Electrical and Electronic Engineering, CGPA: 3.59/4.00",
+      "location": "Dhaka, Bangladesh"
+    },
+    {
+      "school": "Police Lines School and College",
+      "dates": "2015 – 2017",
+      "degree": "Higher Secondary Certificate (HSC), GPA: 5.00/5.00",
+      "location": "Dhaka, Bangladesh"
+    }
+  ],
+  "experience": [
+    {
+      "org": "SouthernIoT",
+      "dates": "January 2025 – Present",
+      "role": "Embedded System and PCB Designer",
+      "location": "Dhaka, Bangladesh",
+      "responsibilities": [
+        "Design and develop end-to-end embedded system solutions for IoT applications.",
+        "Write, test and debug firmware for microcontrollers and embedded processors.",
+        "Implement UART, SPI and I2C interfaces and Wi-Fi, BLE and MQTT communication for IoT devices.",
+        "Develop real-time applications using FreeRTOS on ESP32 platforms.",
+        "Design and lay out printed circuit boards (PCBs) for embedded systems using EasyEDA and KiCad.",
+        "Optimize firmware for performance, power efficiency and memory usage in resource-constrained environments."
+      ],
+      "achievements": [
+        "Designed and fabricated custom PCBs in EasyEDA that passed manufacturing DRC checks on the first revision.",
+        "Designed the Office Automation PCB and a working prototype for SouthernIoT.",
+        "Delivered production-grade embedded firmware for IoT devices deployed in live industrial environments."
+      ]
+    },
+    {
+      "org": "Project-Based Work",
+      "dates": "2021 – 2025",
+      "role": "Freelance Embedded Systems Engineer",
+      "location": "Dhaka, Bangladesh",
+      "responsibilities": [
+        "Worked on paid client projects across hardware, software and PCB design.",
+        "Gathered client requirements, defined system architecture and delivered working prototypes on schedule.",
+        "Integrated sensors, microcontrollers and cloud backends into complete end-to-end solutions."
+      ],
+      "achievements": [
+        "Completed and delivered **multiple paid projects** spanning IoT, automation and PCB design over four years.",
+        "Built a strong freelance reputation through consistent on-time delivery and positive client feedback."
+      ]
+    }
+  ],
   "projects": [
     {
       "title": "Careflow V1.0 – Industrial Energy Monitoring System",
@@ -37,10 +88,10 @@
       "note": "Schematic and PCB Layout",
       "tech": "ESP32-S3, EBYTE E22-900M22S (SX1262), ATGM336H GNSS, 915 MHz LoRa, EasyEDA Pro",
       "bullets": [
-        "Two-board tracker: a battery GPS node sends its position over 915 MHz LoRa to a base station that serves a live map over Wi-Fi, with no SIM card or cloud service."
+        "Two-board tracker: a battery GPS node sends its position over 915 MHz LoRa to a base station that serves a live map over Wi-Fi, with no SIM card or cloud service.",
+        "**Objective:** deliver low-cost, long-range location tracking that keeps working where there is no mobile network, with position data kept private on a local radio link and no SIM or cloud fees.",
+        "**Real-World Use:** tracking delivery vehicles, livestock and field staff on farms, tea gardens and construction sites, and following rescue teams or hikers in remote or disaster-hit areas."
       ],
-      "objective": "deliver low-cost, long-range location tracking that keeps working where there is no mobile network, with position data kept private on a local radio link and no SIM or cloud fees.",
-      "use": "tracking delivery vehicles, livestock and field staff on farms, tea gardens and construction sites, and following rescue teams or hikers in remote or disaster-hit areas.",
       "project": "lora-gps-tracker",
       "ongoing": true
     },
@@ -49,10 +100,10 @@
       "note": "Schematic, PCB and Firmware",
       "tech": "ESP32-S3, MPU6050, LIS3MDL, SSD1306 OLED, LittleFS, EasyEDA Pro",
       "bullets": [
-        "Detects harsh braking, harsh acceleration and sharp turns in real time, with a tilt-compensated compass heading shown on an onboard OLED."
+        "Detects harsh braking, harsh acceleration and sharp turns in real time, with a tilt-compensated compass heading shown on an onboard OLED.",
+        "**Objective:** measure driving behaviour in real time so unsafe habits can be detected, logged and reduced, using a self-contained device that needs no mobile app or internet connection.",
+        "**Real-World Use:** fleet, bus and ride-sharing operators monitoring driver safety, driving schools giving trainees feedback, and trip logs supporting insurance claims and accident analysis."
       ],
-      "objective": "measure driving behaviour in real time so unsafe habits can be detected, logged and reduced, using a self-contained device that needs no mobile app or internet connection.",
-      "use": "fleet, bus and ride-sharing operators monitoring driver safety, driving schools giving trainees feedback, and trip logs supporting insurance claims and accident analysis.",
       "project": "vehicle-motion-analyzer",
       "ongoing": true
     },
@@ -61,10 +112,10 @@
       "note": "Schematic, PCB and Firmware",
       "tech": "ESP32-WROOM-32, MLX90640 IR Array, Wi-Fi Access Point, EasyEDA Pro",
       "bullets": [
-        "Battery-powered thermal camera that reads a 32 × 24 (768-pixel) IR array over 800 kHz I²C and streams temperatures to a browser viewer from its own Wi-Fi access point."
+        "Battery-powered thermal camera that reads a 32x24 (768-pixel) IR array over 800 kHz I2C and streams temperatures to a browser viewer from its own Wi-Fi access point.",
+        "**Objective:** build an affordable, portable thermal imager that shows live temperature maps on any phone or laptop, as a low-cost alternative to commercial handheld thermal cameras.",
+        "**Real-World Use:** finding overheating breakers, cables and motors in factory electrical panels, locating PCB hot spots during testing, and inspecting HVAC and solar installations."
       ],
-      "objective": "build an affordable, portable thermal imager that shows live temperature maps on any phone or laptop, as a low-cost alternative to commercial handheld thermal cameras.",
-      "use": "finding overheating breakers, cables and motors in factory electrical panels, locating PCB hot spots during testing, and inspecting HVAC and solar installations.",
       "project": "ir-thermal-camera",
       "ongoing": true
     },
@@ -73,10 +124,10 @@
       "note": "Schematic, PCB and Firmware",
       "tech": "ESP32-S3, BNO085 9-DOF IMU, SSD1306 OLED, Wi-Fi Dashboard, EasyEDA Pro",
       "bullets": [
-        "Wearable-style tracker for steps, cadence, distance, calories and orientation, with automatic STILL / MOVE / WALK / RUN activity classification."
+        "Wearable-style tracker for steps, cadence, distance, calories and orientation, with automatic STILL / MOVE / WALK / RUN activity classification.",
+        "**Objective:** create a low-cost, open-hardware wearable that tracks daily movement and orientation accurately and shares live data over Wi-Fi without a proprietary smartwatch ecosystem.",
+        "**Real-World Use:** personal fitness tracking, activity monitoring for elderly people at home, physiotherapy recovery tracking, and worker-movement studies for factory ergonomics."
       ],
-      "objective": "create a low-cost, open-hardware wearable that tracks daily movement and orientation accurately and shares live data over Wi-Fi without a proprietary smartwatch ecosystem.",
-      "use": "personal fitness tracking, activity monitoring for elderly people at home, physiotherapy recovery tracking, and worker-movement studies for factory ergonomics.",
       "project": "iot-activity-tracker",
       "ongoing": true
     }
@@ -84,15 +135,36 @@
   "skills": [
     { "label": "Languages", "items": "C, C++, Python" },
     { "label": "Embedded Systems", "items": "ESP32, Arduino, Raspberry Pi, FreeRTOS" },
-    { "label": "Protocols", "items": "UART, SPI, I²C, RS485/Modbus, MQTT, LoRa/LoRaWAN, Wi-Fi, BLE" },
+    { "label": "Protocols", "items": "UART, SPI, I2C, RS485/Modbus, MQTT, LoRa/LoRaWAN, Wi-Fi, BLE" },
     { "label": "PCB Design", "items": "EasyEDA, KiCad, Proteus" },
     { "label": "3D Design", "items": "Fusion 360" },
     { "label": "Developer Tools", "items": "VS Code, ESP-IDF, PlatformIO, Arduino IDE, Git, GitHub" },
     { "label": "Web", "items": "ReactJS" }
   ],
-  "activities": [
-    "Organizer – EEE Robo Carnival and EEE Seminar",
-    "Participant – EEE Robo Carnival, Programming Fest and EEE Workshop"
+  "training": [
+    "Completed IPS Training.",
+    "IOSH MS (Institution of Occupational Safety and Health – Managing Safely) Training.",
+    "EOSH (Environmental Occupational Health and Safety) Training.",
+    "Fire Safety Training."
   ],
-  "references": "Available on request."
+  "activities": [
+    "Organizer – EEE Robo Carnival and EEE Seminar.",
+    "Participant – EEE Robo Carnival, Programming Fest and EEE Workshop."
+  ],
+  "references": [
+    {
+      "name": "S. Mridul Kanti Saha",
+      "title": "Assistant Professor (EEE)",
+      "org": "Gono Bishwabidyalay",
+      "email": "smk.saha22@gmail.com",
+      "phone": "+880 1726642205"
+    },
+    {
+      "name": "Engr. F.M. Tanjim-Ul-Islam",
+      "title": "Assistant Manager",
+      "org": "AEGIS (SQUARE Group)",
+      "email": "tanjim.cuteme@gmail.com",
+      "phone": "+8801712-529818"
+    }
+  ]
 }

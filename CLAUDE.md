@@ -27,7 +27,7 @@ TypeScript strict · npm · Node ≥ 22.23.4 (`.nvmrc`).
 | `npm run check:links` | After a build: every internal href/src in `dist/` resolves under `/portfolio` |
 | `npm run check:drafts` | After a build: no `draft: true` project appears in `dist/` |
 | `npm run preview` | Serve `dist/` locally |
-| `npm run cv:pdf` | With the dev server (or `CV_URL=…`) running: exports `/resume/` to `public/resume/sultan-mahmud-cv.pdf` (A4, must stay ≤ 2 pages) and stamps "Last updated". Re-run after changing profile, experience, skills or education |
+| `npm run cv:import -- "<path>\Sultan_Mahmud_Saad_CV.pdf"` | Publishes Saad's own CV PDF (LaTeX, `D:\CV\CV`) byte for byte as the site's download (`public/resume/sultan-mahmud-cv.pdf`) and stamps "Last updated". Then update `src/content/resume/cv.json` to the same text — the `/resume/` page copies the PDF word for word |
 | `npm run audit:pages` | With `preview` running: every page × dark/light × 1440/375 px in Edge — console errors, failed requests, every axe WCAG 2.1 A/AA rule (incl. contrast). Must be 0 |
 
 Credentials: root `.env` (copy `.env.example`). Every `.env*` except the
@@ -83,7 +83,8 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   copper direction**: deep violet-black, pink → violet → blue gradient,
   flowing line-art hero with his cut-out portrait, "Hello, I'm" + gradient
   name + role pill. Fonts: Rubik (text), JetBrains Mono (labels), Mr Dafoe
-  (signature logo only). Don't redesign away from it without asking him.
+  (signature logo only); Charis SIL only on the resume sheet, to match his
+  LaTeX CV (Charter). Don't redesign away from it without asking him.
 - WCAG AA contrast in **both** themes. No hard-coded colours outside
   `src/styles/tokens.css` (exceptions: the OG image generator and the SVG
   favicon, which keep their own copy of the values).

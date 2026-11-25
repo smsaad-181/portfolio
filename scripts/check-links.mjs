@@ -17,8 +17,6 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const BASE = "/portfolio";
-// The Tina admin bundle is a third-party SPA; its internal routing isn't ours to check.
-const SKIP_DIRS = new Set([path.join(dist, "admin")]);
 
 if (!existsSync(dist)) {
   console.error("dist/ not found — run `npm run build` first.");
@@ -28,7 +26,6 @@ if (!existsSync(dist)) {
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
     const full = path.join(dir, name);
-    if (SKIP_DIRS.has(full)) continue;
     if (statSync(full).isDirectory()) yield* walk(full);
     else if (name.endsWith(".html")) yield full;
   }

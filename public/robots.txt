@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
 
-# Block the Tina CMS admin UI from indexing
-Disallow: /portfolio/admin/
-
 Sitemap: https://smsaad-181.github.io/portfolio/sitemap-index.xml

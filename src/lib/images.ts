@@ -1,5 +1,5 @@
 /**
- * Build-time image helpers for files in public/ (Tina's media folder).
+ * Build-time image helpers for files in public/ (the site's image folder).
  * Reads real pixel dimensions so <Image /> gets correct width/height and
  * nothing is stretched or shifts layout while loading.
  */

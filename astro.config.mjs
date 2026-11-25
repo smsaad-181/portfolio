@@ -31,9 +31,6 @@ export default defineConfig({
   },
   integrations: [
     mdx(),
-    sitemap({
-      // Exclude the CMS admin redirect page from the sitemap
-      filter: (page) => !page.includes("/admin/"),
-    }),
+    sitemap(),
   ],
 });

@@ -13,7 +13,7 @@
  *    left covered even if JS fails; the cover only exists while the class
  *    set by BaseLayout's head script (pt-enter) or by a click (pt-leave) is on.
  *  • Skipped for reduced motion, new-tab / modifier clicks, downloads, files
- *    (PDF), external links, /admin and same-page (#hash) links.
+ *    (PDF), external links and same-page (#hash) links.
  *  • Back/forward cache: the cover is removed when a page is restored.
  */
 import Wordmark from "@components/Wordmark.astro";
@@ -49,7 +49,7 @@ import Wordmark from "@components/Wordmark.astro";
     if (!a || (a.target && a.target !== "_self") || a.hasAttribute("download")) return null;
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin || !url.pathname.startsWith(base)) return null;
-    if (url.pathname.startsWith(`${base}admin`) || /\.[a-z0-9]+$/i.test(url.pathname)) return null;
+    if (/\.[a-z0-9]+$/i.test(url.pathname)) return null;
     if (url.pathname === location.pathname && url.search === location.search) return null;
     return url;
   };

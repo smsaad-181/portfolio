@@ -3,10 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "tinacms dev -c \"astro dev\"",
-    "dev:astro": "astro dev",
-    "start": "tinacms dev -c \"astro dev\"",
-    "build": "tinacms build && astro build",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
     "build:site": "astro build",
     "preview": "astro preview",
     "check": "astro check",
@@ -24,11 +23,9 @@
     "@fontsource-variable/jetbrains-mono": "5.3.0",
     "@fontsource-variable/rubik": "^5.3.0",
     "@fontsource/mr-dafoe": "^5.3.0",
-    "@tinacms/cli": "4.0.5",
     "astro": "7.4.13",
     "sharp": "0.35.5",
     "three": "0.187.0",
-    "tinacms": "3.15.2",
     "typescript": "^5.7.3"
   },
   "engines": {
@@ -38,10 +35,5 @@
     "@types/three": "0.187.0",
     "axe-core": "^4.14.1",
     "playwright-core": "^1.65.1"
-  },
-  "overrides": {
-    "qs": "^6.17.1",
-    "postcss-selector-parser": "^6.1.6",
-    "katex": "^0.18.2"
   }
 }

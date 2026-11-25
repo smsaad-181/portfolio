@@ -52,7 +52,7 @@ Status: completed.
 
 For each of these, only the title and a best-guess category (from the name)
 are known. Do not write a description, BOM, or challenges section — leave
-those for Saad via `/admin`.
+those for Saad to supply.
 
 - **Acqua Node V1.2** — likely related to water monitoring; confirm scope
   with Saad.

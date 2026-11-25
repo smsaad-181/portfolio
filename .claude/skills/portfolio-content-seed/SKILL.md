@@ -22,7 +22,7 @@ numbers, dates, metrics or outcomes.
 3. If a fact isn't in the references or existing confirmed content, either
    ask Saad or write `TODO(saad)` in its place.
 4. For any project marked `[NEEDS INPUT]`, keep it `draft: true` with only
-   confirmed facts (title, likely category from its name); Saad completes the
-   rest via `/admin`.
+   confirmed facts (title, likely category from its name); Saad supplies the
+   rest and Claude adds it.
 5. When auditing content, record each specific claim and its source
    (`cv`, `inventory`, or `UNVERIFIED`) in `docs/FACT-CHECK.md`.

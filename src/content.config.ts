@@ -5,8 +5,8 @@
  * loader. Entry ids are the file names without extension
  * ("home-automation-v2", "saad"), so URLs never contain ".mdx".
  *
- * tina/config.ts targets the SAME folders with the SAME field names —
- * change both together (CLAUDE.md → "Content model").
+ * Content is edited as files in src/content/ (by Claude or on GitHub);
+ * a bad edit fails the build loudly (CLAUDE.md → "Content model").
  */
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
@@ -17,8 +17,8 @@ import { isValidDate } from "./lib/dates";
 
 const urlSchema = z.url({ error: "Must be a valid URL" });
 
-/** Tina saves a cleared optional field as "" (text and number fields alike):
- * treat that as "not set" so emptying a field in /admin never breaks the build. */
+/** An optional field left as "" or null counts as "not set", so an emptied
+ * value in a content file never breaks the build. */
 const blankable = <T extends z.ZodType>(schema: T) =>
   z.preprocess((v) => (v === "" || v === null ? undefined : v), schema.optional());
 
@@ -26,8 +26,8 @@ const blankable = <T extends z.ZodType>(schema: T) =>
 const jsonFolder = (name: string) => glob({ pattern: "*.json", base: `./src/content/${name}` });
 
 // coverImage / gallery images are stored as plain strings (public/ paths).
-// Tina Cloud's media manager commits uploaded files into public/images/ and
-// stores the path as a string — e.g. "/images/projects/home-automation/cover.jpg".
+// Image files live in public/images/ and are referenced by path —
+// e.g. "/images/projects/home-automation/cover.jpg".
 const imageSchema = z.object({
   src: z.string().min(1, { error: "Image path is required" }),
   alt: z.string().min(1, { error: "Image alt text is required for accessibility" }),
@@ -195,14 +195,13 @@ const projects = defineCollection({
 // Engineering write-ups. Facts follow the same rule as projects: only from
 // the project docs/READMEs or Saad. New posts start as draft: true and are
 // published by Saad (drafts show only in local dev, never in dist/).
-// /admin creates them with draft: true (tina/config.ts defaultItem).
 
 const blog = defineCollection({
   loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/blog" }),
   schema: z.object({
     title: z.string().min(1),
     summary: z.string().min(1), // one or two sentences for cards and meta description
-    date: z.coerce.date(), // publish date (Tina stores an ISO string)
+    date: z.coerce.date(), // publish date, e.g. 2026-11-21
     tags: z.array(z.string()).default([]), // lowercase, shown via formatTag()
     coverImage: imageSchema.optional(),
     // Slug of a related project (file name without .mdx), e.g. "lora-gps-tracker".

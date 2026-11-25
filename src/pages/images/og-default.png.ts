@@ -3,7 +3,7 @@
  * served at /portfolio/images/og-default.png. Social crawlers (LinkedIn, X,
  * WhatsApp) don't accept SVG, so the SVG below is rasterised with sharp.
  *
- * Content comes from the profile entry — edit it in /admin, not here.
+ * Content comes from the profile entry — edit src/content/profile/saad.json, not here.
  * Colours mirror src/styles/tokens.css (dark theme) — keep them in sync.
  */
 import type { APIRoute } from "astro";

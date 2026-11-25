@@ -13,8 +13,7 @@ permissions:
   contents: read
 
 # Cancel an in-flight build when a newer commit lands on main.
-# This covers the race between Saad's manual pushes and Tina Cloud's
-# content commits — the newest content always wins.
+# The newest commit always wins.
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -46,54 +45,28 @@ jobs:
       # site keeps its last good version.
 
       # ── Gate 1: Type-check ────────────────────────────────────────────────
-      # Includes content schema validation (e.g. a missing alt text from a
-      # bad CMS save fails here). Runs first: fastest failure.
+      # Includes content schema validation (e.g. a missing alt text in a
+      # content file fails here). Runs first: fastest failure.
       - name: Type-check
         run: npm run check
 
-      # ── Gate 2: Build the Tina admin bundle ───────────────────────────────
-      # Generates the static /admin UI into public/admin/. The only steps that
-      # see the Tina Cloud credentials — secrets are scoped to them alone.
-      # Until Saad adds the TINA_CLIENT_ID / TINA_TOKEN secrets, /admin is
-      # skipped (with a warning) and the public site still deploys. Once both
-      # secrets exist, the admin build runs and must pass like every gate.
-      - name: Check Tina Cloud credentials
-        id: tina
-        env:
-          TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
-          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-        run: |
-          if [ -n "$TINA_PUBLIC_CLIENT_ID" ] && [ -n "$TINA_TOKEN" ]; then
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Tina admin skipped::TINA_CLIENT_ID / TINA_TOKEN secrets are not set, so /admin is not built. The public site still deploys."
-          fi
-
-      - name: Build Tina admin
-        if: steps.tina.outputs.configured == 'true'
-        run: npx tinacms build
-        env:
-          TINA_PUBLIC_CLIENT_ID: ${{ secrets.TINA_CLIENT_ID }}
-          TINA_TOKEN: ${{ secrets.TINA_TOKEN }}
-
-      # ── Gate 3: Build the Astro site ──────────────────────────────────────
+      # ── Gate 2: Build the Astro site ──────────────────────────────────────
       - name: Build Astro site
         run: npm run build:site
         env:
           # Contact form (Web3Forms). Public by design; empty secret = form hidden.
           PUBLIC_WEB3FORMS_KEY: ${{ secrets.WEB3FORMS_KEY }}
 
-      # ── Gate 4: Every internal link and asset resolves under /portfolio ───
+      # ── Gate 3: Every internal link and asset resolves under /portfolio ───
       - name: Check links
         run: npm run check:links
 
-      # ── Gate 5: No draft project leaked into the build ────────────────────
+      # ── Gate 4: No draft project leaked into the build ────────────────────
       - name: Check drafts
         run: npm run check:drafts
 
-      # ── Gate 6: No critical dependency advisory ───────────────────────────
-      # Known, documented exceptions live in docs/SECURITY.md (none critical).
+      # ── Gate 5: No critical dependency advisory ───────────────────────────
+      # Status and any accepted exceptions: docs/SECURITY.md (currently none).
       - name: Security audit
         run: npm audit --audit-level=critical
 
@@ -141,17 +114,11 @@ jobs:
         uses: actions/deploy-pages@v4
 
 # ──────────────────────────────────────────────────────────────────────────────
-# MANUAL SETUP REQUIRED (Saad — these need your GitHub / Tina accounts):
+# MANUAL SETUP (done once, in GitHub):
 #
 # 1. GitHub repo → Settings → Pages → Source = "GitHub Actions"
 #    (not "Deploy from a branch" — that default will not work with this workflow)
 #
-# 2. GitHub repo → Settings → Secrets and variables → Actions → New secret:
-#      TINA_CLIENT_ID  → from your Tina Cloud dashboard (app.tina.io)
-#      TINA_TOKEN      → from your Tina Cloud dashboard (read-only token)
-#
-# 3. Tina Cloud account setup (app.tina.io):
-#    - Sign in with GitHub
-#    - Register the smsaad-181/portfolio repository
-#    - Copy the Client ID and token from the project settings
+# 2. Optional: Settings → Secrets and variables → Actions → New secret
+#      WEB3FORMS_KEY → contact form access key (form stays hidden without it)
 # ──────────────────────────────────────────────────────────────────────────────

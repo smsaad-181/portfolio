@@ -3,7 +3,8 @@
 | | |
 |---|---|
 | **Owner** | Sultan Mahmud (Saad) — Hardware Engineer, Southern IoT Ltd |
-| **Stack** | Astro (static) · TinaCMS (Tina Cloud) · GitHub Actions → GitHub Pages |
+| **Stack** | Astro (static) · ~~TinaCMS (Tina Cloud)~~ no CMS · GitHub Actions → GitHub Pages |
+| **Changed 26 Nov 2026** | Saad chose to remove TinaCMS (no Tina Cloud account). Every Tina item below — Tina Cloud secrets, `/admin`, mirroring `tina/config.ts` — no longer applies; content is edited as files. |
 | **Target URL** | `https://smsaad-181.github.io/portfolio/` |
 | **Audit basis** | Live dev server `localhost:4321/portfolio/`, inspected 20 Nov 2026 at 1440 px and 375 px, in dark and light themes |
 | **How to use** | Save as `docs/PLAN-v2.md` in the repo. Give Claude Code **one phase at a time**, using the prompt at the end of each phase. Don't start the next phase until the current phase's acceptance criteria pass. |

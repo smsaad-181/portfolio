@@ -1,8 +1,7 @@
 {
   "extends": "astro/tsconfigs/strictest",
-  // Generated bundles: public/admin/ is written by `tinacms build` (several MB
-  // of JS — type-checking it exhausts memory); dist/ is build output.
-  "exclude": ["dist", "public/admin", "node_modules"],
+  // dist/ is build output.
+  "exclude": ["dist", "node_modules"],
   "compilerOptions": {
     // No baseUrl: deprecated in TypeScript 6. Paths resolve from this file.
     "paths": {

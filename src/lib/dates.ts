@@ -4,7 +4,7 @@
  * never invents a month that the CV doesn't state.
  */
 
-/** Accepted by the experience schema (a Tina datetime may add a time part). */
+/** Accepted by the experience schema (a full ISO datetime is accepted too). */
 export const DATE_PATTERN = /^\d{4}(-\d{2}(-\d{2}(T[\d:.]+Z?)?)?)?$/;
 
 /** True for a real calendar date in one of the accepted formats

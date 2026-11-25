@@ -28,7 +28,7 @@ const resumeUrl = getResumeUrl(profile);
 
 // Project titles may link to their project page (shown as plain text, like
 // the PDF's hidden links). An unknown slug fails the build (a typo in
-// /admin); a draft project is listed without a link.
+// cv.json); a draft project is listed without a link.
 const projectIds = await getAllProjectIds();
 const published = await getPublishedProjects();
 const cvProjects = cv.projects.map((p) => {

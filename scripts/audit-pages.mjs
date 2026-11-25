@@ -29,13 +29,12 @@ const BASE_URL = (process.env.AUDIT_URL ?? "http://localhost:4321/portfolio/").r
 const CHANNEL = process.env.BROWSER_CHANNEL ?? "msedge";
 const AXE_PATH = require.resolve("axe-core/axe.min.js");
 
-/** Page paths relative to the base, from dist/ (Tina admin excluded). */
+/** Page paths relative to the base, from dist/. */
 function pagePaths() {
   const out = [];
   (function walk(dir) {
     for (const name of readdirSync(dir)) {
       const full = path.join(dir, name);
-      if (full === path.join(dist, "admin")) continue;
       if (statSync(full).isDirectory()) walk(full);
       else if (name === "index.html") {
         out.push(path.relative(dist, dir).split(path.sep).join("/"));

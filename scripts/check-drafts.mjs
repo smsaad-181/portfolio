@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 /**
  * check-drafts.mjs — assert that no `draft: true` project leaks into the
- * production build. Checks dist/ for each draft's title and URL slug (the
- * Tina admin bundle in dist/admin/ is excluded — it legitimately lists all
- * content for editing).
+ * production build. Checks dist/ for each draft's title and URL slug.
  *
  * Usage: npm run build && npm run check:drafts
  * Exit code 1 if any draft is found in the build output.
@@ -16,7 +14,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dist = path.join(root, "dist");
 const projectsDir = path.join(root, "src", "content", "projects");
 const blogDir = path.join(root, "src", "content", "blog");
-const skip = path.join(dist, "admin");
 
 if (!existsSync(dist)) {
   console.error("dist/ not found — run `npm run build` first.");
@@ -45,7 +42,6 @@ const drafts = [...draftsIn(projectsDir, "projects"), ...draftsIn(blogDir, "blog
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
     const full = path.join(dir, name);
-    if (full === skip) continue;
     if (statSync(full).isDirectory()) yield* walk(full);
     else if (/\.(html|xml|json|txt)$/.test(name)) yield full;
   }

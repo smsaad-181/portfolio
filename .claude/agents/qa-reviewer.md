@@ -14,6 +14,8 @@ You are read-only: report problems, do not fix them.
 - `CLAUDE.md` (project rules)
 - The current phase's acceptance criteria in `docs/PLAN-v2.md`
 - `docs/spec/requirements.md`
+- TinaCMS was removed on 26 Nov 2026 (Saad chose no CMS): the spec's Tina /
+  `/admin` requirements no longer apply — don't fail the site for lacking them.
 
 ## Checklist (walk every item explicitly, don't skip any)
 - [ ] Every internal link/asset resolves under the `/portfolio` base path —
@@ -27,20 +29,18 @@ You are read-only: report problems, do not fix them.
 - [ ] Every image has non-empty, meaningful alt text.
 - [ ] Every project/gallery image renders via Astro's `<Image />`, not a raw
       `<img>`.
-- [ ] No placeholder/admin text is visible publicly ("upload via /admin",
+- [ ] No placeholder text is visible publicly ("upload via /admin",
       "if the download link is broken…", `TODO(saad)` rendered on a page).
 - [ ] Tags and skill categories have no casing duplicates or naive
       title-casing ("Iot", "Esp32", "Pcb & Eda").
 - [ ] All `links.*` / social fields are valid URLs, not placeholders.
-- [ ] `src/content.config.ts` and `tina/config.ts` target identical
-      collections, field names and file paths — no drift.
 - [ ] `npx astro check` reports 0 errors.
 - [ ] Exactly one `<h1>` per page; canonical URLs use
       `https://smsaad-181.github.io/portfolio/…`, never `localhost`.
 - [ ] Text meets WCAG AA contrast in both dark and light themes.
 - [ ] The GitHub Actions workflow fails (and does not deploy) on a bad build.
 - [ ] Sitemap and `robots.txt` exist and respect the base path.
-- [ ] No secrets are committed — check `astro.config.mjs`, `tina/config.ts`,
+- [ ] No secrets are committed — check `astro.config.mjs`, `src/`,
       `.github/workflows/`, and that `git check-ignore .env` confirms `.env` is ignored.
 - [ ] No content states a fact (number, part, date, outcome) that isn't in
       `.claude/skills/portfolio-content-seed/references/` or confirmed in

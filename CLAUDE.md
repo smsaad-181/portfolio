@@ -15,14 +15,13 @@ hiring managers. Every page must be accurate, fast, and accessible.
 ## Stack & commands
 
 Astro 7 (`output: "static"`, content collections in `src/content.config.ts`) ·
-TinaCMS 3 on Tina Cloud (form-based `/admin`) · GitHub Actions → GitHub Pages ·
+no CMS — content is files in `src/content/` · GitHub Actions → GitHub Pages ·
 TypeScript strict · npm · Node ≥ 22.23.4 (`.nvmrc`).
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Tina + Astro dev server → http://localhost:4321/portfolio/ (CMS at `/portfolio/admin/`) |
-| `npm run build` | `tinacms build && astro build` → `dist/`. Needs Tina Cloud credentials in `.env` (CI has them as secrets) |
-| `npm run build:site` | Site only (`astro build`) — use locally until Tina Cloud is set up. Don't use `tinacms build --local`: its server never exits |
+| `npm run dev` | Astro dev server → http://localhost:4321/portfolio/ |
+| `npm run build` / `build:site` | `astro build` → `dist/` (same command; CI uses `build:site`) |
 | `npm run check` | `astro check` type-check (CI runs this; must be 0 errors, 0 warnings) |
 | `npm run check:links` | After a build: every internal href/src in `dist/` resolves under `/portfolio` |
 | `npm run check:drafts` | After a build: no `draft: true` project appears in `dist/` |
@@ -37,10 +36,12 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
 
 - `astro.config.mjs`: `site: "https://smsaad-181.github.io"`, `base: "/portfolio"`,
   `output: "static"`, `trailingSlash: "always"`.
-- **Never** `output: "server"` or an SSR adapter. GitHub Pages is static-only,
-  so Tina's live visual editing is out. Form-based `/admin` only.
-- Tina Cloud, not the self-hosted Tina data layer. Keep `src/content/*` schemas
-  free of Tina-specific APIs (Keystatic is the documented fallback).
+- **Never** `output: "server"` or an SSR adapter. GitHub Pages is static-only.
+- **No CMS** (Saad, 26 Nov 2026): TinaCMS was removed — he didn't want a Tina
+  Cloud account; content changes go through Claude or GitHub. The Tina parts of
+  `.kiro/` and `docs/spec/` are superseded. To bring a CMS back, restore
+  `tina/` from git history (`git checkout 55900ea -- tina`), its npm packages
+  and its CI step.
 - `src/pages/404.astro` must exist (GitHub Pages fallback).
 
 ## Rules
@@ -56,8 +57,8 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   `"Sultan Mahmud — Hardware Engineer"`.
 
 ### Content model
-- `src/content.config.ts` (zod) and `tina/config.ts` must target **the same
-  files with the same field names**. Change both in the same turn, every time.
+- `src/content.config.ts` (zod) is the single source of truth for every
+  collection's fields. Content is edited as files in `src/content/`.
 - List projects only through `getPublishedProjects()` /
   `getFeaturedProjects()` in `src/lib/projects.ts`. `draft: true` must never
   reach `dist/`.
@@ -65,7 +66,7 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   `formatTag()` (acronym map: IoT, PCB, ESP32, I²C, UART, EasyEDA …) — *added in
   Phase 4*. Never naively title-case ("Iot", "Esp32" are bugs).
 - Required: `title`, `slug`, and `alt` on every image. Link fields are
-  validated as URLs. A bad CMS save should fail the build loudly.
+  validated as URLs. A bad content edit should fail the build loudly.
 
 ### Facts — never invent
 - Use only `.claude/skills/portfolio-content-seed/references/` and existing
@@ -85,28 +86,28 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   name + role pill. Fonts: Rubik (text), JetBrains Mono (labels), Mr Dafoe
   (signature logo only); Bitstream Charter only on the resume sheet, to
   match his LaTeX CV (`src/styles/charter.css`, free licence in
-  `src/assets/fonts/charter/LICENSE.txt`). Don't redesign away from it without asking him.
+  `src/assets/fonts/charter/LICENSE.txt`). Don't redesign away from it
+  without asking him.
 - WCAG AA contrast in **both** themes. No hard-coded colours outside
   `src/styles/tokens.css` (exceptions: the OG image generator and the SVG
   favicon, which keep their own copy of the values).
 - Respect `prefers-reduced-motion`.
 
 ### Secrets & deploy
-- Never commit secrets. `TINA_PUBLIC_CLIENT_ID` / `TINA_TOKEN` come from env
-  locally and from GitHub secrets `TINA_CLIENT_ID` / `TINA_TOKEN` in CI.
+- Never commit secrets. Keys (e.g. `PUBLIC_WEB3FORMS_KEY`) come from `.env`
+  locally and from GitHub secrets in CI (`WEB3FORMS_KEY`).
 - Node version pinned identically in `package.json` `engines`, `.nvmrc` and
   `deploy.yml`.
 - CI must fail and not deploy on any check/build error. Saad does these
   manually: create the GitHub repo, set Pages source to "GitHub Actions",
-  register Tina Cloud, add secrets — always call them out, never assume them.
+  add secrets — always call them out, never assume them.
 
 ## Agents & skills
 
 | Use | When |
 |---|---|
 | `qa-reviewer` agent | Before calling a phase/task done; after routing, schema or deploy changes |
-| `content-modeler` agent | Editing `src/content.config.ts`, `tina/config.ts`, or seeding content |
-| `tina-integrator` agent | Tina setup, `/admin` build, Tina Cloud wiring |
+| `content-modeler` agent | Editing `src/content.config.ts` or seeding content |
 | `deployment-engineer` agent | `deploy.yml`, `astro.config.mjs` deploy settings, failed deploys |
 | `portfolio-content-seed` skill | Any time you write facts about Saad or his projects |
 

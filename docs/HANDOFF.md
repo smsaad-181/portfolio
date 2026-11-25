@@ -60,7 +60,7 @@ private links in this file.
 
 ## 4. Session log (newest first)
 
-- **2026-11-26** — Resume sheet now uses real Bitstream Charter (self-hosted, licence included); `@fontsource/charis-sil` removed; name small caps and word spacing tuned so every line wraps as in the PDF.
+- **2026-11-26** — Resume sheet now uses real Bitstream Charter (self-hosted, licence included); `@fontsource/charis-sil` removed; name small caps and word spacing tuned so every line wraps as in the PDF. (`62c5ac5`, deployed)
 
 - **2026-11-26** — Resume page now copies Saad's own CV PDF exactly (text, layout, photo, phone, references — his choice); download = his exact PDF via `cv:import` (`cv:pdf` removed). Experience `achievements` / education `startYear` dropped again (CV text lives in `cv.json`). Verified by text, visual and QA agents. (`8858f2d`, deployed; live PDF byte-identical)
 - **2026-11-25** — Resume page and PDF rebuilt from Saad's new CV; new `resume` singleton (Astro + Tina, lock regenerated), experience `achievements`, year-only dates, education `startYear`; About bio updated to SouthernIoT / B.Sc. 2023. QA fixes: absolute links in the PDF (+ `cv:pdf` now fails on localhost links), blank CMS fields no longer break the build, impossible dates rejected. (`1e02c3d`, deployed)

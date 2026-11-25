@@ -58,7 +58,7 @@ private links in this file.
 
 ## 4. Session log (newest first)
 
-- **2026-11-26** — TinaCMS removed at Saad's request (he didn't want a Tina Cloud account): `tina/`, Tina packages, CI step, `/admin` bits, footer credit and the `tina-integrator` agent are gone; `npm audit` now 0 vulnerabilities.
+- **2026-11-26** — TinaCMS removed at Saad's request (he didn't want a Tina Cloud account): `tina/`, Tina packages, CI step, `/admin` bits, footer credit and the `tina-integrator` agent are gone; `npm audit` now 0 vulnerabilities. (`1ed1e37`, deployed)
 
 - **2026-11-26** — Resume sheet now uses real Bitstream Charter (self-hosted, licence included); `@fontsource/charis-sil` removed; name small caps and word spacing tuned so every line wraps as in the PDF. (`62c5ac5`, deployed)
 

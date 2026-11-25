@@ -32,7 +32,7 @@ private links in this file.
 
 **Waiting on Saad (manual):**
 1. **Purge old commits** that still contain a private email (GitHub keeps old SHAs after a history rewrite). Saad deletes the repo in Settings and says "deleted" → recreate `smsaad-181/portfolio`, push `main`, make public, `gh api -X POST repos/smsaad-181/portfolio/pages -f build_type=workflow`, confirm deploy and that old SHAs 404.
-2. **Tina Cloud:** Saad creates the project at app.tina.io and puts `TINA_PUBLIC_CLIENT_ID` / `TINA_TOKEN` in `.env` → set GitHub secrets `TINA_CLIENT_ID` / `TINA_TOKEN` from `.env` with `gh secret set` (never echo values) → redeploy; `/portfolio/admin/` turns on.
+2. **Tina Cloud (in progress 26 Nov, Saad chose to set it up):** Saad: app.tina.io/register (GitHub) → Create Project → allow GitHub access to `smsaad-181/portfolio` → Site URL(s) `https://smsaad-181.github.io` + `http://localhost:4321` → Overview: Client ID → `.env` `TINA_PUBLIC_CLIENT_ID`; Tokens: "Content (Read-only)" token → `.env` `TINA_TOKEN`. Then Claude: `gh secret set TINA_CLIENT_ID` / `TINA_TOKEN` from `.env` via stdin (never echo) → rerun deploy → check `/portfolio/admin/` + assets load → Saad logs in. `build.basePath: "portfolio"` already added (`9844815`). Docs moved to tina.io/docs/tinacloud/….
 3. **Web3Forms key** → secret `WEB3FORMS_KEY` (contact form only renders with it).
 4. Review/publish the 3 blog drafts (`src/content/blog/*.mdx`), answer `docs/FACT-CHECK.md` (incl. the new About bio line from 25 Nov), headshot, build/test photos.
 5. Check share previews (LinkedIn Post Inspector).

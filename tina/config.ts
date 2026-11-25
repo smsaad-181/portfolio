@@ -602,6 +602,9 @@ export default defineConfig({
     // so it gets included in the static build output without any extra config.
     outputFolder: "admin",
     publicFolder: "public",
+    // GitHub Pages serves the site under /portfolio/ (astro.config.mjs
+    // `base`), so /admin lives at /portfolio/admin/ and loads its files there.
+    basePath: "portfolio",
   },
 
   media: {

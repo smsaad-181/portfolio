@@ -1,23 +1,29 @@
 ---
 /**
  * Resume page — /resume/
- * An HTML CV built from the content collections (profile, experience,
- * projects, skills, education, certifications). On screen it sits on a
- * paper-like sheet with Download / Print buttons; when printed (or exported
- * by `npm run cv:pdf`) it becomes a clean A4 CV without the site chrome.
- * The PDF in public/resume/ is generated from this page, so both always match.
+ * An HTML CV in the section order of Saad's own CV: summary, education,
+ * experience, projects, ongoing projects, skills, training, activities,
+ * references. Built from the content collections: profile, experience,
+ * education, certifications, plus the resume singleton (CV-only parts).
+ * On screen it sits on a paper-like sheet with Download / Print buttons;
+ * when printed (or exported by `npm run cv:pdf`) it becomes a clean A4 CV
+ * without the site chrome. The PDF in public/resume/ is generated from this
+ * page, so both always match. No phone number or referees' contact details
+ * (public site).
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import Icon from "@components/Icon.astro";
 import { getCollection } from "astro:content";
-import { getProfile, getResumeUrl } from "../lib/profile";
-import { getFeaturedProjects, getPublishedProjects } from "../lib/projects";
+import { getProfile, getResume, getResumeUrl } from "../lib/profile";
+import { getAllProjectIds, getPublishedProjects } from "../lib/projects";
 import { getSkillGroups } from "../lib/skills";
-import { absoluteUrl, pageUrl } from "../lib/urls";
+import { formatRange } from "../lib/dates";
+import { absoluteUrl, pageUrl, projectUrl } from "../lib/urls";
 import resumeMeta from "../data/resume.json";
 
 const profile = await getProfile();
 const { data } = profile;
+const cv = (await getResume()).data;
 const resumeUrl = getResumeUrl(profile);
 const experiences = (await getCollection("experience")).sort((a, b) => {
   if (a.data.current !== b.data.current) return a.data.current ? -1 : 1;
@@ -25,16 +31,37 @@ const experiences = (await getCollection("experience")).sort((a, b) => {
 });
 const educations = (await getCollection("education")).sort((a, b) => b.data.year - a.data.year);
 const certs = await getCollection("certifications");
-const featured = await getFeaturedProjects();
-const others = (await getPublishedProjects()).filter((p) => !p.data.featured);
-const skillGroups = await getSkillGroups();
+
+// CV projects may link to their project page. An unknown slug fails the build
+// (a typo in /admin); a draft project is listed without a link. Links are
+// absolute: in the exported PDF a relative link would point at the local
+// server that printed it.
+const projectIds = await getAllProjectIds();
+const published = await getPublishedProjects();
+const cvProjects = cv.projects.map((p) => {
+  const slug = p.project?.trim();
+  if (slug && !projectIds.has(slug)) {
+    throw new Error(`src/content/resume/cv.json: project "${p.title}" links to unknown project "${slug}"`);
+  }
+  const entry = slug ? published.find((e) => e.id === slug) : undefined;
+  return { ...p, href: entry ? absoluteUrl(projectUrl(entry)) : undefined };
+});
+const workProjects = cvProjects.filter((p) => !p.ongoing);
+const ongoingProjects = cvProjects.filter((p) => p.ongoing);
+
+// Skills as on the CV; falls back to the site's skill groups if left empty.
+const skillRows = cv.skills.length
+  ? cv.skills
+  : (await getSkillGroups()).map((g) => ({ label: g.label, items: g.skills.map((s) => s.skill.data.name).join(", ") }));
+
 const portfolio = absoluteUrl(pageUrl("/"));
+const projectsPage = absoluteUrl(pageUrl("/projects/"));
 const host = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+const years = (e: (typeof educations)[number]) => (e.data.startYear ? `${e.data.startYear} – ${e.data.year}` : String(e.data.year));
 const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 ---
 
-<BaseLayout title="Resume" description={`CV of ${data.name}, ${data.title} in ${data.location}: experience, projects, skills and education.`}>
+<BaseLayout title="Resume" description={`CV of ${cv.name}, ${data.title} in ${data.location}: experience, projects, skills and education.`}>
   <section class="resume" aria-labelledby="resume-heading">
     <div class="container">
       <div class="resume-bar">
@@ -51,10 +78,10 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
         </div>
       </div>
 
-      <article class="cv" aria-label={`CV of ${data.name}`}>
+      <article class="cv" aria-label={`CV of ${cv.name}`}>
         <header class="cv__head">
           <div>
-            <h2 class="cv__name">{data.name}</h2>
+            <h2 class="cv__name">{cv.name}</h2>
             <p class="cv__title">{data.title}</p>
           </div>
           <ul class="cv__contact" role="list">
@@ -68,74 +95,117 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
         </header>
 
         <section class="cv__section">
-          <h3 class="cv__h">Profile</h3>
-          <p>{data.summary}</p>
+          <h3 class="cv__h">Professional summary</h3>
+          <p>{cv.summary}</p>
           {data.availability && <p class="cv__avail">{data.availability}</p>}
         </section>
 
         <section class="cv__section">
-          <h3 class="cv__h">Experience</h3>
+          <h3 class="cv__h">Education</h3>
+          {educations.map((e) => (
+            <div class="cv__item cv__item--tight">
+              <div class="cv__row">
+                <p class="cv__strong">{e.data.institute}</p>
+                <p class="cv__date">{years(e)}</p>
+              </div>
+              <p class="cv__muted">{e.data.degree}{e.data.group && ` in ${e.data.group}`}{e.data.result && ` · ${e.data.result}`}</p>
+            </div>
+          ))}
+        </section>
+
+        <section class="cv__section">
+          <h3 class="cv__h">Work experience</h3>
           {experiences.map((e) => (
             <div class="cv__item">
               <div class="cv__row">
-                <p class="cv__strong">{e.data.role} · {e.data.company}</p>
-                <p class="cv__date">{fmt(e.data.startDate)} – {e.data.current ? "Present" : e.data.endDate ? fmt(e.data.endDate) : ""}</p>
+                <p class="cv__strong">{e.data.company}</p>
+                <p class="cv__date">{formatRange(e.data.startDate, e.data.endDate, e.data.current)}</p>
               </div>
+              <p class="cv__role">{e.data.role}</p>
+              {e.data.achievements.length > 0 && <p class="cv__sub">Responsibilities</p>}
               <ul class="cv__bullets">
                 {e.data.bullets.map((b) => <li>{b}</li>)}
               </ul>
+              {e.data.achievements.length > 0 && (
+                <Fragment>
+                  <p class="cv__sub">Achievements</p>
+                  <ul class="cv__bullets">
+                    {e.data.achievements.map((b) => <li>{b}</li>)}
+                  </ul>
+                </Fragment>
+              )}
             </div>
           ))}
         </section>
 
-        <section class="cv__section">
-          <h3 class="cv__h">Selected projects</h3>
-          {featured.map((p) => (
-            <div class="cv__item cv__item--tight">
-              <p class="cv__strong">{p.data.title}</p>
-              <p class="cv__muted">{p.data.summary}</p>
-            </div>
-          ))}
-          {others.length > 0 && (
-            <p class="cv__more"><span class="cv__strong">Also:</span> {others.map((p) => p.data.title).join(" · ")}</p>
-          )}
-          <p class="cv__muted cv__small">Interactive 3D boards and write-ups: {host(portfolio)}/projects/</p>
-        </section>
+        {[
+          { heading: "Projects", items: workProjects },
+          { heading: "Ongoing projects", items: ongoingProjects },
+        ].filter((s) => s.items.length > 0).map((s) => (
+          <section class="cv__section">
+            <h3 class="cv__h">{s.heading}</h3>
+            {s.items.map((p) => (
+              <div class="cv__item">
+                <div class="cv__row">
+                  <p class="cv__strong">{p.href ? <a href={p.href}>{p.title}</a> : p.title}</p>
+                  {p.note && <p class="cv__note">{p.note}</p>}
+                </div>
+                {p.tech && <p class="cv__tech">Technologies: {p.tech}</p>}
+                <ul class="cv__bullets">
+                  {p.bullets.map((b) => <li>{b}</li>)}
+                  {p.objective && <li><b>Objective:</b> {p.objective}</li>}
+                  {p.use && <li><b>Real-world use:</b> {p.use}</li>}
+                </ul>
+              </div>
+            ))}
+            {s.items === ongoingProjects && (
+              <p class="cv__muted cv__small">Interactive 3D boards and full write-ups: <a href={projectsPage}>{host(projectsPage)}/</a></p>
+            )}
+          </section>
+        ))}
 
         <section class="cv__section">
-          <h3 class="cv__h">Skills</h3>
+          <h3 class="cv__h">Technical skills</h3>
           <dl class="cv__skills">
-            {skillGroups.map((g) => (
+            {skillRows.map((r) => (
               <div class="cv__skillrow">
-                <dt>{g.label}</dt>
-                <dd>{[...g.skills].sort((a, b) => Number(b.skill.data.home) - Number(a.skill.data.home) || a.skill.data.name.localeCompare(b.skill.data.name)).map((s) => s.skill.data.name).join(", ")}</dd>
+                <dt>{r.label}</dt>
+                <dd>{r.items}</dd>
               </div>
             ))}
           </dl>
         </section>
 
-        <section class="cv__section cv__two">
-          <div>
-            <h3 class="cv__h">Education</h3>
-            {educations.map((e) => (
-              <div class="cv__item cv__item--tight">
-                <div class="cv__row">
-                  <p class="cv__strong">{e.data.degree}</p>
-                  <p class="cv__date">{e.data.year}</p>
-                </div>
-                <p class="cv__muted">{e.data.institute}{e.data.result && ` · ${e.data.result}`}</p>
+        {(certs.length > 0 || cv.activities.length > 0) && (
+          <section class="cv__section cv__two">
+            {certs.length > 0 && (
+              <div>
+                <h3 class="cv__h">Training courses</h3>
+                <ul class="cv__bullets">
+                  {certs.map((c) => <li>{c.data.name}{c.data.issuer && <span class="cv__muted"> — {c.data.issuer}</span>}</li>)}
+                </ul>
               </div>
-            ))}
-          </div>
-          {certs.length > 0 && (
-            <div>
-              <h3 class="cv__h">Certifications & training</h3>
-              <ul class="cv__bullets">
-                {certs.map((c) => <li>{c.data.name}{c.data.issuer && <span class="cv__muted"> — {c.data.issuer}</span>}</li>)}
-              </ul>
-            </div>
-          )}
-        </section>
+            )}
+            {(cv.activities.length > 0 || cv.references) && (
+              <div>
+                {cv.activities.length > 0 && (
+                  <Fragment>
+                    <h3 class="cv__h">Extracurricular activities</h3>
+                    <ul class="cv__bullets">
+                      {cv.activities.map((a) => <li>{a}</li>)}
+                    </ul>
+                  </Fragment>
+                )}
+                {cv.references && (
+                  <Fragment>
+                    <h3 class="cv__h cv__h--next">References</h3>
+                    <p>{cv.references}</p>
+                  </Fragment>
+                )}
+              </div>
+            )}
+          </section>
+        )}
       </article>
     </div>
   </section>
@@ -188,7 +258,7 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
   .cv {
     max-width: 210mm;
     margin-inline: auto;
-    padding: 14mm 16mm;
+    padding: 14mm;
     background: var(--paper-bg);
     color: var(--paper-text);
     border-radius: var(--radius-md);
@@ -208,8 +278,10 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     text-underline-offset: 2px;
   }
 
+  /* Wraps the contact block under the name when the sheet is too narrow */
   .cv__head {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 6mm;
     padding-bottom: 4mm;
@@ -232,17 +304,23 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     color: var(--paper-accent);
   }
 
+  /* Two columns × three rows, so the header stays as short as the name block */
   .cv__contact {
     margin: 0;
     padding: 0;
     list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: end;
+    column-gap: 5mm;
+    row-gap: 0.5mm;
     text-align: right;
     font-size: 8.5pt;
     color: var(--paper-muted);
   }
 
-  .cv__contact li + li {
-    margin-top: 0.5mm;
+  .cv__contact li {
+    white-space: nowrap;
   }
 
   .cv__section {
@@ -259,6 +337,10 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     margin: 0 0 2mm;
     padding-bottom: 1mm;
     border-bottom: 1px solid var(--paper-rule);
+  }
+
+  .cv__h--next {
+    margin-top: 3.2mm;
   }
 
   .cv__avail {
@@ -292,6 +374,35 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     white-space: nowrap;
   }
 
+  .cv__note {
+    font-size: 8.5pt;
+    font-style: italic;
+    color: var(--paper-muted);
+    white-space: nowrap;
+  }
+
+  .cv__role {
+    font-style: italic;
+    color: var(--paper-muted);
+  }
+
+  .cv__sub {
+    margin-top: 1mm !important;
+    font-size: 8.5pt;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  .cv__tech {
+    font-size: 8.5pt;
+    font-style: italic;
+    color: var(--paper-muted);
+  }
+
+  .cv__bullets b {
+    font-weight: 600;
+  }
+
   .cv__muted {
     color: var(--paper-muted);
   }
@@ -299,10 +410,6 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
   .cv__small {
     margin-top: 1mm !important;
     font-size: 8.5pt;
-  }
-
-  .cv__more {
-    margin-top: 1mm !important;
   }
 
   .cv__bullets {
@@ -354,7 +461,16 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     }
 
     .cv__contact {
+      grid-template-columns: 1fr;
+      justify-content: start;
       text-align: left;
+    }
+
+    /* Long labels typed in /admin wrap instead of widening the page */
+    .cv__contact li,
+    .cv__note {
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .cv__skillrow,
@@ -396,6 +512,7 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
       border-radius: 0;
       box-shadow: none;
       font-size: 9.2pt;
+      line-height: 1.34;
       padding: 0;
     }
   }

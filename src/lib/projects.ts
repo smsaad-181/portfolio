@@ -28,6 +28,14 @@ export async function getPublishedProjects(): Promise<ProjectEntry[]> {
  * Returns featured projects (featured: true), sorted by `order`.
  * Used on the homepage hero section.
  */
+/**
+ * Ids (slugs) of every project file, drafts included. Only for validating a
+ * slug typed in /admin (e.g. the resume's project links) — never for listing.
+ */
+export async function getAllProjectIds(): Promise<Set<string>> {
+  return new Set((await getCollection("projects")).map((p) => p.id));
+}
+
 export async function getFeaturedProjects(): Promise<ProjectEntry[]> {
   const published = await getPublishedProjects();
   return published.filter((p) => p.data.featured);

@@ -1,0 +1,98 @@
+{
+  "name": "Sultan Mahmud Saad",
+  "summary": "Embedded Systems and PCB Design Engineer with 4+ years of hands-on experience building IoT products with ESP32, Arduino and Raspberry Pi. Skilled in embedded C/C++ firmware, FreeRTOS and 2-layer PCB design in EasyEDA and KiCad. Builds real-time, sensor-based systems that connect hardware to the cloud over LoRaWAN, MQTT, Wi-Fi and RS485/Modbus for smart manufacturing and industrial automation.",
+  "projects": [
+    {
+      "title": "Careflow V1.0 – Industrial Energy Monitoring System",
+      "note": "SouthernIoT",
+      "tech": "LoRa, LoRaWAN, ESP32, C++, RS485, RS232, EasyEDA",
+      "bullets": [
+        "Industrial IoT system tracking real-time power, voltage, current, power factor and energy consumption across equipment, using smart meters, edge gateways and cloud or local dashboards.",
+        "Implemented a custom LoRaWAN protocol stack for efficient long-range communication; used RS485 and RS232 to interface with generators, UPS units, energy meters and compressors.",
+        "Designed a custom PCB in EasyEDA integrating the RAK3312, RAK19007 WisBlock Base Board and an RS485 module for reliable serial communication."
+      ],
+      "ongoing": false
+    },
+    {
+      "title": "ETS – Electronic Token System (RMG Product Tracking)",
+      "note": "SouthernIoT",
+      "tech": "RAK3312, RAK5802, ILI9341 TFT, MFRC522 RFID",
+      "bullets": [
+        "Developed an IoT-based RMG product tracking system using the RAK3312, an ILI9341 TFT display and an MFRC522 RFID reader to track products across production stations."
+      ],
+      "ongoing": false
+    },
+    {
+      "title": "Office Automation – 4-Channel Relay Controller",
+      "note": "SouthernIoT",
+      "tech": "ESP32, Relay Module, MQTT, FreeRTOS, EasyEDA",
+      "bullets": [
+        "Built an IoT office automation system to remotely control electrical appliances, with an ESP32 driving a 4-channel relay module for independent switching.",
+        "Implemented MQTT for wireless control and real-time monitoring; designed a custom PCB in EasyEDA and used FreeRTOS for multitasking."
+      ],
+      "ongoing": false
+    },
+    {
+      "title": "ESP32 LoRa GPS Tracker",
+      "note": "Schematic and PCB Layout",
+      "tech": "ESP32-S3, EBYTE E22-900M22S (SX1262), ATGM336H GNSS, 915 MHz LoRa, EasyEDA Pro",
+      "bullets": [
+        "Two-board tracker: a battery GPS node sends its position over 915 MHz LoRa to a base station that serves a live map over Wi-Fi, with no SIM card or cloud service."
+      ],
+      "objective": "deliver low-cost, long-range location tracking that keeps working where there is no mobile network, with position data kept private on a local radio link and no SIM or cloud fees.",
+      "use": "tracking delivery vehicles, livestock and field staff on farms, tea gardens and construction sites, and following rescue teams or hikers in remote or disaster-hit areas.",
+      "project": "lora-gps-tracker",
+      "ongoing": true
+    },
+    {
+      "title": "ESP32 IoT Vehicle Motion Analyzer",
+      "note": "Schematic, PCB and Firmware",
+      "tech": "ESP32-S3, MPU6050, LIS3MDL, SSD1306 OLED, LittleFS, EasyEDA Pro",
+      "bullets": [
+        "Detects harsh braking, harsh acceleration and sharp turns in real time, with a tilt-compensated compass heading shown on an onboard OLED."
+      ],
+      "objective": "measure driving behaviour in real time so unsafe habits can be detected, logged and reduced, using a self-contained device that needs no mobile app or internet connection.",
+      "use": "fleet, bus and ride-sharing operators monitoring driver safety, driving schools giving trainees feedback, and trip logs supporting insurance claims and accident analysis.",
+      "project": "vehicle-motion-analyzer",
+      "ongoing": true
+    },
+    {
+      "title": "ESP32 MLX90640 IR Thermal Camera",
+      "note": "Schematic, PCB and Firmware",
+      "tech": "ESP32-WROOM-32, MLX90640 IR Array, Wi-Fi Access Point, EasyEDA Pro",
+      "bullets": [
+        "Battery-powered thermal camera that reads a 32 × 24 (768-pixel) IR array over 800 kHz I²C and streams temperatures to a browser viewer from its own Wi-Fi access point."
+      ],
+      "objective": "build an affordable, portable thermal imager that shows live temperature maps on any phone or laptop, as a low-cost alternative to commercial handheld thermal cameras.",
+      "use": "finding overheating breakers, cables and motors in factory electrical panels, locating PCB hot spots during testing, and inspecting HVAC and solar installations.",
+      "project": "ir-thermal-camera",
+      "ongoing": true
+    },
+    {
+      "title": "IoT Activity Tracker",
+      "note": "Schematic, PCB and Firmware",
+      "tech": "ESP32-S3, BNO085 9-DOF IMU, SSD1306 OLED, Wi-Fi Dashboard, EasyEDA Pro",
+      "bullets": [
+        "Wearable-style tracker for steps, cadence, distance, calories and orientation, with automatic STILL / MOVE / WALK / RUN activity classification."
+      ],
+      "objective": "create a low-cost, open-hardware wearable that tracks daily movement and orientation accurately and shares live data over Wi-Fi without a proprietary smartwatch ecosystem.",
+      "use": "personal fitness tracking, activity monitoring for elderly people at home, physiotherapy recovery tracking, and worker-movement studies for factory ergonomics.",
+      "project": "iot-activity-tracker",
+      "ongoing": true
+    }
+  ],
+  "skills": [
+    { "label": "Languages", "items": "C, C++, Python" },
+    { "label": "Embedded Systems", "items": "ESP32, Arduino, Raspberry Pi, FreeRTOS" },
+    { "label": "Protocols", "items": "UART, SPI, I²C, RS485/Modbus, MQTT, LoRa/LoRaWAN, Wi-Fi, BLE" },
+    { "label": "PCB Design", "items": "EasyEDA, KiCad, Proteus" },
+    { "label": "3D Design", "items": "Fusion 360" },
+    { "label": "Developer Tools", "items": "VS Code, ESP-IDF, PlatformIO, Arduino IDE, Git, GitHub" },
+    { "label": "Web", "items": "ReactJS" }
+  ],
+  "activities": [
+    "Organizer – EEE Robo Carnival and EEE Seminar",
+    "Participant – EEE Robo Carnival, Programming Fest and EEE Workshop"
+  ],
+  "references": "Available on request."
+}

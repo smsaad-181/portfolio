@@ -24,6 +24,7 @@ import { getProfile } from "../lib/profile";
 import { getSkillGroups } from "../lib/skills";
 import { personJsonLd, toJsonLd } from "../lib/jsonld";
 import { pageUrl, projectUrl, publicFileExists } from "../lib/urls";
+import { formatMonthYear } from "../lib/dates";
 
 const profile = await getProfile();
 const published = await getPublishedProjects();
@@ -44,7 +45,8 @@ const stats = profile.data.stats?.length
       { value: String(skillCount), label: "tools & protocols" },
     ];
 const about = profile.data.about ?? [];
-const sinceYear = currentJob ? new Date(currentJob.data.startDate).getFullYear() : null;
+// First four characters, so the year never shifts with the build machine's time zone.
+const sinceYear = currentJob ? Number(currentJob.data.startDate.slice(0, 4)) : null;
 const social = [
   profile.data.socialLinks.linkedin && { label: "LinkedIn", href: profile.data.socialLinks.linkedin, icon: "linkedin" },
   profile.data.socialLinks.github && { label: "GitHub", href: profile.data.socialLinks.github, icon: "github" },
@@ -88,7 +90,7 @@ function wavePaths(count: number, p0: Pt, c1: Pt, c2: Pt, p3: Pt): string[] {
 const wavesTop = wavePaths(42, [120, -40, 7, 0], [100, 280, 5, -4], [540, 400, -3, -7], [680, 60, 0, 6]);
 const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 7, -3], [560, 620, 5, 0]);
 const city = profile.data.location.split(",")[0];
-const fmtMonth = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+const fmtMonth = formatMonthYear;
 
 // Tech he works with daily — straight from his profile summary.
 const focus = ["ESP32", "Arduino", "ATmega", "I²C", "SPI", "UART", "Modbus", "MQTT", "LoRaWAN"];

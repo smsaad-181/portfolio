@@ -137,6 +137,89 @@ const profileCollection: Collection = {
   ],
 };
 
+// ─── Resume (singleton) ───────────────────────────────────────────────────────
+// CV-only parts; the resume page adds profile, experience, education and
+// training. Public site: no phone number or referees' contact details.
+
+const resumeCollection: Collection = {
+  name: "resume",
+  label: "Resume (CV)",
+  path: "src/content/resume",
+  format: "json" as const,
+  ui: {
+    allowedActions: {
+      create: false,
+      delete: false,
+    },
+    filename: {
+      readonly: true,
+      slugify: () => "cv",
+    },
+  },
+  fields: [
+    {
+      type: "string" as const,
+      name: "name",
+      label: "Name on the CV",
+      required: true,
+      description: "Full name as on your CV. The rest of the site uses the Profile name.",
+    },
+    {
+      type: "string" as const,
+      name: "summary",
+      label: "Professional summary",
+      required: true,
+      ui: { component: "textarea" as const },
+    },
+    {
+      type: "object" as const,
+      name: "projects",
+      label: "Projects",
+      list: true,
+      description: "Tick \"Ongoing\" to list a project under Ongoing projects.",
+      ui: {
+        itemProps: (item: { title?: string }) => ({ label: item?.title || "New project" }),
+      },
+      fields: [
+        { type: "string" as const, name: "title", label: "Title", required: true },
+        { type: "string" as const, name: "note", label: "Right-hand label", description: "Employer or scope, e.g. SouthernIoT or Schematic, PCB and Firmware." },
+        { type: "string" as const, name: "tech", label: "Technologies", description: "Comma-separated, e.g. ESP32, MQTT, EasyEDA." },
+        { type: "string" as const, name: "bullets", label: "Bullets", list: true, ui: { component: "list" as const }, description: "At most 4." },
+        { type: "string" as const, name: "objective", label: "Objective", ui: { component: "textarea" as const } },
+        { type: "string" as const, name: "use", label: "Real-world use", ui: { component: "textarea" as const } },
+        { type: "string" as const, name: "project", label: "Project page to link", description: "Optional. File name of the project without .mdx, e.g. lora-gps-tracker." },
+        { type: "boolean" as const, name: "ongoing", label: "Ongoing" },
+      ],
+    },
+    {
+      type: "object" as const,
+      name: "skills",
+      label: "Technical skills (as on the CV)",
+      list: true,
+      ui: {
+        itemProps: (item: { label?: string }) => ({ label: item?.label || "New row" }),
+      },
+      fields: [
+        { type: "string" as const, name: "label", label: "Group", required: true },
+        { type: "string" as const, name: "items", label: "Skills", required: true, description: "Comma-separated." },
+      ],
+    },
+    {
+      type: "string" as const,
+      name: "activities",
+      label: "Extracurricular activities",
+      list: true,
+      ui: { component: "list" as const },
+    },
+    {
+      type: "string" as const,
+      name: "references",
+      label: "References line",
+      description: "e.g. Available on request. Don't put referees' phone numbers or emails on the public site.",
+    },
+  ],
+};
+
 // ─── Experience ───────────────────────────────────────────────────────────────
 
 const experienceCollection: Collection = {
@@ -147,12 +230,13 @@ const experienceCollection: Collection = {
   fields: [
     { type: "string" as const, name: "company", label: "Company", required: true },
     { type: "string" as const, name: "role", label: "Role / Title", required: true },
+    // Plain text, not a date picker: "2021" (year only) must stay "2021".
     {
-      type: "datetime" as const,
+      type: "string" as const,
       name: "startDate",
       label: "Start Date",
       required: true,
-      ui: { dateFormat: "YYYY-MM-DD" },
+      description: "YYYY-MM-DD, YYYY-MM, or just YYYY when only the year is known (shown as the year).",
     },
     {
       type: "boolean" as const,
@@ -161,19 +245,26 @@ const experienceCollection: Collection = {
       required: true,
     },
     {
-      type: "datetime" as const,
+      type: "string" as const,
       name: "endDate",
       label: "End Date",
-      description: "Leave blank if current = true.",
-      ui: { dateFormat: "YYYY-MM-DD" },
+      description: "Leave blank if current = true. Same format as the start date.",
     },
     {
       type: "string" as const,
       name: "bullets",
-      label: "Responsibilities & Achievements",
+      label: "Responsibilities",
       list: true,
       ui: { component: "list" as const },
-      description: "At most 6. Start with a verb: what you did and the result.",
+      description: "At most 6. Start with a verb.",
+    },
+    {
+      type: "string" as const,
+      name: "achievements",
+      label: "Achievements",
+      list: true,
+      ui: { component: "list" as const },
+      description: "At most 4. Real results only. Shown under \"Achievements\" on the resume.",
     },
     {
       type: "string" as const,
@@ -196,6 +287,7 @@ const educationCollection: Collection = {
     { type: "string" as const, name: "degree", label: "Degree", required: true },
     { type: "string" as const, name: "institute", label: "Institute", required: true },
     { type: "string" as const, name: "group", label: "Group / Department", required: true },
+    { type: "number" as const, name: "startYear", label: "Start Year", description: "Optional. The resume then shows e.g. 2018 – 2023." },
     { type: "number" as const, name: "year", label: "Graduation Year", required: true },
     { type: "string" as const, name: "result", label: "Result / GPA", required: true },
   ],
@@ -489,6 +581,7 @@ export default defineConfig({
     collections: [
       projectsCollection,
       profileCollection,
+      resumeCollection,
       experienceCollection,
       educationCollection,
       certificationsCollection,

@@ -1,5 +1,27 @@
 # CV Data (source: Sultan Mahmud's CV)
 
+## New CV — 25 Nov 2026 (supersedes the older notes below where they differ)
+Saad sent an updated CV and asked for the resume page to follow it. The full
+CV text now lives in the content files: `src/content/resume/cv.json` (summary,
+projects, ongoing projects, CV skill rows, activities), `src/content/experience/*.json`,
+`src/content/education/*.json`, `src/content/certifications/*.json`.
+- Name on the CV: **Sultan Mahmud Saad**. Saad's choice: full name on the
+  resume page/PDF only; the rest of the site stays "Sultan Mahmud".
+- Email on the CV: smsaad181@gmail.com (same as the site).
+- **Never publish** the CV's phone number or the referees' names/emails/phones
+  (public repo and site). The resume says "References: Available on request."
+- Experience: **SouthernIoT** — Embedded System and PCB Designer, Jan 2025–Present
+  (replaces "Assistant Officer, SIOT Solutions"). **Project-Based Work** —
+  Freelance Embedded Systems Engineer, 2021–2025 (year-only dates).
+- Education: Gono University (Gono Bishwabidyalay), B.Sc. in EEE, **2018–2023**
+  (was 2022), CGPA 3.59/4.00. HSC: **Police Lines School and College**, 2015–2017,
+  GPA 5.00/5.00. SSC is not on the new CV but Saad chose to keep it on the site.
+- Work projects not on the Projects page (no files/photos): Careflow V1.0
+  (industrial energy monitoring, LoRaWAN, RAK3312), ETS (RMG product tracking,
+  RFID), Office Automation (4-channel ESP32 relay controller) — all SouthernIoT.
+- Summary claims from the CV: 4+ years hands-on experience; 2-layer PCB design;
+  FreeRTOS; KiCad.
+
 ## Profile
 - Name: Sultan Mahmud (goes by "Saad")
 - Title: Hardware Engineer

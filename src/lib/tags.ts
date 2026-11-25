@@ -10,7 +10,7 @@ const WORDS: Record<string, string> = {
   gps: "GPS", gnss: "GNSS", ble: "BLE", wifi: "Wi-Fi", "wi-fi": "Wi-Fi",
   oled: "OLED", tft: "TFT", lcd: "LCD", led: "LED", rgb: "RGB", ir: "IR",
   ecg: "ECG", spo2: "SpO₂", pm: "PM", "pm2.5": "PM2.5", soc: "SoC", bms: "BMS",
-  rs485: "RS485", "rs-485": "RS-485", can: "CAN", imu: "IMU", ai: "AI",
+  rs485: "RS485", "rs-485": "RS-485", rs232: "RS232", freertos: "FreeRTOS", can: "CAN", imu: "IMU", ai: "AI",
   esp32: "ESP32", "esp32-s3": "ESP32-S3", "esp32-c3": "ESP32-C3",
   atmega328p: "ATmega328P", stm32: "STM32", arduino: "Arduino",
   easyeda: "EasyEDA", kicad: "KiCad", micropython: "MicroPython", "node-red": "Node-RED",

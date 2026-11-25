@@ -39,3 +39,9 @@ if (pages > 2) {
   console.error("✗ The CV is longer than 2 pages — shorten the content.");
   process.exit(1);
 }
+// A relative link on the page becomes a link to the export server in the PDF.
+const localLinks = pdf.toString("latin1").match(/\/URI\s*\((https?:\/\/(localhost|127\.0\.0\.1)[^)]*)\)/g) ?? [];
+if (localLinks.length > 0) {
+  console.error(`✗ The PDF links to the local server (${localLinks.length}×) — use absoluteUrl() for links on the resume page.`);
+  process.exit(1);
+}

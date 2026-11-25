@@ -1,26 +1,33 @@
 {
-  "company": "SIOT Solutions — Southern Innovation of Technology",
-  "role": "Assistant Officer",
+  "company": "SouthernIoT",
+  "role": "Embedded System and PCB Designer",
   "startDate": "2025-01-14",
   "current": true,
   "bullets": [
-    "Design circuits, schematics and PCBs for the company's IoT products, including power regulation circuits",
-    "Integrate temperature, humidity, gas, laser, fingerprint and RFID sensors over I²C, SPI and UART, and debug the embedded firmware that drives them",
-    "Connect devices to LoRaWAN gateways, Modbus and MQTT, and develop Raspberry Pi Pico controllers for IoT applications",
-    "Build Node-RED flows for IoT data visualisation and control",
-    "Develop motor-driver circuits with A4988 and L298N, and an internal three-phase voltage indicator",
-    "Write hardware documentation and take part in design reviews"
+    "Design and develop end-to-end embedded system solutions for IoT applications",
+    "Write, test and debug firmware for microcontrollers and embedded processors",
+    "Implement UART, SPI and I²C interfaces and Wi-Fi, BLE and MQTT communication for IoT devices",
+    "Develop real-time applications using FreeRTOS on ESP32 platforms",
+    "Design and lay out printed circuit boards (PCBs) for embedded systems using EasyEDA and KiCad",
+    "Optimize firmware for performance, power efficiency and memory usage in resource-constrained environments"
+  ],
+  "achievements": [
+    "Designed and fabricated custom PCBs in EasyEDA that passed manufacturing DRC checks on the first revision",
+    "Designed the Office Automation PCB and a working prototype for SouthernIoT",
+    "Delivered production-grade embedded firmware for IoT devices deployed in live industrial environments"
   ],
   "tags": [
-    "PCB Design",
-    "ESP32",
-    "LoRaWAN",
-    "MQTT",
-    "I2C",
-    "SPI",
-    "UART",
-    "Modbus",
-    "Node-RED",
-    "Raspberry Pi Pico"
+    "esp32",
+    "freertos",
+    "pcb design",
+    "easyeda",
+    "kicad",
+    "mqtt",
+    "lorawan",
+    "rs485",
+    "i2c",
+    "spi",
+    "uart",
+    "ble"
   ]
 }

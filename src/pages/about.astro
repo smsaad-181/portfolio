@@ -15,6 +15,7 @@ import { getSkillGroups } from "../lib/skills";
 import { pageUrl } from "../lib/urls";
 import { personJsonLd, toJsonLd } from "../lib/jsonld";
 import { formatTag } from "../lib/tags";
+import { formatMonthYear } from "../lib/dates";
 
 const profile = await getProfile();
 const { data } = profile;
@@ -30,7 +31,7 @@ const portraitFiles = import.meta.glob<{ default: ImageMetadata }>("../assets/pr
 const portrait = Object.values(portraitFiles)[0]?.default;
 const person = await personJsonLd(portrait);
 
-const fmt = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+const fmt = formatMonthYear;
 const links = [
   data.socialLinks.linkedin && { name: "linkedin" as const, label: "LinkedIn", href: data.socialLinks.linkedin },
   data.socialLinks.github && { name: "github" as const, label: "GitHub", href: data.socialLinks.github },
@@ -90,8 +91,8 @@ const bio = data.bio?.length ? data.bio : [data.summary];
                 <p class="role__company">{exp.data.company}</p>
               </div>
               <p class="role__dates">
-                <time datetime={exp.data.startDate}>{fmt(exp.data.startDate)}</time> –{" "}
-                {exp.data.current ? <span class="role__now">Present</span> : exp.data.endDate && <time datetime={exp.data.endDate}>{fmt(exp.data.endDate)}</time>}
+                <time datetime={exp.data.startDate}>{fmt(exp.data.startDate)}</time>
+                {exp.data.current ? <Fragment> – <span class="role__now">Present</span></Fragment> : exp.data.endDate && <Fragment> – <time datetime={exp.data.endDate}>{fmt(exp.data.endDate)}</time></Fragment>}
               </p>
             </header>
             <ul class="role__bullets">

@@ -33,7 +33,7 @@
     }
   ],
   "bio": [
-    "I'm Sultan Mahmud — Saad — a hardware engineer in Dhaka, Bangladesh. I studied Electrical and Electronic Engineering at Gono Bishwabidyalay (B.Sc., 2022) and have worked as an Assistant Officer at SIOT Solutions — Southern Innovation of Technology since January 2025.",
+    "I'm Sultan Mahmud — Saad — a hardware engineer in Dhaka, Bangladesh. I studied Electrical and Electronic Engineering at Gono Bishwabidyalay (B.Sc., 2023), took on paid freelance embedded projects from 2021 to 2025, and have worked as an Embedded System and PCB Designer at SouthernIoT since January 2025.",
     "I design circuits and PCBs in EasyEDA and write firmware for ESP32 and Arduino-based boards — end-to-end product development from schematic to firmware. My work covers sensor integration over I²C, SPI and UART, power regulation, and IoT connectivity over LoRaWAN, MQTT and Modbus, with Node-RED for dashboards and control.",
     "I'm looking for hardware and embedded engineering roles, in Dhaka or remote, and I'm happy to collaborate on open-source hardware, PCB design and robotics projects. Right now I'm learning more embedded systems, ROS and IoT protocols."
   ],

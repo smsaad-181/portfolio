@@ -36,9 +36,17 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 22 | Fingerprint V1.1 | **Resolved (21 Nov 2026).** Card and gallery image = EasyEDA render from the project folder, which matches the current layout (see #18). Board 59.8 × 60.8 mm confirmed by the STEP outline (59.79 × 60.81 mm). | No action needed. |
 | 23 | Blog (3 drafts) | New posts written only from the project write-ups and the 3D pipeline README: `lora-gps-tracker-without-sim-or-cloud`, `home-automation-relay-board-revisions`, `interactive-3d-boards-from-easyeda`. They are `draft: true`, visible only on the local dev server. | **Saad: read each post on localhost, then untick Draft in /admin (or set `draft: false`) and set the real publish date.** The Blog menu link appears once one post is published. |
 
+### From Saad's new CV — 25 Nov 2026 (supersedes older entries below)
+- The resume page now follows the new CV: summary, education, experience (responsibilities + achievements), projects, ongoing projects, technical skills, training, activities.
+- Employer and role: **SouthernIoT — Embedded System and PCB Designer** (replaces "Assistant Officer, SIOT Solutions — Southern Innovation of Technology"). Added **Project-Based Work — Freelance Embedded Systems Engineer, 2021–2025**.
+- B.Sc. **2018–2023** (was 2022); HSC at **Police Lines School and College**, 2015–2017. SSC kept (Saad's choice).
+- Name **Sultan Mahmud Saad** on the resume page and PDF only (Saad's choice).
+- Not published (privacy): the CV's phone number and the referees' contact details → "References: Available on request."
+- **Please confirm:** the updated first About bio paragraph in `src/content/profile/saad.json`.
+
 ### Confirmed by Saad — 21 Nov 2026
 - Email on the site: **smsaad181@gmail.com** (the CV's [CV email — not published] is not used).
-- Employer name: **SIOT Solutions — Southern Innovation of Technology** (the CV says "Southern IoT Limited").
+- Employer name: ~~SIOT Solutions — Southern Innovation of Technology~~ → **SouthernIoT** since the 25 Nov 2026 CV (the older CV said "Southern IoT Limited").
 - Home page shows professional links only (LinkedIn, GitHub, OSHWLab, email) — not Facebook/Instagram.
 - Dashboards with no screenshot are rendered from the firmware's own HTML with no data (no invented readings). Vehicle Motion Analyzer uses Saad's own screenshots from its Documentation folder.
 - GitHub links removed from project pages (the repos are private).

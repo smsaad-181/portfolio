@@ -11,10 +11,16 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { isValidDate } from "./lib/dates";
 
 // ─── Shared helpers ────────────────────────────────────────────────────────
 
 const urlSchema = z.url({ error: "Must be a valid URL" });
+
+/** Tina saves a cleared optional field as "" (text and number fields alike):
+ * treat that as "not set" so emptying a field in /admin never breaks the build. */
+const blankable = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((v) => (v === "" || v === null ? undefined : v), schema.optional());
 
 /** All JSON files in one content folder; id = file name without extension. */
 const jsonFolder = (name: string) => glob({ pattern: "*.json", base: `./src/content/${name}` });
@@ -39,9 +45,9 @@ const profile = defineCollection({
     summary: z.string(),
     avatar: imageSchema,
     socialLinks: z.object({
-      github: urlSchema.optional(),
-      linkedin: urlSchema.optional(),
-      oshwlab: urlSchema.optional(),
+      github: blankable(urlSchema),
+      linkedin: blankable(urlSchema),
+      oshwlab: blankable(urlSchema),
     }),
     resume: z.string(), // path to the PDF in public/resume/
     // Hero proof stats, e.g. { value: "6", label: "boards designed" }.
@@ -64,16 +70,21 @@ const profile = defineCollection({
 
 // ─── experience ─────────────────────────────────────────────────────────────
 
+// "YYYY", "YYYY-MM" or "YYYY-MM-DD" — a year-only date is shown as the year.
+const dateString = z.string().refine(isValidDate, { error: "Use a real date: YYYY, YYYY-MM or YYYY-MM-DD" });
+
 const experience = defineCollection({
   loader: jsonFolder("experience"),
   schema: z.object({
     company: z.string(),
     role: z.string(),
-    startDate: z.string(), // ISO date string e.g. "2025-01-14"
+    startDate: dateString, // e.g. "2025-01-14", or "2021" when only the year is known
     current: z.boolean(),
-    endDate: z.string().optional(), // only set when current === false
-    // Impact bullets (verb + what + result), at most 6 per role.
+    endDate: blankable(dateString), // only set when current === false
+    // Responsibilities (verb + what), at most 6 per role.
     bullets: z.array(z.string().min(1)).max(6),
+    // Results, shown under "Achievements" on the resume.
+    achievements: z.array(z.string().min(1)).max(4).default([]),
     tags: z.array(z.string()),
   }),
 });
@@ -86,7 +97,8 @@ const education = defineCollection({
     degree: z.string(),
     institute: z.string(),
     group: z.string(),
-    year: z.number().int(),
+    startYear: blankable(z.number().int()), // resume shows "2018 – 2023"
+    year: z.number().int(), // year finished
     result: z.string(),
   }),
 });
@@ -98,7 +110,7 @@ const certifications = defineCollection({
   schema: z.object({
     name: z.string(),
     issuer: z.string().optional(),
-    year: z.number().int().optional(),
+    year: blankable(z.number().int()),
   }),
 });
 
@@ -201,8 +213,41 @@ const blog = defineCollection({
   }),
 });
 
+// ─── resume (singleton) ─────────────────────────────────────────────────────
+// The parts of Saad's CV that live nowhere else on the site. The resume page
+// combines this with profile, experience, education and certifications.
+// Never put a phone number or referees' contact details here (public repo).
+
+const resume = defineCollection({
+  loader: jsonFolder("resume"),
+  schema: z.object({
+    name: z.string().min(1), // full name as on the CV, e.g. "Sultan Mahmud Saad"
+    summary: z.string().min(1), // "Professional summary"
+    projects: z
+      .array(
+        z.object({
+          title: z.string().min(1),
+          note: z.string().optional(), // right-hand label: employer or scope
+          tech: z.string().optional(), // "Technologies: …" line
+          bullets: z.array(z.string().min(1)).max(4).default([]),
+          objective: z.string().optional(),
+          use: z.string().optional(), // "Real-world use"
+          // Slug of the project page to link (file name without .mdx).
+          project: z.string().optional(),
+          ongoing: z.boolean().default(false), // listed under "Ongoing projects"
+        })
+      )
+      .default([]),
+    // CV skill rows, e.g. { label: "Protocols", items: "UART, SPI, I²C" }.
+    skills: z.array(z.object({ label: z.string().min(1), items: z.string().min(1) })).default([]),
+    activities: z.array(z.string().min(1)).default([]),
+    references: z.string().optional(), // e.g. "Available on request."
+  }),
+});
+
 export const collections = {
   profile,
+  resume,
   experience,
   education,
   certifications,

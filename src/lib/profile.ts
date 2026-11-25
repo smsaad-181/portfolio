@@ -16,6 +16,15 @@ export async function getProfile(): Promise<Profile> {
   return profile;
 }
 
+/** Loads src/content/resume/cv.json (the CV-only parts of the resume page). */
+export async function getResume(): Promise<CollectionEntry<"resume">> {
+  const resume = await getEntry("resume", "cv");
+  if (!resume) {
+    throw new Error("Missing resume entry: src/content/resume/cv.json");
+  }
+  return resume;
+}
+
 /**
  * Base-prefixed URL of the CV PDF, or `null` if the file isn't in public/
  * yet — callers then show "CV available on request" instead of a 404 link.

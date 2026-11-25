@@ -58,7 +58,7 @@ private links in this file.
 
 ## 4. Session log (newest first)
 
-- **2026-11-25** — Resume page and PDF rebuilt from Saad's new CV; new `resume` singleton (Astro + Tina, lock regenerated), experience `achievements`, year-only dates, education `startYear`; About bio updated to SouthernIoT / B.Sc. 2023. QA fixes: absolute links in the PDF (+ `cv:pdf` now fails on localhost links), blank CMS fields no longer break the build, impossible dates rejected.
+- **2026-11-25** — Resume page and PDF rebuilt from Saad's new CV; new `resume` singleton (Astro + Tina, lock regenerated), experience `achievements`, year-only dates, education `startYear`; About bio updated to SouthernIoT / B.Sc. 2023. QA fixes: absolute links in the PDF (+ `cv:pdf` now fails on localhost links), blank CMS fields no longer break the build, impossible dates rejected. (`1e02c3d`, deployed)
 
 - **2026-11-24** — README trimmed to intro + live/CMS links only (setup and commands live in `CLAUDE.md`).
 - **2026-11-24** — Installed Vercel + Emil skills locally; fixed all high/medium findings (commit `f49a09b`); QA caught and fixed a stuck-cover bug (transition + "Leave page?"). my-skills repo updated with these lessons. Added this handoff file.

@@ -1,6 +1,7 @@
 {
   "name": "MongoDB",
-  "category": "tools",
+  "category": "web & data",
+  "logo": "mongodb",
   "aliases": [
     "mongodb"
   ]

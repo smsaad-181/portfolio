@@ -1,12 +1,12 @@
 {
-  "name": "Sultan Mahmud",
-  "title": "Hardware Engineer",
+  "name": "Sultan Mahmud Saad",
+  "title": "Embedded Engineer & PCB Designer",
   "location": "Dhaka, Bangladesh",
   "email": "smsaad181@gmail.com",
-  "summary": "Hardware engineer specializing in PCB design, embedded systems, and IoT product development. Experienced with ESP32, Arduino, and ATmega microcontrollers, communication protocols (I²C, SPI, UART, Modbus, MQTT, LoRaWAN), and end-to-end product development from schematic to firmware.",
+  "summary": "Embedded Systems and PCB Design Engineer with 4+ years of hands-on experience building IoT products with ESP32, Arduino and Raspberry Pi. Skilled in embedded C/C++ firmware, FreeRTOS and 2-layer PCB design in EasyEDA and KiCad. Builds real-time, sensor-based systems that connect hardware to the cloud over LoRaWAN, MQTT, Wi-Fi and RS485/Modbus for smart manufacturing and industrial automation.",
   "avatar": {
     "src": "/images/avatar.jpg",
-    "alt": "Sultan Mahmud — Hardware Engineer"
+    "alt": "Sultan Mahmud Saad — Embedded Engineer & PCB Designer"
   },
   "socialLinks": {
     "github": "https://github.com/smsaad-181",
@@ -33,9 +33,9 @@
     }
   ],
   "bio": [
-    "I'm Sultan Mahmud — Saad — a hardware engineer in Dhaka, Bangladesh. I studied Electrical and Electronic Engineering at Gono Bishwabidyalay (B.Sc., 2023), took on paid freelance embedded projects from 2021 to 2025, and have worked as an Embedded System and PCB Designer at SouthernIoT since January 2025.",
-    "I design circuits and PCBs in EasyEDA and write firmware for ESP32 and Arduino-based boards — end-to-end product development from schematic to firmware. My work covers sensor integration over I²C, SPI and UART, power regulation, and IoT connectivity over LoRaWAN, MQTT and Modbus, with Node-RED for dashboards and control.",
-    "I'm looking for hardware and embedded engineering roles, in Dhaka or remote, and I'm happy to collaborate on open-source hardware, PCB design and robotics projects. Right now I'm learning more embedded systems, ROS and IoT protocols."
+    "I'm Sultan Mahmud Saad, an embedded engineer and PCB designer based in Dhaka, Bangladesh, with more than four years of hands-on experience building IoT products. I hold a B.Sc. in Electrical and Electronic Engineering from Gono Bishwabidyalay (2023), and since January 2025 I have worked as an Embedded System and PCB Designer at SIOT — Southern Innovation of Technology.",
+    "I take products from schematic to working firmware: 2-layer PCB design in EasyEDA and KiCad, embedded C/C++ with FreeRTOS on ESP32, Arduino and Raspberry Pi, and sensor integration over I²C, SPI and UART. My systems connect hardware to the cloud over LoRaWAN, MQTT, Wi-Fi and RS485/Modbus, for industrial uses such as real-time energy monitoring and production tracking, with Node-RED dashboards for monitoring and control.",
+    "I'm open to embedded and hardware engineering roles in Dhaka or remote, and to collaborating on open-source hardware, PCB design and robotics projects. I'm currently deepening my knowledge of embedded systems, ROS and IoT protocols."
   ],
   "availability": "Open to hardware / embedded roles · Dhaka or remote"
 }

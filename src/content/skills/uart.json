@@ -1,6 +1,7 @@
 {
   "name": "UART",
-  "category": "protocols",
+  "category": "protocols & connectivity",
+  "mark": "UART",
   "aliases": [
     "uart"
   ]

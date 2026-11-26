@@ -1,7 +1,7 @@
 ---
 /**
  * Wordmark.astro — the one brand mark, used in the nav and footer:
- * a signature-style name between code brackets, < Sultan Mahmud />.
+ * a signature-style name between code brackets, < Sultan Mahmud Saad />.
  * The visible text is decorative; the parent link carries the accessible name.
  */
 export interface Props {
@@ -13,7 +13,7 @@ const { compact = true } = Astro.props;
 
 <span class:list={["wordmark", { "wordmark--compact": compact }]} aria-hidden="true">
   <span class="wordmark__bracket">&lt;</span>
-  <span class="wordmark__name" translate="no">Sultan Mahmud</span>
+  <span class="wordmark__name" translate="no">Sultan Mahmud Saad</span>
   <span class="wordmark__bracket">/&gt;</span>
 </span>
 

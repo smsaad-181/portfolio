@@ -94,6 +94,12 @@
   --paper-ink: #000000;
   --paper-subtle: #333333;
 
+  /* Skill logo tiles (SkillLogo.astro): official logos sit on a light tile in
+     both themes; badge text for tools without a logo is dark violet on it */
+  --logo-tile-bg: #ffffff;
+  --logo-tile-border: #3a2a58;
+  --logo-mark: #5b2a86;
+
   /* 7-segment display faces on the 3D Clock board */
   --viewer-seg-on: #ff3b30;
   --viewer-seg-off: #2a1110;
@@ -157,6 +163,7 @@
   --border: #e2d8ee;
   --border-subtle: #efe8f6;
   --grid-line: rgba(40, 0, 80, 0.045);
+  --logo-tile-border: #e2d8ee;
 
   --text-primary: #1a1028;
   --text-secondary: #4a3d5e;

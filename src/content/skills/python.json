@@ -1,6 +1,7 @@
 {
-  "name": "Python (basic)",
-  "category": "tools",
+  "name": "Python",
+  "category": "languages",
+  "logo": "python",
   "aliases": [
     "python"
   ]

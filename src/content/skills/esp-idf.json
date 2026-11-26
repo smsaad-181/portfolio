@@ -1,6 +1,7 @@
 {
   "name": "ESP-IDF",
-  "category": "embedded & firmware",
+  "category": "developer tools",
+  "logo": "espressif",
   "aliases": [
     "esp-idf"
   ]

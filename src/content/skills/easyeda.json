@@ -1,7 +1,8 @@
 {
   "name": "EasyEDA",
-  "category": "hardware & pcb",
+  "category": "pcb & 3d design",
   "home": true,
+  "logo": "easyeda",
   "aliases": [
     "easyeda"
   ]

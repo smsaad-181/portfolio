@@ -1,6 +1,7 @@
 {
   "name": "KiCad",
-  "category": "hardware & pcb",
+  "category": "pcb & 3d design",
+  "logo": "kicad",
   "aliases": [
     "kicad"
   ]

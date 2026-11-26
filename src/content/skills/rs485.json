@@ -1,0 +1,9 @@
+{
+  "name": "RS485",
+  "category": "protocols & connectivity",
+  "mark": "485",
+  "aliases": [
+    "rs485",
+    "rs-485"
+  ]
+}

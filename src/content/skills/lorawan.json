@@ -1,8 +1,10 @@
 {
-  "name": "LoRaWAN",
-  "category": "iot & platforms",
+  "name": "LoRa / LoRaWAN",
+  "category": "protocols & connectivity",
   "home": true,
+  "mark": "LoRa",
   "aliases": [
+    "lora",
     "lorawan"
   ]
 }

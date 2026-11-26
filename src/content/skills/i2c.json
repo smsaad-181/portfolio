@@ -1,7 +1,8 @@
 {
   "name": "I²C",
-  "category": "protocols",
+  "category": "protocols & connectivity",
   "home": true,
+  "mark": "I²C",
   "aliases": [
     "i2c"
   ]

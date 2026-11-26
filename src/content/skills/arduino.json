@@ -1,7 +1,8 @@
 {
   "name": "Arduino",
-  "category": "embedded & firmware",
+  "category": "embedded systems",
   "home": true,
+  "logo": "arduino",
   "aliases": [
     "arduino"
   ]

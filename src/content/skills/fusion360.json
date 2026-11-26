@@ -1,6 +1,7 @@
 {
   "name": "Fusion 360",
-  "category": "hardware & pcb",
+  "category": "pcb & 3d design",
+  "logo": "autodesk",
   "aliases": [
     "fusion 360",
     "fusion360"

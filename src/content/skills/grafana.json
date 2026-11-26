@@ -1,6 +1,7 @@
 {
   "name": "Grafana",
-  "category": "iot & platforms",
+  "category": "iot platforms",
+  "logo": "grafana",
   "aliases": [
     "grafana"
   ]

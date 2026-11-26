@@ -15,16 +15,26 @@ import { formatTag } from "./tags";
 
 export type SkillEntry = CollectionEntry<"skills">;
 
-/** Category order from the plan; any new category the CMS adds goes last. */
-const ORDER = ["hardware & pcb", "embedded & firmware", "protocols", "iot & platforms", "tools"];
+/** Category order (as on Saad's CV); any new category goes last. */
+const ORDER = [
+  "embedded systems",
+  "languages",
+  "protocols & connectivity",
+  "pcb & 3d design",
+  "iot platforms",
+  "developer tools",
+  "web & data",
+];
 
 /** Display names (categories are stored lowercase). */
 export const CATEGORY_LABEL: Record<string, string> = {
-  "hardware & pcb": "Hardware & PCB",
-  "embedded & firmware": "Embedded & Firmware",
-  protocols: "Protocols",
-  "iot & platforms": "IoT & Platforms",
-  tools: "Tools",
+  "embedded systems": "Embedded Systems",
+  languages: "Languages",
+  "protocols & connectivity": "Protocols & Connectivity",
+  "pcb & 3d design": "PCB & 3D Design",
+  "iot platforms": "IoT Platforms",
+  "developer tools": "Developer Tools",
+  "web & data": "Web & Data",
 };
 
 const norm = (s: string) => s.toLowerCase().replace(/²/g, "2");

@@ -25,7 +25,7 @@ export async function personJsonLd(portrait?: ImageMetadata): Promise<Record<str
     "@context": "https://schema.org",
     "@type": "Person",
     name: data.name,
-    alternateName: "Saad",
+    alternateName: ["Sultan Mahmud", "Saad"],
     jobTitle: data.title,
     description: data.summary,
     url: absoluteUrl(pageUrl("/")),

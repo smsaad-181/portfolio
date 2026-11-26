@@ -53,8 +53,8 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   (`projectUrl(entry)`, `pageUrl(path)`) — *added in Phase 1*. Project slugs
   never include the file extension (`/projects/home-automation-v2/`).
 - Canonical URLs come from `Astro.site` + base, never from the request host.
-- Exactly one `<h1>` per page. Titles: `"{Page} · Sultan Mahmud"`; Home is
-  `"Sultan Mahmud — Hardware Engineer"`.
+- Exactly one `<h1>` per page. Titles: `"{Page} · Sultan Mahmud Saad"`; Home is
+  `"Sultan Mahmud Saad — Embedded Engineer & PCB Designer"` (Saad, 26 Nov 2026).
 
 ### Content model
 - `src/content.config.ts` (zod) is the single source of truth for every
@@ -90,7 +90,8 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
   without asking him.
 - WCAG AA contrast in **both** themes. No hard-coded colours outside
   `src/styles/tokens.css` (exceptions: the OG image generator and the SVG
-  favicon, which keep their own copy of the values).
+  favicon, which keep their own copy of the values, and skill logos, which keep
+  their official brand colours from Simple Icons — `src/lib/brand-logos.ts`).
 - Respect `prefers-reduced-motion`.
 
 ### Secrets & deploy

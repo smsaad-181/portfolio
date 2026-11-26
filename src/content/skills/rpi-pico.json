@@ -1,6 +1,7 @@
 {
   "name": "Raspberry Pi Pico",
-  "category": "embedded & firmware",
+  "category": "embedded systems",
+  "logo": "raspberrypi",
   "aliases": [
     "raspberry pi pico",
     "rp2040"

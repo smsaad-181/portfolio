@@ -1,7 +1,8 @@
 {
   "name": "MQTT",
-  "category": "protocols",
+  "category": "protocols & connectivity",
   "home": true,
+  "logo": "mqtt",
   "aliases": [
     "mqtt"
   ]

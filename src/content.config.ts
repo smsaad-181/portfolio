@@ -126,6 +126,10 @@ const skills = defineCollection({
     // Words that mark a project as using this skill (tags, specs, write-up).
     // Defaults to the skill name; [] = don't count projects (e.g. "C").
     aliases: z.array(z.string().min(1)).optional(),
+    // Official logo: a Simple Icons slug listed in src/lib/brand-logos.ts.
+    logo: z.string().min(1).optional(),
+    // Badge text when there is no logo, e.g. "I²C" or "RTOS" (max 5 chars).
+    mark: z.string().min(1).max(5).optional(),
   }),
 });
 

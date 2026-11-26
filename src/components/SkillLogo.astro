@@ -1,0 +1,65 @@
+---
+/**
+ * SkillLogo.astro — a small square tile with a tool's official logo (brand
+ * colour on a light tile, so it reads in both themes), or, for things with
+ * no logo (bus protocols, FreeRTOS, VS Code…), a short badge text such as
+ * "I²C" or "RTOS". Decorative: the skill name is always shown next to it.
+ */
+import { brandLogo } from "../lib/brand-logos";
+
+export interface Props {
+  /** Simple Icons slug, e.g. "arduino" (src/lib/brand-logos.ts). */
+  logo?: string | undefined;
+  /** Badge text when there is no logo; defaults to the first letters of the name. */
+  mark?: string | undefined;
+  name: string;
+  /** Tile size in px. */
+  size?: number;
+}
+const { logo, mark, name, size = 36 } = Astro.props;
+const icon = logo ? brandLogo(logo) : undefined;
+const text = mark ?? name.replace(/[^A-Za-z0-9²+#]/g, "").slice(0, 4);
+---
+
+<span class:list={["skill-logo", { "skill-logo--mark": !icon }]} style={`--tile: ${size}px`} aria-hidden="true">
+  {icon ? (
+    <svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill={`#${icon.hex}`} d={icon.path} /></svg>
+  ) : (
+    <span class="skill-logo__mark" data-len={Math.min(text.length, 5)}>{text}</span>
+  )}
+</span>
+
+<style>
+  .skill-logo {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: var(--tile);
+    height: var(--tile);
+    border-radius: calc(var(--tile) * 0.26);
+    background: var(--logo-tile-bg);
+    border: 1px solid var(--logo-tile-border);
+  }
+
+  .skill-logo svg {
+    width: 58%;
+    height: 58%;
+  }
+
+  .skill-logo__mark {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--logo-mark);
+    font-size: calc(var(--tile) * 0.36);
+  }
+
+  .skill-logo__mark[data-len="4"] {
+    font-size: calc(var(--tile) * 0.28);
+  }
+
+  .skill-logo__mark[data-len="5"] {
+    font-size: calc(var(--tile) * 0.24);
+  }
+</style>

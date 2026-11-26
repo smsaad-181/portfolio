@@ -1,0 +1,8 @@
+{
+  "name": "FreeRTOS",
+  "category": "embedded systems",
+  "mark": "RTOS",
+  "aliases": [
+    "freertos"
+  ]
+}

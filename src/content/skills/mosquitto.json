@@ -1,6 +1,7 @@
 {
   "name": "Mosquitto",
-  "category": "iot & platforms",
+  "category": "iot platforms",
+  "logo": "eclipsemosquitto",
   "aliases": [
     "mosquitto"
   ]

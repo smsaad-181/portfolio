@@ -1,0 +1,8 @@
+{
+  "name": "Raspberry Pi",
+  "category": "embedded systems",
+  "logo": "raspberrypi",
+  "aliases": [
+    "raspberry pi"
+  ]
+}

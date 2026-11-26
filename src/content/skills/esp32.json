@@ -1,7 +1,8 @@
 {
   "name": "ESP32",
-  "category": "embedded & firmware",
+  "category": "embedded systems",
   "home": true,
+  "logo": "espressif",
   "aliases": [
     "esp32"
   ]

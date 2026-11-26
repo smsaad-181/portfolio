@@ -1,7 +1,8 @@
 {
   "name": "C++",
-  "category": "embedded & firmware",
+  "category": "languages",
   "home": true,
+  "logo": "cplusplus",
   "aliases": [
     "c++"
   ]

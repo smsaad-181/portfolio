@@ -1,0 +1,9 @@
+{
+  "name": "VS Code",
+  "category": "developer tools",
+  "mark": "VS",
+  "aliases": [
+    "vs code",
+    "vscode"
+  ]
+}

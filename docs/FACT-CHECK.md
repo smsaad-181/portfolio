@@ -36,6 +36,10 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 22 | Fingerprint V1.1 | **Resolved (21 Nov 2026).** Card and gallery image = EasyEDA render from the project folder, which matches the current layout (see #18). Board 59.8 × 60.8 mm confirmed by the STEP outline (59.79 × 60.81 mm). | No action needed. |
 | 23 | Blog (3 drafts) | New posts written only from the project write-ups and the 3D pipeline README: `lora-gps-tracker-without-sim-or-cloud`, `home-automation-relay-board-revisions`, `interactive-3d-boards-from-easyeda`. They are `draft: true`, visible only on the local dev server. | **Saad: read each post on localhost, then tell Claude which to publish (sets `draft: false` and the real publish date).** The Blog menu link appears once one post is published. |
 
+### Site update — 26 Nov 2026
+- Name **Sultan Mahmud Saad** and title **Embedded Engineer & PCB Designer** everywhere; employer shown as **SIOT — Southern Innovation of Technology** on the site (resume keeps his PDF's "SouthernIoT").
+- **Please confirm:** the rewritten About bio (3 paragraphs in src/content/profile/saad.json) and "Python" (was "Python (basic)").
+
 ### Resume = Saad's own PDF — 25/26 Nov 2026 (supersedes the entries below)
 - Saad: "add that exactly as the PDF looks … no need to change, this is fully updated." The resume page copies his LaTeX CV (`D:\CV\CV\main.tex`) word for word and in the same layout; "Download PDF" is his exact `Sultan_Mahmud_Saad_CV.pdf`.
 - **Saad chose to publish everything exactly as the PDF**, including his phone number and both referees' names, emails and phones (he was told referees should agree first).

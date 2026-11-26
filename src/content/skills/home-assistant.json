@@ -1,6 +1,7 @@
 {
   "name": "Home Assistant",
-  "category": "iot & platforms",
+  "category": "iot platforms",
+  "logo": "homeassistant",
   "aliases": [
     "home assistant"
   ]

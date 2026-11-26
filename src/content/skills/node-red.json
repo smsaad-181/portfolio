@@ -1,7 +1,8 @@
 {
   "name": "Node-RED",
-  "category": "iot & platforms",
+  "category": "iot platforms",
   "home": true,
+  "logo": "nodered",
   "aliases": [
     "node-red"
   ]

@@ -1,38 +1,44 @@
 ---
 /**
  * Skills — /skills/
- * Every skill from the skills collection, grouped by area in a fixed order
- * (lib/skills.ts). Saad asked for the plain list: no "used in N projects".
+ * Every skill from the skills collection, grouped like Saad's CV (order in
+ * lib/skills.ts), each with its official logo (SkillLogo) or a badge.
+ * Saad asked for the plain list: no "used in N projects".
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionHeading from "@components/SectionHeading.astro";
 import Icon from "@components/Icon.astro";
+import SkillLogo from "@components/SkillLogo.astro";
 import { getSkillGroups } from "../lib/skills";
 import { pageUrl } from "../lib/urls";
 
 const groups = await getSkillGroups();
 const total = groups.reduce((n, g) => n + g.skills.length, 0);
 
-type IconName = "chip" | "code" | "exchange" | "cloud" | "wrench";
+type IconName = "chip" | "code" | "exchange" | "cloud" | "wrench" | "pcb" | "database";
 const ICON: Record<string, IconName> = {
-  "hardware & pcb": "chip",
-  "embedded & firmware": "code",
-  protocols: "exchange",
-  "iot & platforms": "cloud",
-  tools: "wrench",
+  "embedded systems": "chip",
+  languages: "code",
+  "protocols & connectivity": "exchange",
+  "pcb & 3d design": "pcb",
+  "iot platforms": "cloud",
+  "developer tools": "wrench",
+  "web & data": "database",
 };
 const BLURB: Record<string, string> = {
-  "hardware & pcb": "Schematic capture, PCB layout and 3D for boards.",
-  "embedded & firmware": "Microcontrollers and the languages I program them in.",
-  protocols: "Buses and links between sensors, boards and systems.",
-  "iot & platforms": "Networks, brokers and dashboards for connected devices.",
-  tools: "Everything else I use around the hardware.",
+  "embedded systems": "Microcontrollers, boards and the RTOS I build firmware on.",
+  languages: "What I write firmware and tools in.",
+  "protocols & connectivity": "Buses and radios between sensors, boards and the cloud.",
+  "pcb & 3d design": "Schematic capture, PCB layout and 3D design.",
+  "iot platforms": "Brokers and dashboards for connected devices.",
+  "developer tools": "Editors, toolchains and version control.",
+  "web & data": "Front-ends and databases for device data.",
 };
 ---
 
 <BaseLayout
   title="Skills"
-  description="Hardware, embedded firmware, protocols and IoT platforms Sultan Mahmud works with — EasyEDA, ESP32, I²C, SPI, UART, Modbus, MQTT, LoRaWAN, Node-RED and more."
+  description="Hardware, embedded firmware, protocols and IoT platforms Sultan Mahmud Saad works with — EasyEDA, ESP32, I²C, SPI, UART, Modbus, MQTT, LoRaWAN, Node-RED and more."
 >
   <section class="page-header">
     <div class="container">
@@ -57,8 +63,13 @@ const BLURB: Record<string, string> = {
             </div>
             <span class="skill-group__count">{g.skills.length}<span class="sr-only"> skills</span></span>
           </header>
-          <ul class="skill-chips" role="list">
-            {g.skills.map(({ skill }) => <li class="skill-chip">{skill.data.name}</li>)}
+          <ul class="skill-tiles" role="list">
+            {g.skills.map(({ skill }) => (
+              <li class="skill-tile">
+                <SkillLogo logo={skill.data.logo} mark={skill.data.mark} name={skill.data.name} size={34} />
+                <span class="skill-tile__name">{skill.data.name}</span>
+              </li>
+            ))}
           </ul>
         </article>
       ))}
@@ -148,33 +159,44 @@ const BLURB: Record<string, string> = {
     color: var(--text-muted);
   }
 
-  .skill-chips {
-    display: flex;
-    flex-wrap: wrap;
+  /* Logo tiles: official logo (or badge) + name, in an even grid */
+  .skill-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr));
     gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .skill-chips > li + li {
+  .skill-tiles > li + li {
     margin-top: 0;
   }
 
-  .skill-chip {
-    padding: 6px 12px;
+  .skill-tile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-2);
     border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-md);
     background: var(--bg-elevated);
-    font-size: var(--fs-14);
-    font-weight: 500;
-    color: var(--text-primary);
-    transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+    transition: border-color var(--dur-fast) var(--ease-out);
   }
 
-  .skill-chip:hover {
-    border-color: var(--accent);
-    color: var(--accent);
+  .skill-tile__name {
+    min-width: 0;
+    font-size: var(--fs-14);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text-primary);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .skill-tile:hover {
+      border-color: var(--accent);
+    }
   }
 
   .skills-cta {

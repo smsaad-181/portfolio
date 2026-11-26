@@ -1,6 +1,7 @@
 {
   "name": "MySQL",
-  "category": "tools",
+  "category": "web & data",
+  "logo": "mysql",
   "aliases": [
     "mysql"
   ]

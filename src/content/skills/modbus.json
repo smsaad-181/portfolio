@@ -1,7 +1,8 @@
 {
   "name": "Modbus",
-  "category": "protocols",
+  "category": "protocols & connectivity",
   "home": true,
+  "mark": "MOD",
   "aliases": [
     "modbus"
   ]

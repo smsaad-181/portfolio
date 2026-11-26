@@ -17,6 +17,7 @@ import SectionHeading from "@components/SectionHeading.astro";
 import ProjectCard from "@components/ProjectCard.astro";
 import ResumeButton from "@components/ResumeButton.astro";
 import Icon from "@components/Icon.astro";
+import SkillLogo from "@components/SkillLogo.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { getPublishedProjects } from "../lib/projects";
@@ -99,35 +100,35 @@ const focus = ["ESP32", "Arduino", "ATmega", "I²C", "SPI", "UART", "Modbus", "M
 // two example projects. Wording only restates facts from the profile bio and
 // the project write-ups.
 const toolsOf = (...cats: string[]) =>
-  skillGroups.filter((g) => cats.includes(g.category)).flatMap((g) => g.skills.map((s) => s.skill.data.name)).slice(0, 6);
+  skillGroups.filter((g) => cats.includes(g.category)).flatMap((g) => g.skills.map((s) => s.skill.data)).slice(0, 6);
 const bySlug = (slug: string) => published.find((p) => p.id === slug);
 const areas = [
   {
     icon: "chip" as const,
     title: "PCB design",
     text: "Schematics and PCB layouts in EasyEDA Pro, from power regulation and input protection to USB-C programming circuits.",
-    tools: toolsOf("hardware & pcb"),
+    tools: toolsOf("pcb & 3d design"),
     examples: ["lora-gps-tracker", "home-automation"].map(bySlug).filter((p) => p !== undefined),
   },
   {
     icon: "code" as const,
     title: "Embedded firmware",
     text: "Firmware for ESP32 and Arduino-based boards: sensors over I²C, SPI and UART, settings kept in flash and web dashboards served by the board itself.",
-    tools: toolsOf("embedded & firmware"),
+    tools: toolsOf("embedded systems", "languages"),
     examples: ["vehicle-motion-analyzer", "home-automation"].map(bySlug).filter((p) => p !== undefined),
   },
   {
     icon: "cloud" as const,
     title: "IoT systems",
     text: "Connected devices over Wi-Fi, LoRa, Modbus and MQTT, with Node-RED or on-device dashboards for data and control.",
-    tools: toolsOf("protocols", "iot & platforms"),
+    tools: toolsOf("protocols & connectivity", "iot platforms"),
     examples: ["lora-gps-tracker", "acqua-node"].map(bySlug).filter((p) => p !== undefined),
   },
 ];
 ---
 
 <BaseLayout
-  title="Sultan Mahmud — Hardware Engineer"
+  title="Sultan Mahmud Saad — Embedded Engineer & PCB Designer"
   fullTitle
   description={profile.data.summary}
 >
@@ -174,11 +175,7 @@ const areas = [
           {profile.data.title}
         </p>
 
-        <p class="hero__bio hero-in" style="--in: 2">
-          I design PCBs, write embedded firmware and build IoT products, taking
-          an idea from the <span class="u">first schematic</span> to a
-          <span class="u">working board</span>.
-        </p>
+        <p class="hero__bio hero-in" style="--in: 2">{profile.data.summary}</p>
 
         <ul class="hero__focus hero-in" style="--in: 3" role="list" aria-label="Works with">
           {focus.map((f) => <li>{f}</li>)}
@@ -261,7 +258,7 @@ const areas = [
       <div class="container about">
         <div class="about__intro" data-reveal="left">
           <SectionHeading label="// about me" title="Hardware, end to end" id="about-heading" />
-          <p class="about__text">{profile.data.summary}</p>
+          <p class="about__text">{profile.data.bio?.[0] ?? profile.data.summary}</p>
           {currentJob && (
             <div class="about__role">
               <p class="about__role-label">Current role{sinceYear && ` · since ${sinceYear}`}</p>
@@ -306,7 +303,7 @@ const areas = [
             <p class="area__text">{a.text}</p>
             {a.tools.length > 0 && (
               <ul class="area__tools" role="list" aria-label={`${a.title} tools`}>
-                {a.tools.map((t) => <li>{t}</li>)}
+                {a.tools.map((t) => <li><SkillLogo logo={t.logo} mark={t.mark} name={t.name} size={22} />{t.name}</li>)}
               </ul>
             )}
             {a.examples.length > 0 && (
@@ -375,17 +372,6 @@ const areas = [
             </div>
           </li>
         )}
-        {education.map((e) => (
-          <li class="timeline__item" data-reveal>
-            <span class="timeline__dot"><Icon name="cap" size={18} /></span>
-            <div class="timeline__card">
-              <p class="timeline__when">{e.data.year}</p>
-              <h3 class="timeline__title">{e.data.degree}</h3>
-              <p class="timeline__where">{e.data.institute}</p>
-              <p class="timeline__result">{e.data.group} · {e.data.result}</p>
-            </div>
-          </li>
-        ))}
         {certifications.length > 0 && (
           <li class="timeline__item" data-reveal>
             <span class="timeline__dot"><Icon name="award" size={18} /></span>
@@ -398,6 +384,17 @@ const areas = [
             </div>
           </li>
         )}
+        {education.map((e) => (
+          <li class="timeline__item" data-reveal>
+            <span class="timeline__dot"><Icon name="cap" size={18} /></span>
+            <div class="timeline__card">
+              <p class="timeline__when">{e.data.year}</p>
+              <h3 class="timeline__title">{e.data.degree}</h3>
+              <p class="timeline__where">{e.data.institute}</p>
+              <p class="timeline__result">{e.data.group} · {e.data.result}</p>
+            </div>
+          </li>
+        ))}
       </ol>
       <p class="timeline__more" data-reveal><a href={pageUrl("/about/")} class="about__more">Full background on About <span aria-hidden="true">→</span></a></p>
     </div>
@@ -410,7 +407,7 @@ const areas = [
         <p class="section-label">// work with me</p>
         <h2 class="cta-title">Looking to collaborate or hire?</h2>
         <p class="cta-body">
-          I’m open to hardware engineering roles and IoT product development projects.
+          I’m open to embedded and hardware engineering roles and IoT product development projects.
           Grab my CV or reach out directly.
         </p>
       </div>
@@ -1010,8 +1007,11 @@ const areas = [
   }
 
   .area__tools li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin: 0;
-    padding: 2px 10px;
+    padding: 3px 10px 3px 3px;
     border-radius: var(--radius-pill);
     background: var(--accent-glow);
     font-size: 0.78rem;

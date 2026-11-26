@@ -1,6 +1,7 @@
 {
   "name": "LaTeX",
-  "category": "tools",
+  "category": "developer tools",
+  "logo": "latex",
   "aliases": [
     "latex"
   ]

@@ -1,0 +1,8 @@
+{
+  "name": "PlatformIO",
+  "category": "developer tools",
+  "logo": "platformio",
+  "aliases": [
+    "platformio"
+  ]
+}

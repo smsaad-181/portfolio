@@ -1,0 +1,8 @@
+{
+  "name": "Arduino IDE",
+  "category": "developer tools",
+  "logo": "arduino",
+  "aliases": [
+    "arduino ide"
+  ]
+}

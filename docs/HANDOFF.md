@@ -58,9 +58,11 @@ private links in this file.
 
 ## 4. Session log (newest first)
 
-- **2026-11-27** — Home hero redesign (Saad): full name on one line (vw-capped, fits 320 px and 125 % text), his graduation photo (`src/assets/profile/hero-photo.jpg`, square crop, no metadata) in a gradient ring on the right with role + availability cards, tech chips removed, phones: photo → name → buttons → cards → summary. Verified by a design reviewer (4/4 requirements pass) and qa-reviewer; all their safe fixes applied. About page still uses the old cut-out portrait (ask Saad). Committed locally.
+- **2026-11-27** — Removed the "See it in" project links from "What I do" and every "Prototype" status badge (cards, project header, spec row); `StatusBadge.astro` deleted. (`6f14d39`)
 
-- **2026-11-27** — Resume updated to the latest CV from `Saad-CV` (26 Nov): company "SIoT — Southern Innovation of Technology" (site-wide), deeper bullet/sub-label indents, references swapped (Tanjim left, Mridul right at the margin); PDF imported byte for byte. 970 of 975 words wrap as in the PDF (2 bullets differ: LaTeX overfills one line by 2 px). Also: 4-agent UI review fixes (~30) + Journey logos. **Committed locally, not pushed** (Saad: push later).
+- **2026-11-27** — Home hero redesign (Saad): full name on one line (vw-capped, fits 320 px and 125 % text), his graduation photo (`src/assets/profile/hero-photo.jpg`, square crop, no metadata) in a gradient ring on the right with role + availability cards, tech chips removed, phones: photo → name → buttons → cards → summary. Verified by a design reviewer (4/4 requirements pass) and qa-reviewer; all their safe fixes applied. About page still uses the old cut-out portrait (ask Saad). (`de5c185`)
+
+- **2026-11-27** — Resume updated to the latest CV from `Saad-CV` (26 Nov): company "SIoT — Southern Innovation of Technology" (site-wide), deeper bullet/sub-label indents, references swapped (Tanjim left, Mridul right at the margin); PDF imported byte for byte. 970 of 975 words wrap as in the PDF (2 bullets differ: LaTeX overfills one line by 2 px). Also: 4-agent UI review fixes (~30) + Journey logos. Pushed 27 Nov (`8576669`, `57d750d`).
 
 - **2026-11-26** — Name "Sultan Mahmud Saad" + title "Embedded Engineer & PCB Designer" site-wide; CV summary in the hero; company SIOT — Southern Innovation of Technology (site only); About bio rewritten; Skills regrouped like the CV with official logos (Simple Icons) + 10 CV skills added; Journey: training before education. **Pending:** official logos for the Journey (SIOT, Gono University, schools) — find online, show Saad before publishing.
 

@@ -82,33 +82,29 @@ const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 
 const city = profile.data.location.split(",")[0];
 const fmtMonth = formatMonthYear;
 
-// "What I do": three areas, each with tools from the skills collection and
-// two example projects. Wording only restates facts from the profile bio and
+// "What I do": three areas, each with tools from the skills collection.
+// Wording only restates facts from the profile bio and
 // the project write-ups.
 const toolsOf = (...cats: string[]) =>
   skillGroups.filter((g) => cats.includes(g.category)).flatMap((g) => g.skills.map((s) => s.skill.data)).slice(0, 6);
-const bySlug = (slug: string) => published.find((p) => p.id === slug);
 const areas = [
   {
     icon: "chip" as const,
     title: "PCB design",
     text: "Schematics and PCB layouts in EasyEDA Pro, from power regulation and input protection to USB-C programming circuits.",
     tools: toolsOf("pcb & 3d design"),
-    examples: ["lora-gps-tracker", "home-automation"].map(bySlug).filter((p) => p !== undefined),
   },
   {
     icon: "code" as const,
     title: "Embedded firmware",
     text: "Firmware for ESP32 and Arduino-based boards: sensors over I²C, SPI and UART, settings kept in flash and web dashboards served by the board itself.",
     tools: toolsOf("embedded systems", "languages"),
-    examples: ["vehicle-motion-analyzer", "home-automation"].map(bySlug).filter((p) => p !== undefined),
   },
   {
     icon: "cloud" as const,
     title: "IoT systems",
     text: "Connected devices over Wi-Fi, LoRa, Modbus and MQTT, with Node-RED or on-device dashboards for data and control.",
     tools: toolsOf("protocols & connectivity", "iot platforms"),
-    examples: ["lora-gps-tracker", "acqua-node"].map(bySlug).filter((p) => p !== undefined),
   },
 ];
 ---
@@ -268,7 +264,7 @@ const areas = [
           label="// what I do"
           title="From schematic to working product"
           id="do-heading"
-          description="Three areas I work across, the tools I use for each, and projects that show them."
+          description="Three areas I work across and the tools I use for each."
         />
       </div>
       <ul class="areas" role="list" data-reveal-stagger>
@@ -284,12 +280,6 @@ const areas = [
               <ul class="area__tools" role="list" aria-label={`${a.title} tools`}>
                 {a.tools.map((t) => <li class:list={[{ "no-logo": !t.logo }]}>{t.logo && <SkillLogo logo={t.logo} name={t.name} size={22} />}{t.name}</li>)}
               </ul>
-            )}
-            {a.examples.length > 0 && (
-              <div class="area__examples">
-                <span class="area__examples-label">See it in</span>
-                {a.examples.map((p) => <a href={projectUrl(p)}>{p.data.title}</a>)}
-              </div>
             )}
           </li>
         ))}
@@ -317,7 +307,6 @@ const areas = [
               summary={project.data.summary}
               coverImage={project.data.coverImage}
               tags={project.data.tags}
-              status={project.data.status}
               versions={project.data.versions.map((v) => v.label)}
             />
           ))}
@@ -1092,29 +1081,6 @@ const areas = [
 
   .area__tools li.no-logo {
     padding-left: 10px;
-  }
-
-  .area__examples {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: auto;
-    padding-top: var(--space-3);
-    border-top: 1px dashed var(--border);
-    font-size: var(--fs-14);
-  }
-
-  .area__examples-label {
-    font-family: var(--font-mono);
-    font-size: var(--fs-12);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .area__examples a {
-    color: var(--accent);
-    font-weight: 500;
   }
 
   /* ── Timeline ─────────────────────────────────────────────────────────── */

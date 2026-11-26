@@ -7,7 +7,6 @@
  * project has one) and previous/next navigation. Drafts never get a page.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
-import StatusBadge from "@components/StatusBadge.astro";
 import TagChip from "@components/TagChip.astro";
 import BoardViewer from "@components/BoardViewer.astro";
 import PublicImage from "@components/PublicImage.astro";
@@ -64,7 +63,6 @@ const shownAbove = new Set([cover?.src, ...(versions.length > 1 ? versions.map((
 const renders = gallery.filter((g) => g.kind === "render" && !shownAbove.has(g.src));
 const dashboards = gallery.filter((g) => g.kind === "dashboard");
 
-const statusLabel = { completed: "Completed", "in-progress": "In progress", prototype: "Prototype" } as const;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -96,7 +94,6 @@ const jsonLd = {
     <header class="project-head container">
       <div class="project-head__main">
         <div class="project-head__meta">
-          <StatusBadge status={data.status} />
           {data.role && <span class="project-head__role">{data.role}</span>}
         </div>
         <h1 class="project-head__title" id="project-title">{data.title}</h1>
@@ -135,10 +132,6 @@ const jsonLd = {
           )}
           {data.specs.length > 0 && (
             <dl class="spec-card__list">
-              <div class="spec-card__row">
-                <dt>Status</dt>
-                <dd>{statusLabel[data.status]}</dd>
-              </div>
               {data.specs.map((s) => (
                 <div class="spec-card__row">
                   <dt>{s.label}</dt>

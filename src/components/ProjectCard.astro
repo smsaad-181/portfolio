@@ -1,7 +1,7 @@
 ---
 /**
  * ProjectCard.astro
- * Grid card for a project. Shows: cover image, status, tags, title, the
+ * Grid card for a project. Shows: cover image, tags, title, the
  * summary, the board versions (when there are several) and a link.
  *
  * Its 6 direct children are the 6 rows of the shared .projects-grid subgrid
@@ -13,7 +13,6 @@
  * placeholder text shown to the public).
  */
 import PublicImage from "@components/PublicImage.astro";
-import StatusBadge from "@components/StatusBadge.astro";
 import TagChip from "@components/TagChip.astro";
 import { publicFileExists } from "../lib/urls";
 
@@ -27,7 +26,6 @@ export interface Props {
     alt: string;
   };
   tags: string[];
-  status: "completed" | "in-progress" | "prototype";
   /** Board version names; 2+ shows the stacked look and the version list. */
   versions?: string[];
   /** Above-the-fold cards: load the image immediately (it is often the LCP). */
@@ -36,7 +34,7 @@ export interface Props {
   headingLevel?: 2 | 3;
 }
 
-const { title, href, summary, coverImage, tags, status, versions = [], priority = false, headingLevel = 3 } = Astro.props;
+const { title, href, summary, coverImage, tags, versions = [], priority = false, headingLevel = 3 } = Astro.props;
 const multi = versions.length > 1;
 const Heading = headingLevel === 2 ? "h2" : "h3";
 const hasCover = publicFileExists(coverImage.src);
@@ -67,7 +65,6 @@ const displayTags = tags.slice(0, 3);
   ) : <div aria-hidden="true"></div>}
 
     <div class="project-card__meta">
-      <StatusBadge status={status} />
       <div class="project-card__tags">
         {displayTags.map((tag) => <TagChip tag={tag} />)}
         {tags.length > 3 && (

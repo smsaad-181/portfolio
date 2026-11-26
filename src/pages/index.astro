@@ -1,16 +1,16 @@
 ---
 /**
  * Homepage — /
- * Hero in Saad's chosen style: "Hello, I'm", gradient name, role pill, bio
- * with underlined highlights, flowing line-art and glows, and his cut-out
- * portrait on the right fading into the page, the protocols/MCUs he works
- * with, labelled profile links and real counts. Then "About me", "What I do"
- * (3 areas with their tools and example projects), the first 6 projects in
+ * Hero in Saad's chosen style: "Hello, I'm", gradient name on one line, role
+ * pill, CV summary, actions, labelled profile links and real counts, with
+ * flowing line-art and glows; on the right his photo in a gradient ring with
+ * his current role and availability as small cards. Then "About me", "What I
+ * do" (3 areas with their tools and example projects), the first 6 projects in
  * Saad's order (`order`), an experience/education timeline and the CV CTA.
  * Sections animate in on scroll ([data-reveal], BaseLayout).
  *
- * Portrait: src/assets/profile/portrait.{png,webp,jpg} — a transparent-
- * background cut-out looks best. Optimised by Astro's <Image />.
+ * Hero photo: src/assets/profile/hero-photo.jpg (square crop, face slightly
+ * above centre). Optimised by Astro's <Image />.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import SectionHeading from "@components/SectionHeading.astro";
@@ -20,6 +20,7 @@ import Icon from "@components/Icon.astro";
 import SkillLogo from "@components/SkillLogo.astro";
 import PublicImage from "@components/PublicImage.astro";
 import { Image } from "astro:assets";
+import heroPhoto from "../assets/profile/hero-photo.jpg";
 import { getCollection } from "astro:content";
 import { getPublishedProjects } from "../lib/projects";
 import { getProfile } from "../lib/profile";
@@ -62,23 +63,10 @@ const ICONS: Record<string, string> = {
   email: "M3 5h18a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2.4V17h16V7.4l-8 5.3-8-5.3ZM5.2 7 12 11.5 18.8 7H5.2Z",
 };
 
-// Portrait — first match wins.
-const portraitFiles = import.meta.glob<{ default: ImageMetadata }>(
-  "../assets/profile/portrait.{png,webp,avif,jpg,jpeg}",
-  { eager: true }
-);
-const portrait = Object.values(portraitFiles)[0]?.default;
-const person = await personJsonLd(portrait);
-
-const initials = profile.data.name
-  .split(" ")
-  .map((w) => w.charAt(0))
-  .join("")
-  .slice(0, 2)
-  .toUpperCase();
-
-
-
+// Hero photo: Saad's graduation photo (27 Nov 2026), square crop, shown in a circle.
+const person = await personJsonLd(heroPhoto);
+// Hyphenated words ("2-layer", "sensor-based") never break at the hyphen.
+const summaryParts = profile.data.summary.split(/(S+-S+)/);
 
 // Flowing line-art for the hero background: a family of cubic curves whose
 // four points each drift by a fixed step per line, which reads as silk/waves.
@@ -93,9 +81,6 @@ const wavesTop = wavePaths(42, [120, -40, 7, 0], [100, 280, 5, -4], [540, 400, -
 const wavesBottom = wavePaths(42, [-60, 140, 0, 6], [260, 20, 3, 5], [160, 560, 7, -3], [560, 620, 5, 0]);
 const city = profile.data.location.split(",")[0];
 const fmtMonth = formatMonthYear;
-
-// Tech he works with daily — straight from his profile summary.
-const focus = ["ESP32", "Arduino", "ATmega", "I²C", "SPI", "UART", "Modbus", "MQTT", "LoRaWAN"];
 
 // "What I do": three areas, each with tools from the skills collection and
 // two example projects. Wording only restates facts from the profile bio and
@@ -176,33 +161,16 @@ const areas = [
           {profile.data.title}
         </p>
 
-        <p class="hero__bio hero-in" style="--in: 2">{profile.data.summary}</p>
+        <p class="hero__bio hero-in" style="--in: 2">{summaryParts.map((p, i) => (i % 2 ? <span class="nobr">{p}</span> : p))}</p>
 
-        <ul class="hero__focus hero-in" style="--in: 3" role="list" aria-label="Works with">
-          {focus.map((f) => <li>{f}</li>)}
-        </ul>
-
-        {currentJob && (
-          <p class="hero__now hero-in" style="--in: 4">
-            <span class="hero__now-dot" aria-hidden="true"></span>
-            <span>{currentJob.data.role} at <strong>{currentJob.data.company}</strong> · {city}</span>
-          </p>
-        )}
-        {profile.data.availability && (
-          <p class="hero__avail hero-in" style="--in: 4">
-            <Icon name="briefcase" size={16} />
-            <span>{profile.data.availability}</span>
-          </p>
-        )}
-
-        <div class="hero__actions hero-in" style="--in: 5">
+        <div class="hero__actions hero-in" style="--in: 3">
           <a href={pageUrl("/about/")} class="btn btn--primary">
             <Icon name="user" size={18} /> About me
           </a>
           <ResumeButton variant="secondary" />
         </div>
 
-        <ul class="hero__social hero-in" style="--in: 6" role="list" aria-label="Contact and profiles">
+        <ul class="hero__social hero-in" style="--in: 4" role="list" aria-label="Contact and profiles">
           {social.map((l) => (
             <li>
               <a
@@ -220,7 +188,7 @@ const areas = [
         </ul>
 
         {stats.length > 0 && (
-          <dl class="hero__stats hero-in" style="--in: 7">
+          <dl class="hero__stats hero-in" style="--in: 5">
             {stats.map((s) => (
               <div class="hero__stat">
                 <dt>{s.label}</dt>
@@ -232,22 +200,32 @@ const areas = [
       </div>
 
       <div class="hero__portrait">
-        <div class="hero__portrait-glow" aria-hidden="true"></div>
-        {portrait ? (
-          <Image
-            src={portrait}
-            alt={`${profile.data.name}, ${profile.data.title}`}
-            widths={[400, 560, 800, 1120]}
-            sizes="(max-width: 900px) 340px, 560px"
-            quality={80}
-            loading="eager"
-            fetchpriority="high"
-            class="hero__photo"
-          />
-        ) : (
-          <div class="hero__monogram" role="img" aria-label={profile.data.name}>
-            <span>{initials}</span>
+        <div class="hero__photo-wrap">
+          <div class="hero__orbit" aria-hidden="true"></div>
+          <div class="hero__ring">
+            <Image
+              src={heroPhoto}
+              alt={`${profile.data.name}, ${profile.data.title}`}
+              widths={[240, 360, 480, 720, 960]}
+              sizes="(max-width: 900px) 240px, (max-width: 1200px) 320px, 370px"
+              quality={82}
+              loading="eager"
+              fetchpriority="high"
+              class="hero__photo"
+            />
           </div>
+        </div>
+        {currentJob && (
+          <p class="hero__card hero__card--role">
+            <span class="hero__card-icon" aria-hidden="true"><Icon name="briefcase" size={16} /></span>
+            <span><span class="sr-only">Current role: </span><span class="hero__card-label">{currentJob.data.role}</span><span class="hero__card-value">{currentJob.data.company.split(" — ")[0]} · {city}</span></span>
+          </p>
+        )}
+        {profile.data.availability && (
+          <p class="hero__card hero__card--avail">
+            <span class="hero__card-dot" aria-hidden="true"></span>
+            <span class="hero__card-value">{profile.data.availability}</span>
+          </p>
         )}
       </div>
     </div>
@@ -483,7 +461,7 @@ const areas = [
     bottom: -14%;
     left: -6%;
     width: 50%;
-    height: 75%;
+    height: 60%; /* clear of the stats labels */
     opacity: calc(var(--hero-wave-opacity) * 0.8);
     animation: drift 22s ease-in-out infinite alternate-reverse;
   }
@@ -506,7 +484,7 @@ const areas = [
 
   .hero__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
     gap: var(--space-12);
     align-items: center;
   }
@@ -523,11 +501,13 @@ const areas = [
   }
 
   .hero__name {
-    font-size: clamp(var(--fs-40), 5.5vw, 4rem);
-    font-weight: 500;
+    /* the full name stays on one line (Saad, 27 Nov 2026) */
+    font-size: min(clamp(1.75rem, 4.3vw, 3.75rem), 8.6vw); /* vw cap: fits even with a larger default text size */
+    white-space: nowrap;
+    font-weight: 600;
     line-height: 1.1;
-    letter-spacing: -0.01em;
-    margin-bottom: var(--space-6);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-4);
     background: var(--gradient-name);
     -webkit-background-clip: text;
     background-clip: text;
@@ -543,7 +523,8 @@ const areas = [
     border-radius: var(--radius-pill);
     border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
     background: color-mix(in srgb, var(--accent-2) 10%, transparent);
-    font-size: var(--fs-16);
+    font-size: min(var(--fs-16), 4.2vw); /* vw cap: one line on 320 px phones */
+    white-space: nowrap;
     font-weight: 500;
     color: var(--text-primary);
     margin-bottom: var(--space-6);
@@ -557,10 +538,9 @@ const areas = [
 
   .hero__bio {
     font-size: var(--fs-18);
-    line-height: 1.85;
-    letter-spacing: 0.02em;
+    line-height: 1.65;
     color: var(--text-secondary);
-    max-width: 56ch;
+    max-width: 34rem;
     margin-bottom: var(--space-8);
   }
 
@@ -572,30 +552,6 @@ const areas = [
     background-position: 0 100%;
     background-repeat: no-repeat;
     padding-bottom: 2px;
-  }
-
-  .hero__now {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    margin: 0 0 var(--space-4);
-    font-size: var(--fs-14);
-    color: var(--text-secondary);
-  }
-
-  .hero__now strong {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .hero__now-dot {
-    width: 8px;
-    height: 8px;
-    flex: none;
-    margin: calc((1lh - 8px) / 2) 4px 0; /* first line; 16 px wide like the briefcase icon */
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-glow);
   }
 
   .hero__actions {
@@ -673,37 +629,6 @@ const areas = [
     }
   }
 
-  /* Protocols / MCUs he works with */
-  .hero__focus {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0 0 var(--space-4);
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero__focus li {
-    margin: 0;
-    padding: 3px 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: color-mix(in srgb, var(--bg-surface) 75%, transparent);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-  }
-
-  .hero__avail {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin: 0 0 var(--space-6);
-    font-size: var(--fs-14);
-    font-weight: 500;
-    color: var(--accent);
-  }
-
   /* Hero entrance: text slides up in sequence (the name and portrait stay
      put so the largest paint isn't delayed). */
   .hero-in {
@@ -735,7 +660,7 @@ const areas = [
     grid-template-columns: repeat(3, minmax(0, max-content));
     column-gap: var(--space-8);
     row-gap: var(--space-6);
-    margin-top: var(--space-8);
+    margin-top: var(--space-6);
     padding-top: var(--space-6);
     border-top: 1px solid var(--border);
   }
@@ -759,57 +684,196 @@ const areas = [
     color: var(--text-muted);
   }
 
-  /* Portrait — sits on the bottom edge and fades into the background */
+  /* Photo in a gradient ring, a slow dashed orbit and two info cards */
   .hero__portrait {
     position: relative;
-    align-self: end;
-    display: flex;
-    justify-content: center;
+    justify-self: center;
+    width: min(100%, 420px);
   }
 
-  .hero__portrait-glow {
-    position: absolute;
-    bottom: 12%;
-    left: 50%;
-    width: 85%;
+  .hero__photo-wrap {
+    position: relative;
+    padding: var(--space-6);
+  }
+
+  .hero__ring {
+    position: relative;
     aspect-ratio: 1;
-    transform: translateX(-50%);
     border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 65%);
-    /* the radial gradient is already soft — a blur filter only cost paint time on phones */
-    z-index: -1;
+    padding: 5px;
+    background: var(--gradient-accent);
+    box-shadow:
+      0 0 0 10px color-mix(in srgb, var(--accent-2) 10%, transparent),
+      0 24px 70px -20px color-mix(in srgb, var(--accent) 55%, transparent);
   }
 
   .hero__photo {
     display: block;
     width: 100%;
-    max-width: 560px;
-    height: auto;
-    /* any opaque token works here — a mask only reads alpha */
-    -webkit-mask-image: linear-gradient(to bottom, var(--text-primary) 80%, transparent 100%);
-    mask-image: linear-gradient(to bottom, var(--text-primary) 80%, transparent 100%);
-  }
-
-  .hero__monogram {
-    align-self: center;
-    margin-bottom: 18vh;
-    width: min(340px, 70vw);
-    aspect-ratio: 1;
+    height: 100%;
+    object-fit: cover;
     border-radius: 50%;
-    padding: 3px;
-    background: var(--gradient-accent);
-    display: grid;
+    border: 5px solid var(--bg-base);
+    background: var(--bg-elevated);
   }
 
-  .hero__monogram span {
+  .hero__orbit {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px dashed color-mix(in srgb, var(--accent-2) 45%, transparent);
+    animation: orbit 60s linear infinite;
+  }
+
+  @keyframes orbit {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__orbit { animation: none; }
+  }
+
+  :global(:root.motion-paused) .hero__orbit {
+    animation-play-state: paused;
+  }
+
+  .hero__card {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 290px;
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+    font-size: var(--fs-14);
+    line-height: 1.35;
+  }
+
+  .hero__card--role {
+    top: -4%;
+    left: -10%;
+  }
+
+  .hero__card--avail {
+    bottom: 4%;
+    right: 0; /* stays inside the content edge */
+  }
+
+  .hero__card-icon {
     display: grid;
     place-items: center;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 25%, var(--bg-elevated), var(--bg-base) 70%);
-    font-family: var(--font-script);
-    font-size: clamp(5rem, 12vw, 8rem);
-    line-height: 1;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-accent);
+    color: var(--text-on-accent);
+  }
+
+  .hero__card-label {
+    display: block;
+    font-weight: 600;
     color: var(--text-primary);
+  }
+
+  .hero__card-value {
+    display: block;
+    color: var(--text-secondary);
+  }
+
+  .hero__card--avail .hero__card-value {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .hero__card-dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--status-completed);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-completed) 25%, transparent);
+  }
+
+  .nobr {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1199px) {
+    .hero__card--role { left: -4%; top: -8%; }
+  }
+
+  /* Narrow two-column (641–1099 px): the cards sit under the photo */
+  @media (max-width: 1099px) {
+    .hero__portrait {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .hero__photo-wrap {
+      width: 100%;
+    }
+
+    .hero__card {
+      position: static;
+      width: fit-content;
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+      gap: var(--space-8);
+    }
+  }
+
+  /* Phones: one column — photo, name, title, buttons, info cards, summary,
+     profiles, stats. Both wrappers dissolve so every block is a grid item. */
+  @media (max-width: 640px) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding-bottom: var(--space-8);
+    }
+
+    .hero__portrait,
+    .hero__content {
+      display: contents;
+    }
+
+    .hero__name {
+      font-size: min(clamp(1.75rem, 8.6vw, 3.25rem), 8.6vw);
+    }
+
+    .hero__inner > *,
+    .hero__content > *,
+    .hero__portrait > * {
+      justify-self: start;
+    }
+
+    .hero__inner .hero__photo-wrap {
+      order: -1;
+      justify-self: center;
+      width: min(240px, 66vw);
+      margin-block: var(--space-6);
+      padding: var(--space-4);
+    }
+
+    .hero__actions { order: 1; margin-bottom: var(--space-6); }
+    .hero__card { order: 2; margin-bottom: var(--space-3); }
+    .hero__card--avail { margin-bottom: var(--space-6); }
+    .hero__bio { order: 3; justify-self: stretch; }
+    .hero__social { order: 4; }
+    .hero__stats { order: 5; justify-self: stretch; }
   }
 
   /* About me */
@@ -1255,24 +1319,6 @@ const areas = [
   @media (max-width: 900px) {
     .hero {
       min-height: unset;
-    }
-
-    .hero__inner {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-
-    .hero__content {
-      padding-block: var(--space-12) var(--space-8);
-    }
-
-    .hero__photo {
-      max-width: 340px;
-    }
-
-    .hero__monogram {
-      margin-bottom: var(--space-12);
-      width: min(220px, 60vw);
     }
 
     .about {

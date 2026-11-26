@@ -13,7 +13,7 @@ use the shorter `src/content/experience/*.json`, `education/*.json` and
   `D:\CV\CV\main.tex` word for word and "Download PDF" is his exact PDF. He
   chose to publish his phone and both referees' contact details as in the PDF;
   they live only in `src/content/resume/cv.json`. Don't add them anywhere else.
-- Experience: **SouthernIoT** — Embedded System and PCB Designer, Jan 2025–Present
+- Experience: **SIoT — Southern Innovation of Technology** (was "SouthernIoT" until the 26 Nov CV) — Embedded System and PCB Designer, Jan 2025–Present
   (replaces "Assistant Officer, SIOT Solutions"). **Project-Based Work** —
   Freelance Embedded Systems Engineer, 2021–2025 (year-only dates).
 - Education: Gono University (Gono Bishwabidyalay), B.Sc. in EEE, **2018–2023**
@@ -21,7 +21,7 @@ use the shorter `src/content/experience/*.json`, `education/*.json` and
   GPA 5.00/5.00. SSC is not on the new CV but Saad chose to keep it on the site.
 - Work projects not on the Projects page (no files/photos): Careflow V1.0
   (industrial energy monitoring, LoRaWAN, RAK3312), ETS (RMG product tracking,
-  RFID), Office Automation (4-channel ESP32 relay controller) — all SouthernIoT.
+  RFID), Office Automation (4-channel ESP32 relay controller) — all SIoT.
 - Summary claims from the CV: 4+ years hands-on experience; 2-layer PCB design;
   FreeRTOS; KiCad.
 

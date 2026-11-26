@@ -474,6 +474,7 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
 
   .cv__sub {
     margin-top: 3.5pt !important;
+    padding-left: 1.2em; /* hspace*{1.2em} */
     font-size: 9pt;
     line-height: 11.5pt;
     font-weight: 700;
@@ -488,11 +489,11 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     color: var(--paper-subtle);
   }
 
-  /* itemize: leftmargin 1.3em, \textbullet, topsep 2pt, itemsep 1pt; the
+  /* itemize: leftmargin 2.6em, \textbullet, topsep 2pt, itemsep 1pt; the
      space after a list is padding (a margin would collapse away) */
   .cv__list {
     margin: 2pt 0 0;
-    padding: 0 0 2pt 1.3em;
+    padding: 0 0 2pt 2.6em;
     list-style: none;
   }
 
@@ -532,10 +533,12 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     margin: 0;
   }
 
-  /* References: two equal columns, icons in a 1.4em slot */
+  /* References: left column half the width, right column 0.27 of the width
+     flush with the right margin (hfill between minipages); icons in a 1.4em slot */
   .cv__refs {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 50% 27%;
+    justify-content: space-between;
   }
 
   .cv__refico {

@@ -37,7 +37,7 @@ Pages were written only from each project's README, documentation, BOM and sourc
 | 23 | Blog (3 drafts) | New posts written only from the project write-ups and the 3D pipeline README: `lora-gps-tracker-without-sim-or-cloud`, `home-automation-relay-board-revisions`, `interactive-3d-boards-from-easyeda`. They are `draft: true`, visible only on the local dev server. | **Saad: read each post on localhost, then tell Claude which to publish (sets `draft: false` and the real publish date).** The Blog menu link appears once one post is published. |
 
 ### Site update — 26 Nov 2026
-- Name **Sultan Mahmud Saad** and title **Embedded Engineer & PCB Designer** everywhere; employer shown as **SIOT — Southern Innovation of Technology** on the site (resume keeps his PDF's "SouthernIoT").
+- Name **Sultan Mahmud Saad** and title **Embedded Engineer & PCB Designer** everywhere; employer **SIoT — Southern Innovation of Technology** everywhere (his CV of 26 Nov renamed it from "SouthernIoT").
 - **Please confirm:** the rewritten About bio (3 paragraphs in src/content/profile/saad.json) and "Python" (was "Python (basic)").
 
 ### Resume = Saad's own PDF — 25/26 Nov 2026 (supersedes the entries below)

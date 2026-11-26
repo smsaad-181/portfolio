@@ -18,7 +18,7 @@
   ],
   "experience": [
     {
-      "org": "SouthernIoT",
+      "org": "SIoT — Southern Innovation of Technology",
       "dates": "January 2025 – Present",
       "role": "Embedded System and PCB Designer",
       "location": "Dhaka, Bangladesh",
@@ -32,7 +32,7 @@
       ],
       "achievements": [
         "Designed and fabricated custom PCBs in EasyEDA that passed manufacturing DRC checks on the first revision.",
-        "Designed the Office Automation PCB and a working prototype for SouthernIoT.",
+        "Designed the Office Automation PCB and a working prototype for SIoT.",
         "Delivered production-grade embedded firmware for IoT devices deployed in live industrial environments."
       ]
     },
@@ -55,7 +55,7 @@
   "projects": [
     {
       "title": "Careflow V1.0 – Industrial Energy Monitoring System",
-      "note": "SouthernIoT",
+      "note": "SIoT",
       "tech": "LoRa, LoRaWAN, ESP32, C++, RS485, RS232, EasyEDA",
       "bullets": [
         "Industrial IoT system tracking real-time power, voltage, current, power factor and energy consumption across equipment, using smart meters, edge gateways and cloud or local dashboards.",
@@ -66,7 +66,7 @@
     },
     {
       "title": "ETS – Electronic Token System (RMG Product Tracking)",
-      "note": "SouthernIoT",
+      "note": "SIoT",
       "tech": "RAK3312, RAK5802, ILI9341 TFT, MFRC522 RFID",
       "bullets": [
         "Developed an IoT-based RMG product tracking system using the RAK3312, an ILI9341 TFT display and an MFRC522 RFID reader to track products across production stations."
@@ -75,7 +75,7 @@
     },
     {
       "title": "Office Automation – 4-Channel Relay Controller",
-      "note": "SouthernIoT",
+      "note": "SIoT",
       "tech": "ESP32, Relay Module, MQTT, FreeRTOS, EasyEDA",
       "bullets": [
         "Built an IoT office automation system to remotely control electrical appliances, with an ESP32 driving a 4-channel relay module for independent switching.",
@@ -133,13 +133,34 @@
     }
   ],
   "skills": [
-    { "label": "Languages", "items": "C, C++, Python" },
-    { "label": "Embedded Systems", "items": "ESP32, Arduino, Raspberry Pi, FreeRTOS" },
-    { "label": "Protocols", "items": "UART, SPI, I2C, RS485/Modbus, MQTT, LoRa/LoRaWAN, Wi-Fi, BLE" },
-    { "label": "PCB Design", "items": "EasyEDA, KiCad, Proteus" },
-    { "label": "3D Design", "items": "Fusion 360" },
-    { "label": "Developer Tools", "items": "VS Code, ESP-IDF, PlatformIO, Arduino IDE, Git, GitHub" },
-    { "label": "Web", "items": "ReactJS" }
+    {
+      "label": "Languages",
+      "items": "C, C++, Python"
+    },
+    {
+      "label": "Embedded Systems",
+      "items": "ESP32, Arduino, Raspberry Pi, FreeRTOS"
+    },
+    {
+      "label": "Protocols",
+      "items": "UART, SPI, I2C, RS485/Modbus, MQTT, LoRa/LoRaWAN, Wi-Fi, BLE"
+    },
+    {
+      "label": "PCB Design",
+      "items": "EasyEDA, KiCad, Proteus"
+    },
+    {
+      "label": "3D Design",
+      "items": "Fusion 360"
+    },
+    {
+      "label": "Developer Tools",
+      "items": "VS Code, ESP-IDF, PlatformIO, Arduino IDE, Git, GitHub"
+    },
+    {
+      "label": "Web",
+      "items": "ReactJS"
+    }
   ],
   "training": [
     "Completed IPS Training.",
@@ -153,18 +174,18 @@
   ],
   "references": [
     {
-      "name": "S. Mridul Kanti Saha",
-      "title": "Assistant Professor (EEE)",
-      "org": "Gono Bishwabidyalay",
-      "email": "smk.saha22@gmail.com",
-      "phone": "+880 1726642205"
-    },
-    {
       "name": "Engr. F.M. Tanjim-Ul-Islam",
       "title": "Assistant Manager",
       "org": "AEGIS (SQUARE Group)",
       "email": "tanjim.cuteme@gmail.com",
       "phone": "+8801712-529818"
+    },
+    {
+      "name": "S. Mridul Kanti Saha",
+      "title": "Assistant Professor (EEE)",
+      "org": "Gono Bishwabidyalay",
+      "email": "smk.saha22@gmail.com",
+      "phone": "+880 1726642205"
     }
   ]
 }

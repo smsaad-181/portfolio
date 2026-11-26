@@ -111,7 +111,7 @@ const first = boards[0];
 
       <p class="sr-only" data-live aria-live="polite"></p>
       <p class="bv__info" data-info>
-        Hover or click a component to identify it. Use <em>Bottom</em> or the explode slider to see the parts on the back.
+        Hover, click or tap a component to identify it. Use <em>Bottom</em> or the explode slider to see the parts on the back.
       </p>
     </div>
     <p class="bv__cap" data-cap></p>
@@ -731,7 +731,7 @@ const first = boards[0];
     bottom: var(--space-2);
     margin: 0;
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: var(--fs-12);
     color: var(--text-muted);
     pointer-events: none;
   }
@@ -772,10 +772,27 @@ const first = boards[0];
     .bv__find select {
       flex: 1;
       max-width: none;
+      min-width: 0;
+      width: 100%;
+      min-height: 44px;
     }
 
     .bv__hint {
       display: none;
+    }
+
+    /* 44 px touch targets */
+    .bv__btn,
+    .bv__tab {
+      min-height: 44px;
+    }
+
+    .bv__btn--icon {
+      width: 44px;
+    }
+
+    .bv__explode input {
+      height: 44px;
     }
   }
 

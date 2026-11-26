@@ -97,6 +97,7 @@ const education = defineCollection({
     institute: z.string(),
     group: z.string(),
     year: z.number().int(), // year finished
+    logo: imageSchema.optional(), // institution logo (public/images/logos/), shown in the Home timeline
     result: z.string(),
   }),
 });

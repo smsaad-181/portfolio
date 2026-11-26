@@ -109,6 +109,7 @@
   --font-body: "Rubik Variable", "Rubik", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --font-script: "Mr Dafoe", "Brush Script MT", cursive;
+  --fs-12: 0.75rem; /* smallest UI text: chips, badges, mono labels */
   --fs-14: 0.875rem;
   --fs-16: 1rem;
   --fs-18: 1.125rem;

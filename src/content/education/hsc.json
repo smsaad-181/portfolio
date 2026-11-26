@@ -3,5 +3,9 @@
   "institute": "Police Lines School and College",
   "group": "Science",
   "year": 2017,
-  "result": "GPA 5.00/5.00"
+  "result": "GPA 5.00/5.00",
+  "logo": {
+    "src": "/images/logos/police-lines-school-rangpur.png",
+    "alt": "Police Lines School and College logo"
+  }
 }

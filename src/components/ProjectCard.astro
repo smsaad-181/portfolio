@@ -79,7 +79,7 @@ const displayTags = tags.slice(0, 3);
     </div>
 
     <Heading class="project-card__title">
-      <a href={href} class="project-card__title-link">{title}</a>
+      <a href={href} class="project-card__title-link">{title}{multi && <span class="sr-only">, {versions.length} board versions</span>}</a>
     </Heading>
 
     <p class="project-card__summary">{summary}</p>
@@ -93,7 +93,7 @@ const displayTags = tags.slice(0, 3);
       </div>
     ) : <div aria-hidden="true"></div>}
 
-    <a href={href} class="project-card__cta" aria-label={`View project: ${title}${multi ? `, ${versions.length} versions` : ""}`}>
+    <a href={href} class="project-card__cta" tabindex="-1" aria-hidden="true">
       View project <span class="project-card__cta-arrow" aria-hidden="true">→</span>
     </a>
 </article>
@@ -216,6 +216,8 @@ const displayTags = tags.slice(0, 3);
   .project-card__meta {
     display: flex;
     align-items: center;
+    align-content: flex-start;
+    align-self: start;
     gap: var(--space-3);
     flex-wrap: wrap;
   }
@@ -223,7 +225,7 @@ const displayTags = tags.slice(0, 3);
   .project-card__versions-label {
     margin: 0 0 var(--space-2);
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--fs-12);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -260,7 +262,7 @@ const displayTags = tags.slice(0, 3);
 
   .project-card__tags-more {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--fs-12);
     color: var(--text-muted);
     padding: 2px 6px;
   }
@@ -295,7 +297,7 @@ const displayTags = tags.slice(0, 3);
   }
 
   .project-card__cta {
-    font-size: 0.8rem;
+    font-size: var(--fs-14);
     font-weight: 600;
     font-family: var(--font-mono);
     color: var(--accent);

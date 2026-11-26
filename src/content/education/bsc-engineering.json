@@ -3,5 +3,9 @@
   "institute": "Gono University (Gono Bishwabidyalay)",
   "group": "Electrical and Electronic Engineering",
   "year": 2023,
-  "result": "CGPA 3.59/4.00"
+  "result": "CGPA 3.59/4.00",
+  "logo": {
+    "src": "/images/logos/gono-bishwabidyalay.png",
+    "alt": "Gono Bishwabidyalay logo"
+  }
 }

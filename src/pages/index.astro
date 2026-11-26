@@ -18,6 +18,7 @@ import ProjectCard from "@components/ProjectCard.astro";
 import ResumeButton from "@components/ResumeButton.astro";
 import Icon from "@components/Icon.astro";
 import SkillLogo from "@components/SkillLogo.astro";
+import PublicImage from "@components/PublicImage.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { getPublishedProjects } from "../lib/projects";
@@ -303,7 +304,7 @@ const areas = [
             <p class="area__text">{a.text}</p>
             {a.tools.length > 0 && (
               <ul class="area__tools" role="list" aria-label={`${a.title} tools`}>
-                {a.tools.map((t) => <li><SkillLogo logo={t.logo} mark={t.mark} name={t.name} size={22} />{t.name}</li>)}
+                {a.tools.map((t) => <li class:list={[{ "no-logo": !t.logo }]}>{t.logo && <SkillLogo logo={t.logo} name={t.name} size={22} />}{t.name}</li>)}
               </ul>
             )}
             {a.examples.length > 0 && (
@@ -386,7 +387,7 @@ const areas = [
         )}
         {education.map((e) => (
           <li class="timeline__item" data-reveal>
-            <span class="timeline__dot"><Icon name="cap" size={18} /></span>
+            <span class:list={["timeline__dot", { "timeline__dot--logo": e.data.logo }]}>{e.data.logo ? <PublicImage src={e.data.logo.src} alt={e.data.logo.alt} widths={[40, 80]} sizes="40px" class="timeline__logo" /> : <Icon name="cap" size={18} />}</span>
             <div class="timeline__card">
               <p class="timeline__when">{e.data.year}</p>
               <h3 class="timeline__title">{e.data.degree}</h3>
@@ -402,7 +403,8 @@ const areas = [
 
   <!-- ── Resume CTA ─────────────────────────────────────────────────────── -->
   <section class="section cta-section" aria-label="Resume download">
-    <div class="container cta-inner" data-reveal="zoom">
+    <div class="container">
+    <div class="cta-inner" data-reveal="zoom">
       <div>
         <p class="section-label">// work with me</p>
         <h2 class="cta-title">Looking to collaborate or hire?</h2>
@@ -415,6 +417,7 @@ const areas = [
         <ResumeButton variant="primary" />
         <a href={pageUrl("/contact/")} class="btn btn--secondary">Get in touch</a>
       </div>
+    </div>
     </div>
   </section>
 </BaseLayout>
@@ -573,9 +576,9 @@ const areas = [
 
   .hero__now {
     display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin: calc(-1 * var(--space-4)) 0 var(--space-8);
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
     font-size: var(--fs-14);
     color: var(--text-secondary);
   }
@@ -589,6 +592,7 @@ const areas = [
     width: 8px;
     height: 8px;
     flex: none;
+    margin: calc((1lh - 8px) / 2) 4px 0; /* first line; 16 px wide like the briefcase icon */
     border-radius: 50%;
     background: var(--accent);
     box-shadow: 0 0 0 4px var(--accent-glow);
@@ -694,7 +698,7 @@ const areas = [
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    margin: calc(-1 * var(--space-4)) 0 var(--space-6);
+    margin: 0 0 var(--space-6);
     font-size: var(--fs-14);
     font-weight: 500;
     color: var(--accent);
@@ -727,9 +731,10 @@ const areas = [
   }
 
   .hero__stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-8);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, max-content));
+    column-gap: var(--space-8);
+    row-gap: var(--space-6);
     margin-top: var(--space-8);
     padding-top: var(--space-6);
     border-top: 1px solid var(--border);
@@ -738,6 +743,7 @@ const areas = [
   .hero__stat {
     display: flex;
     flex-direction: column-reverse;
+    justify-content: flex-end; /* = top in column-reverse: numbers line up when labels wrap */
     gap: var(--space-1);
   }
 
@@ -1012,11 +1018,16 @@ const areas = [
     gap: 6px;
     margin: 0;
     padding: 3px 10px 3px 3px;
+    min-height: 28px;
     border-radius: var(--radius-pill);
     background: var(--accent-glow);
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--text-primary);
+  }
+
+  .area__tools li.no-logo {
+    padding-left: 10px;
   }
 
   .area__examples {
@@ -1031,8 +1042,8 @@ const areas = [
 
   .area__examples-label {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
+    font-size: var(--fs-12);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-muted);
   }
@@ -1117,6 +1128,18 @@ const areas = [
 
   @media print {
     :global(:root.reveal-on) .timeline[data-draw]::before { scale: 1 1; }
+  }
+
+  /* Institution logo in the timeline dot (white disc so it reads in both themes) */
+  .timeline__dot--logo {
+    background: var(--logo-tile-bg);
+    overflow: hidden;
+  }
+
+  .timeline__dot--logo :global(.timeline__logo) {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
   }
 
   .timeline__card {
@@ -1261,6 +1284,16 @@ const areas = [
       grid-template-columns: 1fr;
     }
 
+    @media (min-width: 641px) {
+      .areas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .areas > :last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+    }
+
     /* Timeline: line on the left, every card to its right */
     .timeline::before {
       left: 20px;
@@ -1291,6 +1324,11 @@ const areas = [
   @media (max-width: 640px) {
     .about__cards {
       grid-template-columns: 1fr;
+    }
+
+    .hero__stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--space-4);
     }
 
     .cta-inner {

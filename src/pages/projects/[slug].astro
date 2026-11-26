@@ -51,7 +51,6 @@ const gallery = (
     })
   )
 ).filter((g): g is NonNullable<typeof g> => g !== null);
-const renders = gallery.filter((g) => g.kind === "render");
 // Board revisions (e.g. Home Automation V1 / V2.1 / V2.2): only images that exist.
 const versions = await Promise.all(
   data.versions.map(async (v) => {
@@ -59,6 +58,10 @@ const versions = await Promise.all(
     return { ...v, img: v.image && size ? { ...v.image, ...size } : null, has3d: !!v.model && data.models.some((m) => m.label === v.model && publicFileExists(m.src)) };
   })
 );
+// Board renders not already on the page (header cover, version cards), so
+// the same board picture never shows twice.
+const shownAbove = new Set([cover?.src, ...(versions.length > 1 ? versions.map((v) => v.img?.src) : [])]);
+const renders = gallery.filter((g) => g.kind === "render" && !shownAbove.has(g.src));
 const dashboards = gallery.filter((g) => g.kind === "dashboard");
 
 const statusLabel = { completed: "Completed", "in-progress": "In progress", prototype: "Prototype" } as const;
@@ -118,15 +121,17 @@ const jsonLd = {
       {(data.specs.length > 0 || cover) && (
         <aside class="spec-card" aria-label="Key specifications">
           {cover && (
-            <PublicImage
-              src={cover.src}
-              alt={cover.alt}
-              widths={[480, 720, 960]}
-              sizes="(max-width: 900px) calc(100vw - 2rem), 460px"
-              class="spec-card__img"
-              loading="eager"
-              fetchpriority="high"
-            />
+            <a href={assetUrl(cover.src)} target="_blank" rel="noopener" class="spec-card__img-link" aria-label={`Open full-size image: ${cover.alt} (opens in new tab)`}>
+              <PublicImage
+                src={cover.src}
+                alt={cover.alt}
+                widths={[480, 720, 960]}
+                sizes="(max-width: 900px) calc(100vw - 2rem), 460px"
+                class="spec-card__img"
+                loading="eager"
+                fetchpriority="high"
+              />
+            </a>
           )}
           {data.specs.length > 0 && (
             <dl class="spec-card__list">
@@ -200,7 +205,7 @@ const jsonLd = {
           {renders.map((img) => (
             <figure class="gallery__item">
               <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="gallery__link" aria-label={`Open full-size image: ${img.caption ?? img.alt} (opens in new tab)`}>
-                <PublicImage src={img.src} alt={img.alt} widths={[400, 760, 1140, 1520]} sizes={renders.length === 1 ? "(max-width: 800px) calc(100vw - 2rem), 760px" : "(max-width: 700px) calc(100vw - 2rem), 380px"} class="gallery__img" />
+                <PublicImage src={img.src} alt={img.alt} widths={[400, 760, 1140, 1520]} sizes={renders.length === 1 ? "(max-width: 800px) calc(100vw - 2rem), 608px" : "(max-width: 700px) calc(100vw - 2rem), 380px"} class="gallery__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
             </figure>
@@ -228,7 +233,8 @@ const jsonLd = {
     )}
 
     <!-- Previous / next -->
-    <nav class="container project-nav" aria-label="More projects">
+    <div class="container">
+    <nav class="project-nav" aria-label="More projects">
       {prev ? (
         <a href={projectUrl(prev)} class="project-nav__link">
           <span class="project-nav__dir"><span aria-hidden="true">←</span> Previous</span>
@@ -243,6 +249,7 @@ const jsonLd = {
         </a>
       ) : <span />}
     </nav>
+    </div>
   </article>
 </BaseLayout>
 
@@ -338,12 +345,18 @@ const jsonLd = {
     box-shadow: var(--shadow-md);
   }
 
+  .spec-card__img-link {
+    display: block;
+  }
+
   .spec-card__img {
     display: block;
     width: 100%;
     height: auto;
     aspect-ratio: 3 / 2;
     object-fit: contain;
+    box-sizing: border-box;
+    padding: var(--space-4);
     background:
       radial-gradient(ellipse 70% 70% at 50% 45%, var(--accent-glow), transparent 70%),
       var(--bg-elevated);
@@ -500,7 +513,7 @@ const jsonLd = {
 
   /* One render: show it large rather than as a small card */
   .gallery--single {
-    grid-template-columns: minmax(0, 760px);
+    grid-template-columns: minmax(0, 38rem); /* same width as the write-up */
   }
 
   .gallery__item,

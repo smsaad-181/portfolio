@@ -42,11 +42,11 @@ const { compact = true } = Astro.props;
 
   @media (max-width: 420px) {
     .wordmark--compact .wordmark__name {
-      font-size: 1.55rem;
+      font-size: min(1.55rem, 6vw); /* scales down so the nav fits 320–360 px phones */
     }
 
     .wordmark--compact .wordmark__bracket {
-      font-size: var(--fs-16);
+      font-size: min(var(--fs-16), 4.4vw);
     }
   }
 </style>

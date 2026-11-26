@@ -146,7 +146,7 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud Saad`;
     <PageTransition />
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <Nav />
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <Footer />
@@ -239,5 +239,9 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud Saad`;
 
   .skip-link:focus {
     top: var(--space-4);
+  }
+
+  main:focus {
+    outline: none;
   }
 </style>

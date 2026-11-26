@@ -124,6 +124,7 @@ a:focus-visible {
 
 button {
   font-family: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 
@@ -198,7 +199,7 @@ ul, ol {
 /* ─── MDX / prose content ──────────────────────────────────────────────────── */
 
 .prose {
-  max-width: 72ch;
+  max-width: 38rem; /* ~70 characters per line in Rubik */
 }
 
 .prose h2 {

@@ -218,6 +218,7 @@ const links = [
   }
 
   .contact__lead {
+    max-width: 38rem;
     color: var(--text-secondary);
     line-height: 1.7;
     margin: 0 0 var(--space-6);
@@ -253,7 +254,19 @@ const links = [
   }
 
   .contact__grid--single {
-    grid-template-columns: minmax(0, 640px);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* No message form: show the ways to reach me as a 2-column grid so the page
+     isn't half empty on desktop. */
+  @media (min-width: 900px) {
+    .contact__grid--single .contact__ways {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .contact__grid--single .contact__where {
+      grid-column: 1 / -1;
+    }
   }
 
   .contact__ways {

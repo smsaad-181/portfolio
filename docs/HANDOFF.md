@@ -1,82 +1,57 @@
 # Handoff — start here
 
-Short state of the project for the next work session. **Read this first**
-instead of re-exploring the codebase. Updated at the end of every finished
-task (newest entry on top of the log). Public repo: no secrets, emails or
-private links in this file.
+Read this first instead of re-exploring the code. Update it (and push) after
+every finished task. Public repo: no secrets, private emails or private links.
 
-**Last updated:** 2026-11-28 · **Last commit:** see `git log -1`
+**Last updated:** 2026-11-28 · **Last commit:** `git log -1`
 
----
-
-## 1. Where things stand
+## 1. State
 
 | | |
 |---|---|
-| Live site | https://smsaad-181.github.io/portfolio/ (deploys on every push to `main`, ~3–5 min) |
-| Local | `npm run build:site` → `npm run preview` → http://localhost:4321/portfolio/ |
-| Plan | `docs/PLAN-v2.md` — Phases 0–6 done; **Phase 7 (launch QA) open** |
-| CI | `.github/workflows/deploy.yml` — all gates green (no CMS since 26 Nov) |
-| Checks | `npm run check` 0/0/0 · `check:links` 0 broken · `check:drafts` clean · `audit:pages` 0 issues (92 loads) |
+| Live | https://smsaad-181.github.io/portfolio/ — deploys on every push to `main` (~3 min) |
+| Local | `npm run build:site` → `npm run preview` → http://localhost:4321/portfolio/ (or `npm run dev`) |
+| Gates (all must pass) | `npm run check` 0/0/0 · `build:site` · `check:links` 0 broken · `check:drafts` · `audit:pages` 0 (needs preview running) |
+| Design | `docs/DESIGN-SYSTEM.md` — "Midnight Lab": Saad's violet identity made premium (one accent, gradient in few places, Rubik + mono labels, shared classes in `global.css`) |
+| Rules | `CLAUDE.md`. Colours only in `src/styles/tokens.css`. Content = files in `src/content/` (no CMS). Never invent facts. Never edit `.kiro/`. |
 
-**Recently finished (Nov 21–26):**
-- Resume page = Saad's own CV PDF (26 Nov): the page copies his LaTeX CV (`D:\CV\CV\main.tex`) word for word and in the same layout (real Bitstream Charter font, photo, references; all 970 words wrap as in the PDF); "Download PDF" is his exact PDF. All text lives in the `resume` singleton (`src/content/resume/cv.json`). Verified by text, visual and QA agents.
-- 8-point feedback round: Home redesign (focus chips, stats, "What I do", experience timeline), Skills page, Blog section (3 drafts), aligned project cards with version stacks.
-- Fingerprint V1.1 3D board rebuilt correctly.
-- Site-wide circuit-trace canvas background (`CircuitField.astro`) — owner wants it small and dim.
-- Animations: scroll reveal, count-up, card tilt + spotlight, timeline line-draw.
-- Branded page-to-page transition (`PageTransition.astro`), ~1 s.
-- UI/motion polish from Vercel web-design-guidelines + Emil Kowalski audits; "Pause animations" toggle in the footer; contact form per-field errors + unsaved guard; `?status=` filter in the URL.
+## 2. Saad's decisions (don't undo without asking)
 
-## 2. Open tasks
+- Name "Sultan Mahmud Saad"; title "Embedded Engineer & PCB Designer"; company "SIoT — Southern Innovation of Technology".
+- Hero: name on one line, graduation photo (`src/assets/profile/hero-photo.jpg`) in a gradient ring + role/availability cards; buttons "About me" + "Download CV". About uses the same photo.
+- No "Prototype"/status labels anywhere; no "See it in" links in "What I do".
+- **Projects page + project cards = the pre-redesign version** (grid of all 16 cards; he preferred it to the featured+table design, 28 Nov). Project detail pages keep the redesign.
+- Resume page = exact copy of his LaTeX PDF; phone + referees published (only in `src/content/resume/cv.json`).
+- Pink/violet look, circuit background small and dim, page transition ~1 s (he asked for it).
 
-**Waiting on Saad (manual):**
-1. **Purge old commits** that still contain a private email (GitHub keeps old SHAs after a history rewrite). Saad deletes the repo in Settings and says "deleted" → recreate `smsaad-181/portfolio`, push `main`, make public, `gh api -X POST repos/smsaad-181/portfolio/pages -f build_type=workflow`, confirm deploy and that old SHAs 404.
-2. ~~Tina Cloud~~ — **dropped 26 Nov:** Saad chose to remove TinaCMS (no account needed). Content changes go through Claude (or GitHub's web editor). Restore from git history if ever wanted (`git checkout 55900ea -- tina`).
-3. **Web3Forms key** → secret `WEB3FORMS_KEY` (contact form only renders with it).
-4. Review/publish the 3 blog drafts (`src/content/blog/*.mdx`), answer `docs/FACT-CHECK.md` (incl. the new About bio line from 25 Nov), headshot, build/test photos.
-5. Check share previews (LinkedIn Post Inspector).
+## 3. Open
 
-**Open for Claude (not started / optional):**
-- Phase 7: run `qa-reviewer` against the live site (see PLAN-v2 Phase 7).
-- Low-priority review leftovers: BoardViewer keyboard pan + `?board=` in URL; theme-color meta follows the toggle; preload the Mr Dafoe font; box-shadow hovers → opacity of a pseudo-element.
-- Home Lighthouse back above 95 (last single run 92 at 2× CPU).
-- Resume look: done (26 Nov) — real Bitstream Charter (Butterick's free WOFF2 package) replaced Charis SIL; "+" now matches. Measured against the PDF: 0 of 970 words wrap differently, spacing within 0.5 px, name width within 1 px, print = same 3 pages. Measuring scripts (pdf.js render, line dump, `breaks`/`gaps` compare) were in the session scratchpad; recreate if the CV changes a lot.
-- Saad (optional): his PDF embeds the photo's camera metadata (Canon EOS 50D, Photoshop, 2023 date — no location). To drop it: strip `photo.jpg` (e.g. `exiftool -all= photo.jpg`), recompile in Overleaf, `npm run cv:import`.
-- Resume QA nits (25 Nov): training courses show in file-name order, not the CV's (IPS, IOSH, EOSH, Fire); certifications have no `order` field.
+**Questions waiting for Saad** (asked 28 Nov):
+1. Primary hero button "View projects" instead of "About me"? (UX review: nothing on the first screen leads to his work.)
+2. Faster page transition (start loading during the cover)?
+3. Shorter 1–2 sentence hero text (full summary stays on About)?
+4. Compact Home timeline (Home repeats the About timeline)?
+5. Dashboard screenshots with empty data ("Connecting…", "–") — real screenshots or hide?
+6. OK that the "Current role" box was removed from Home's About section?
+7. A second (workbench/professional) photo for one of Home/About?
+8. Previous version of the project detail pages too?
 
-## 3. Know before you start (saves time)
+**Waiting on Saad (manual):** purge old commits (he deletes the repo, says "deleted" → recreate, push, make public, `gh api -X POST repos/smsaad-181/portfolio/pages -f build_type=workflow`) · Web3Forms key → secret `WEB3FORMS_KEY` · publish/review 3 blog drafts · `docs/FACT-CHECK.md` answers · LinkedIn preview check.
 
-- **Rules:** `CLAUDE.md` (constraints, agents, workflow). Never edit `.kiro/`. Colours only in `src/styles/tokens.css`. Content = files in `src/content/` (no CMS). Never invent facts.
-- **Key files:** layout `src/layouts/BaseLayout.astro` (head script: theme, `reveal-on`, `tilt-on`, `motion-paused`, `pt-enter`/`pt-arrived`) · transition `src/components/PageTransition.astro` · background `src/components/CircuitField.astro` · motion tokens `--ease-out`/`--ease-drawer` in `tokens.css` · 3D pipeline `scripts/pcb3d/` (tools in git-ignored `scripts/pcb3d/pcbtools/`, one board at a time, `node --max-old-space-size=3000`).
-- **Local-only skills** (not in git, listed in `.git/info/exclude`): `.claude/skills/web-design-guidelines/`, `.claude/skills/emil-*/`. Reinstall from `github.com/vercel-labs/agent-skills` and `github.com/emilkowalski/skills` on a new machine.
-- **Tool quirks:** the Edit/Write tools decode `<` / ` ` → write such strings from a script with `String.fromCharCode(...)` and verify with `od -c`. Bash heredocs/one-liners break on apostrophes → write scripts to the scratchpad. Use `set -o pipefail` before outward-facing commands. Stage files **by name** (a locked `src/pages/404.astro.tmp.*` file exists; it's excluded and harmless — delete after a reboot).
-- **Ports stuck after stopping a background server:** `netstat -ano | grep 4321` → `taskkill //PID <pid> //T //F`.
-- **CV facts:** the newest CV (25 Nov) is summarised in `.claude/skills/portfolio-content-seed/references/cv-data.md`. Name "Sultan Mahmud Saad" everywhere (26 Nov). Company everywhere: "SIoT — Southern Innovation of Technology" (his CV since 26 Nov; short form "SIoT"). The latest CV lives in his private GitHub repo `smsaad-181/Saad-CV` (main.tex + PDF). Saad chose to publish his phone and referees exactly as in his PDF — keep them only in `cv.json`. Experience dates may be year-only (`"2021"`) — format them with `formatMonthYear()` in `src/lib/dates.ts`, never `new Date().toLocaleDateString` directly.
-- **CV update flow:** Saad edits `D:\CV\CV\main.tex` (Overleaf/LaTeX) → `npm run cv:import -- "D:\CV\CV\Sultan_Mahmud_Saad_CV.pdf"` (byte-for-byte copy + date) → make `src/content/resume/cv.json` match `main.tex` word for word (`--` → "–", `\textbf{x}` → `**x**`) → build → verify text and look against the PDF. No LaTeX is installed here, so the PDF can't be rebuilt locally. CV text renders through `CvText.astro` (bold + no breaks at hyphens, like LaTeX).
-- **Audit the contact form** by building once with a dummy `PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000`, then rebuild normally.
+**Optional for Claude:** Phase 7 qa-reviewer on the live site (`docs/PLAN-v2.md`); Home Lighthouse ≥ 95; BoardViewer keyboard pan.
 
-## 4. Session log (newest first)
+## 4. Know before you start
 
-- **2026-11-28** — Whole-site premium redesign "Midnight Lab" (Saad: keep identity, make it premium; whole site; agent reviews then his OK before publishing). Research of 17 top portfolios → `docs/DESIGN-SYSTEM.md`; new tokens/shared classes (page-head, card, meta-row, data-table, link-arrow); 4 page agents (Projects+case studies with index table and On-this-page aside, About/Skills/Contact/404/Resume frame, Home, nav/footer/background); 4 reviewers (visual, UX, layout metrics, QA) → all safe fixes applied. About uses the graduation photo; `portrait.png` removed. Committed locally — **waiting for Saad's OK to publish**.
+- **Map:** pages `src/pages/` (index = Home, `projects/[slug].astro` = case study) · shared UI `src/components/` (Nav, Footer, ProjectCard, SectionHeading, SkillLogo, BoardViewer, CircuitField, PageTransition) · layout + head scripts `src/layouts/BaseLayout.astro` · tokens `src/styles/tokens.css` · shared classes `src/styles/global.css` · schema `src/content.config.ts` · URL helpers `src/lib/urls.ts` · tag casing `src/lib/tags.ts`.
+- **CV update:** latest CV = private repo `smsaad-181/Saad-CV` (also `D:\CV\CV`). Clone to scratch → diff `main.tex` vs `src/content/resume/cv.json` → update JSON word for word (`--`→"–", `\textbf{x}`→`**x**`) → `npm run cv:import -- "<pdf>"` → build → compare line breaks with the PDF.
+- **Big UI work that went well:** research → design-system doc → parallel agents that each own separate files, all previewing one `npm run dev` (hot reload) → 4 read-only reviewers (visual, UX, layout metrics, qa-reviewer) → apply safe fixes → owner decides the rest. Reviewers measure the built site on 4321; run fix agents on another dev port (4322) so they don't disturb them.
+- **Tool quirks (Windows):** write multi-line scripts with the Write tool, not bash heredocs/`node -e` (backslashes and quotes get mangled; a `\S` became `S` once). After `git stash`/checkout files may be CRLF → strip `\r` before scripted string edits. `set -o pipefail` before outward commands. Stage files by name. Stuck port: `netstat -ano | grep 4321` → `taskkill //PID <pid> //T //F`. Playwright: `innerWidth` only inside `page.evaluate`; full-page screenshots go blank below the fold (shoot per viewport).
+- **3D pipeline:** `scripts/pcb3d/` (tools in git-ignored `pcbtools/`), one board at a time, `node --max-old-space-size=3000`.
+- **Local-only skills** (in `.git/info/exclude`): `.claude/skills/web-design-guidelines/`, `.claude/skills/emil-*/`.
 
-- **2026-11-27** — Removed the "See it in" project links from "What I do" and every "Prototype" status badge (cards, project header, spec row); `StatusBadge.astro` deleted. (`6f14d39`)
+## 5. Log (newest first)
 
-- **2026-11-27** — Home hero redesign (Saad): full name on one line (vw-capped, fits 320 px and 125 % text), his graduation photo (`src/assets/profile/hero-photo.jpg`, square crop, no metadata) in a gradient ring on the right with role + availability cards, tech chips removed, phones: photo → name → buttons → cards → summary. Verified by a design reviewer (4/4 requirements pass) and qa-reviewer; all their safe fixes applied. About page still uses the old cut-out portrait (ask Saad). (`de5c185`)
-
-- **2026-11-27** — Resume updated to the latest CV from `Saad-CV` (26 Nov): company "SIoT — Southern Innovation of Technology" (site-wide), deeper bullet/sub-label indents, references swapped (Tanjim left, Mridul right at the margin); PDF imported byte for byte. 970 of 975 words wrap as in the PDF (2 bullets differ: LaTeX overfills one line by 2 px). Also: 4-agent UI review fixes (~30) + Journey logos. Pushed 27 Nov (`8576669`, `57d750d`).
-
-- **2026-11-26** — Name "Sultan Mahmud Saad" + title "Embedded Engineer & PCB Designer" site-wide; CV summary in the hero; company SIOT — Southern Innovation of Technology (site only); About bio rewritten; Skills regrouped like the CV with official logos (Simple Icons) + 10 CV skills added; Journey: training before education. **Pending:** official logos for the Journey (SIOT, Gono University, schools) — find online, show Saad before publishing.
-
-- **2026-11-26** — TinaCMS removed at Saad's request (he didn't want a Tina Cloud account): `tina/`, Tina packages, CI step, `/admin` bits, footer credit and the `tina-integrator` agent are gone; `npm audit` now 0 vulnerabilities. (`1ed1e37`, deployed)
-
-- **2026-11-26** — Resume sheet now uses real Bitstream Charter (self-hosted, licence included); `@fontsource/charis-sil` removed; name small caps and word spacing tuned so every line wraps as in the PDF. (`62c5ac5`, deployed)
-
-- **2026-11-26** — Resume page now copies Saad's own CV PDF exactly (text, layout, photo, phone, references — his choice); download = his exact PDF via `cv:import` (`cv:pdf` removed). Experience `achievements` / education `startYear` dropped again (CV text lives in `cv.json`). Verified by text, visual and QA agents. (`8858f2d`, deployed; live PDF byte-identical)
-- **2026-11-25** — Resume page and PDF rebuilt from Saad's new CV; new `resume` singleton (Astro + Tina, lock regenerated), experience `achievements`, year-only dates, education `startYear`; About bio updated to SouthernIoT / B.Sc. 2023. QA fixes: absolute links in the PDF (+ `cv:pdf` now fails on localhost links), blank CMS fields no longer break the build, impossible dates rejected. (`1e02c3d`, deployed)
-
-- **2026-11-24** — README trimmed to intro + live/CMS links only (setup and commands live in `CLAUDE.md`).
-- **2026-11-24** — Installed Vercel + Emil skills locally; fixed all high/medium findings (commit `f49a09b`); QA caught and fixed a stuck-cover bug (transition + "Leave page?"). my-skills repo updated with these lessons. Added this handoff file.
-- **2026-11-23** — Branded page transition (`e0a09d9`), card tilt / timeline draw (`e5a0f1a`), CI skips Tina build without secrets (`c42d2f0`) → site live.
-- **2026-11-22** — Circuit background (`05227eb`), audit fix (`c5dfa7a`).
-- **2026-11-21** — Feedback round (`714c78a`), Fingerprint V1.1 3D (`0c1ff17`).
+- **2026-11-28** — Premium redesign "Midnight Lab" of the whole site (`1381bb4`), then Projects page + cards restored to the previous version at Saad's request (`234593c`). Pushed with this handoff.
+- **2026-11-27** — Removed "See it in" + all status badges (`6f14d39`); hero redesign with photo circle (`de5c185`); resume synced to latest CV, SIoT name (`57d750d`); 4-agent UI fixes + Journey logos (`8576669`).
+- **2026-11-26** — Name/title/company site-wide, skills with official logos (`740ef38`); TinaCMS removed (`1ed1e37`); resume = exact PDF copy with Bitstream Charter (`8858f2d`, `62c5ac5`).
+- **2026-11-21…25** — Feedback round, 3D boards, circuit background, page transition, motion polish, resume rebuilt (see `git log`).

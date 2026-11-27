@@ -1,23 +1,16 @@
 ---
 /**
  * ProjectCard.astro
- * Grid card for a project: the board render on a plate, title, summary,
- * tags, the board versions (when there are several) and a "View project"
- * link. Used on Home and on the Projects page.
+ * Grid card for a project. Shows: cover image, tags, title, the
+ * summary, the board versions (when there are several) and a link.
  *
- * It spans the 6 rows of the shared .projects-grid subgrid (global.css):
- * image · title · summary · tags · versions · link, so titles, summaries and
- * links line up across a row. Without versions the link spans rows 5–6 (an
- * empty row would swallow a whole grid gap and leave dead space). A project
- * with several board versions gets two thin sheets peeking above the card.
+ * Its 6 direct children are the 6 rows of the shared .projects-grid subgrid
+ * (global.css), so every card in a row lines up. A project with several
+ * board versions is drawn as a small stack of cards with its version names.
  *
- * One tab stop per card: the title link, stretched over the whole card for
- * the mouse/touch. The image and the CTA repeat the link for the mouse only
- * (tabindex -1, aria-hidden).
- *
- * Cover images live in public/ and render through PublicImage (<Image />,
- * base-prefixed). A missing file leaves the image row empty — never a 404 or
- * placeholder text.
+ * Cover images live in public/ as plain paths and render through Astro's
+ * <Image />, base-prefixed. If the file hasn't been added yet, the image area is omitted (no 404, no
+ * placeholder text shown to the public).
  */
 import PublicImage from "@components/PublicImage.astro";
 import TagChip from "@components/TagChip.astro";
@@ -39,40 +32,22 @@ export interface Props {
   priority?: boolean;
   /** 2 on the Projects page (cards follow the h1), 3 under a section h2. */
   headingLevel?: 2 | 3;
-  /** "feature": larger card with the gradient top rule (Projects page, featured row). */
-  variant?: "default" | "feature";
 }
 
-const { title, href, summary, coverImage, tags, versions = [], priority = false, headingLevel = 3, variant = "default" } = Astro.props;
+const { title, href, summary, coverImage, tags, versions = [], priority = false, headingLevel = 3 } = Astro.props;
 const multi = versions.length > 1;
-const feature = variant === "feature";
 const Heading = headingLevel === 2 ? "h2" : "h3";
 const hasCover = publicFileExists(coverImage.src);
-// Tags fit one line: up to 3, while their text stays short enough that the
-// "+N" never wraps onto a line of its own (CSS also clips as a safety net).
-const TAG_CHARS = 22;
-const displayTags: string[] = [];
-let used = 0;
-for (const tag of tags.slice(0, 3)) {
-  if (displayTags.length > 0 && used + tag.length > TAG_CHARS) break;
-  displayTags.push(tag);
-  used += tag.length;
-}
-const moreTags = tags.length - displayTags.length;
+const displayTags = tags.slice(0, 3);
 ---
 
-<article
-  class:list={["project-card", { "project-card--stack": multi, "project-card--feature": feature }]}
-  aria-label={title}
-  data-reveal={priority ? undefined : ""}
-  data-tilt
->
+<article class:list={["project-card", { "project-card--stack": multi }]} aria-label={title} data-reveal={priority ? undefined : ""} data-tilt>
   {hasCover ? (
     <a href={href} class="project-card__image-link" tabindex="-1" aria-hidden="true">
-      <div class="project-card__plate">
+      <div class="project-card__image-wrap">
         {multi && (
-          <span class="project-card__badge">
-            <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M12 2 1.5 7.5 12 13l10.5-5.5L12 2Zm-8.2 9.6L1.5 12.8 12 18.3l10.5-5.5-2.3-1.2L12 15.9l-8.2-4.3Zm0 5L1.5 17.8 12 23.3l10.5-5.5-2.3-1.2L12 20.9l-8.2-4.3Z" /></svg>
+          <span class="project-card__ribbon">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M12 2 1.5 7.5 12 13l10.5-5.5L12 2Zm-8.2 9.6L1.5 12.8 12 18.3l10.5-5.5-2.3-1.2L12 15.9l-8.2-4.3Zm0 5L1.5 17.8 12 23.3l10.5-5.5-2.3-1.2L12 20.9l-8.2-4.3Z" /></svg>
             {versions.length} versions
           </span>
         )}
@@ -80,9 +55,7 @@ const moreTags = tags.length - displayTags.length;
           src={coverImage.src}
           alt={coverImage.alt}
           widths={[360, 540, 720, 960]}
-          sizes={feature
-            ? "(max-width: 1100px) calc(100vw - 3rem), 560px"
-            : "(max-width: 700px) calc(100vw - 2rem), (max-width: 1100px) calc(50vw - 3rem), 370px"}
+          sizes="(max-width: 700px) calc(100vw - 4rem), (max-width: 1100px) calc(50vw - 4rem), 360px"
           class="project-card__image"
           loading={priority ? "eager" : "lazy"}
           fetchpriority={priority ? "high" : undefined}
@@ -91,270 +64,112 @@ const moreTags = tags.length - displayTags.length;
     </a>
   ) : <div aria-hidden="true"></div>}
 
-  <Heading class="project-card__title">
-    <a href={href} class="project-card__title-link">{title}{multi && <span class="sr-only">, {versions.length} board versions</span>}</a>
-  </Heading>
-
-  <p class="project-card__summary">{summary}</p>
-
-  <div class="project-card__tags">
-    {displayTags.map((tag) => <TagChip tag={tag} />)}
-    {moreTags > 0 && (
-      <span class="project-card__tags-more">
-        +{moreTags}<span class="sr-only"> more tags</span>
-      </span>
-    )}
-  </div>
-
-  {multi && (
-    <div class="project-card__versions">
-      <p class="project-card__versions-label">{versions.length} board versions</p>
-      <ul class="project-card__version-list" role="list">
-        {versions.map((v) => <li>{v}</li>)}
-      </ul>
+    <div class="project-card__meta">
+      <div class="project-card__tags">
+        {displayTags.map((tag) => <TagChip tag={tag} />)}
+        {tags.length > 3 && (
+          <span class="project-card__tags-more">
+            +{tags.length - 3}<span class="sr-only"> more tags</span>
+          </span>
+        )}
+      </div>
     </div>
-  )}
 
-  <a href={href} class:list={["project-card__cta link-arrow", { "project-card__cta--span": !multi }]} tabindex="-1" aria-hidden="true">
-    View project <span class="link-arrow__icon">→</span>
-  </a>
+    <Heading class="project-card__title">
+      <a href={href} class="project-card__title-link">{title}{multi && <span class="sr-only">, {versions.length} board versions</span>}</a>
+    </Heading>
+
+    <p class="project-card__summary">{summary}</p>
+
+    {multi ? (
+      <div class="project-card__versions">
+        <p class="project-card__versions-label">{versions.length} board versions</p>
+        <ul class="project-card__version-list" role="list">
+          {versions.map((v) => <li>{v}</li>)}
+        </ul>
+      </div>
+    ) : <div aria-hidden="true"></div>}
+
+    <a href={href} class="project-card__cta" tabindex="-1" aria-hidden="true">
+      View project <span class="project-card__cta-arrow" aria-hidden="true">→</span>
+    </a>
 </article>
 
 <style>
   .project-card {
-    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    overflow: hidden;
     transition:
-      border-color var(--dur-base) var(--ease),
+      border-color var(--dur-base) ease,
       transform var(--dur-base) var(--ease-out),
       box-shadow var(--dur-base) var(--ease-out);
   }
 
-  /* Feature card: thin gradient rule on top (DESIGN-SYSTEM §1.2) */
-  .project-card--feature {
-    overflow: hidden; /* clips the top rule to the rounded corners */
-  }
-
-  .project-card--feature::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    z-index: 2;
-    height: 2px;
-    background: var(--gradient-accent);
-  }
-
   .project-card:hover {
-    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    box-shadow: var(--shadow-md);
   }
 
-  /* Movement only with a real mouse (a tap would leave the card stuck). */
+  /* Movement only with a real mouse (a tap would leave the card stuck). With
+     tilt on, the tilt is the one hover motion — no extra lift or image zoom. */
   @media (hover: hover) and (pointer: fine) {
-    .project-card:hover {
+    :global(:root:not(.tilt-on)) .project-card:hover {
       transform: translateY(-2px);
     }
 
-    .project-card:hover .project-card__image {
-      transform: scale(1.025);
-    }
-
-    .project-card:hover .link-arrow__icon {
-      transform: translateX(3px);
+    :global(:root:not(.tilt-on)) .project-card:hover .project-card__image {
+      transform: scale(1.03);
     }
   }
 
-  /* Several board versions: two narrower sheets peek 4 px and 8 px above
-     the card (a negative spread shrinks each sheet, the offset lifts it;
-     the second shadow of each pair is its 1 px outline). */
+  /* Several board versions: two cards peek out behind this one. */
   .project-card--stack {
-    box-shadow:
-      0 -14px 0 -11px var(--bg-surface), 0 -14px 0 -10px var(--border),
-      0 -28px 0 -21px var(--bg-surface), 0 -28px 0 -20px var(--border-subtle);
+    --stack:
+      7px 7px 0 -1px var(--bg-surface), 7px 7px 0 0 var(--border),
+      14px 14px 0 -2px var(--bg-surface), 14px 14px 0 -1px var(--border);
+    box-shadow: var(--stack); /* fits in the grid gap (24 px) */
   }
 
-  /* ── Image plate ─────────────────────────────────────────────────────── */
-  .project-card__image-link {
-    display: block;
-    padding: var(--space-2) var(--space-2) 0;
+  .project-card--stack:hover {
+    box-shadow: var(--stack), var(--shadow-md);
   }
 
-  .project-card__plate {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    padding: var(--space-6);
-    border-radius: calc(var(--radius-lg) - var(--space-2));
-    /* Whole board visible on a soft glow — PCB renders are never cropped */
-    background:
-      radial-gradient(ellipse 65% 65% at 50% 50%, var(--accent-glow), transparent 72%),
-      var(--bg-elevated);
-  }
-
-  .project-card--feature .project-card__plate {
-    padding: var(--space-8);
-  }
-
-  .project-card__image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: transform var(--dur-slow) var(--ease-out);
-  }
-
-  .project-card__badge {
+  .project-card__ribbon {
     position: absolute;
     top: var(--space-3);
     left: var(--space-3);
     z-index: 1;
     display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-surface);
-    color: var(--text-secondary);
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--gradient-accent);
+    color: var(--text-on-accent);
     font-family: var(--font-mono);
-    font-size: var(--fs-12);
-    font-weight: 500;
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    line-height: 1.4;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 12px var(--accent-glow);
   }
 
-  /* ── Text rows ───────────────────────────────────────────────────────── */
+  .project-card__meta,
   .project-card__title,
-  .project-card__summary,
-  .project-card__tags,
   .project-card__versions,
+  .project-card__summary,
   .project-card__cta {
-    margin: 0;
     padding-inline: var(--space-6);
   }
 
-  .project-card__title { padding-top: var(--space-6); }
-  .project-card__summary { padding-top: var(--space-2); }
-  .project-card__tags { padding-top: var(--space-4); }
-  .project-card__versions { padding-top: var(--space-4); }
+  .project-card__meta { padding-top: var(--space-4); }
+  .project-card__title { padding-top: var(--space-3); }
+  .project-card__versions { padding-top: var(--space-3); }
+  .project-card__summary { padding-top: var(--space-3); }
   .project-card__cta { padding-block: var(--space-4) var(--space-6); }
-
-  .project-card__title {
-    font-size: var(--fs-18);
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-  }
-
-  .project-card--feature .project-card__title {
-    font-size: var(--fs-22);
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .project-card__title-link {
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: color var(--dur-fast) var(--ease);
-  }
-
-  .project-card__title-link:hover,
-  .project-card:hover .project-card__title-link {
-    color: var(--accent);
-  }
-
-  /* The title link covers the whole card (one big tap target, one tab stop) */
-  .project-card__title-link::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    border-radius: var(--radius-lg);
-  }
-
-  .project-card__title-link:focus-visible {
-    outline: none;
-  }
-
-  .project-card__title-link:focus-visible::after {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .project-card__summary {
-    max-width: 38rem;
-    font-size: var(--fs-14);
-    line-height: 1.6;
-    color: var(--text-secondary);
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    overflow: hidden;
-  }
-
-  .project-card--feature .project-card__summary {
-    font-size: var(--fs-16);
-  }
-
-  /* One line of tags: anything that still doesn't fit (very narrow cards,
-     large text) wraps to a second line that is clipped away, so a chip is
-     never cut in half and "+N" never sits alone on a line. */
-  .project-card__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4) var(--space-2);
-    align-items: center;
-    align-content: flex-start;
-    max-height: calc(var(--space-4) + 1.5rem);
-    overflow: hidden;
-  }
-
-  .project-card__tags :global(.tag-chip) {
-    flex-shrink: 0;
-  }
-
-  .project-card__tags-more {
-    flex-shrink: 0;
-    font-family: var(--font-mono);
-    font-size: var(--fs-12);
-    color: var(--text-muted);
-  }
-
-  .project-card__versions-label {
-    margin: 0 0 var(--space-1);
-    font-family: var(--font-mono);
-    font-size: var(--fs-12);
-    font-weight: 500;
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .project-card__version-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 var(--space-2);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-size: var(--fs-14);
-    color: var(--text-secondary);
-  }
-
-  .project-card__version-list li + li::before {
-    content: "·";
-    margin-right: var(--space-2);
-    color: var(--text-muted);
-  }
-
-  .project-card__cta {
-    align-self: flex-start;
-    margin-top: auto;
-  }
 
   /* In the shared grid: 6 subgrid rows, so cards in a row line up
      (scoped here so it outranks the display: flex above). */
@@ -366,19 +181,141 @@ const moreTags = tags.length - displayTags.length;
       row-gap: 0;
     }
 
-    /* Titles start at the same height across a row */
-    :global(.projects-grid) .project-card__title {
-      align-self: start;
-    }
-
     :global(.projects-grid) .project-card__cta {
       align-self: end;
       justify-self: start;
     }
+  }
 
-    /* No versions row: the link takes rows 5–6 */
-    :global(.projects-grid) .project-card__cta--span {
-      grid-row: span 2;
-    }
+  .project-card__image-link {
+    display: block;
+  }
+
+  .project-card__image-wrap {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    padding: var(--space-4);
+    /* Whole board visible on a soft glow — PCB renders shouldn't be cropped */
+    background:
+      radial-gradient(ellipse 70% 70% at 50% 45%, var(--accent-glow), transparent 70%),
+      var(--bg-elevated);
+  }
+
+  .project-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* no CSS drop-shadow: it is costly to paint on phones (16 cards on /projects/) */
+    transition: transform var(--dur-slow) var(--ease);
+  }
+
+  .project-card__meta {
+    display: flex;
+    align-items: center;
+    align-content: flex-start;
+    align-self: start;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .project-card__versions-label {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-12);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .project-card__version-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-card__version-list li {
+    margin: 0;
+    padding: 2px 8px;
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+    border-left: 3px solid var(--accent-2);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--accent-2) 10%, transparent);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    align-items: center;
+  }
+
+  .project-card__tags-more {
+    font-family: var(--font-mono);
+    font-size: var(--fs-12);
+    color: var(--text-muted);
+    padding: 2px 6px;
+  }
+
+  .project-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .project-card__title-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .project-card__title-link:hover {
+    color: var(--accent);
+  }
+
+  .project-card__summary {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  .project-card__cta {
+    font-size: var(--fs-14);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: auto;
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    transition: color var(--dur-fast) ease;
+  }
+
+  .project-card__cta-arrow {
+    display: inline-block;
+    transition: transform 160ms var(--ease-out);
+  }
+
+  .project-card__cta:hover {
+    color: var(--accent-dim);
+  }
+
+  .project-card__cta:hover .project-card__cta-arrow {
+    transform: translateX(4px);
   }
 </style>

@@ -1,356 +1,269 @@
 ---
 /**
  * Projects index — /projects/
- * Page head → "Featured": the first 4 projects (Saad's `order`) as large
- * cards → "All projects": an index table of every published project
- * (Project · Board/MCU · Tags · Versions · →). On phones the table rows
- * stack into compact blocks (no sideways scroll).
- *
- * The Board/MCU cell comes from the project's own `specs` entry labelled
- * "MCU" (shortened to the part name, the full value in sr-only text);
- * without one it stays blank. Each row has one tab stop (the title link,
- * stretched over the row); the arrow is decoration.
- * No status text anywhere (Saad removed the status labels, 27 Nov 2026).
+ * Grid of all non-draft projects with a client-side status filter
+ * (Saad removed the tag filter — status is the only filter).
+ * Only statuses that actually occur get a button.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
-import ProjectCard from "@components/ProjectCard.astro";
-import TagChip from "@components/TagChip.astro";
 import SectionHeading from "@components/SectionHeading.astro";
+import ProjectCard from "@components/ProjectCard.astro";
 import { getPublishedProjects } from "../../lib/projects";
 import { projectUrl } from "../../lib/urls";
 
 const projects = await getPublishedProjects();
-const featured = projects.slice(0, 4);
-
-/** "ESP32-S3-WROOM-1-N8R8 (8 MB flash, 8 MB PSRAM)" → "ESP32-S3-WROOM-1-N8R8".
- *  Several parts ("A (V1.0) · B (V1.2)") keep each part name. */
-function shortMcu(value: string): string {
-  return value
-    .split("·")
-    .map((part) => part.split("(")[0]!.split(",")[0]!.trim())
-    .filter(Boolean)
-    .join(" · ");
-}
-
-const rows = projects.map((p) => {
-  const mcu = p.data.specs.find((s) => s.label.trim().toLowerCase() === "mcu")?.value;
-  return {
-    title: p.data.title,
-    href: projectUrl(p),
-    mcu: mcu ? shortMcu(mcu) : "",
-    // The full spec, for screen readers when the cell shows a shortened name
-    // (a title tooltip would sit under the row's link overlay).
-    mcuExtra: mcu && shortMcu(mcu) !== mcu ? mcu : "",
-    tags: p.data.tags.slice(0, 3),
-    versions: p.data.versions.length > 1 ? p.data.versions.length : 0,
-  };
-});
+const statuses = (["completed", "in-progress", "prototype"] as const).filter((s) =>
+  projects.some((p) => p.data.status === s)
+);
+const statusLabel = { completed: "Completed", "in-progress": "In progress", prototype: "Prototype" } as const;
 ---
 
 <BaseLayout
   title="Projects"
   description="Hardware engineering projects — PCB design, embedded systems, IoT builds, and firmware deep-dives."
 >
-  <header class="page-head container">
-    <p class="section-label">// portfolio</p>
-    <h1 class="page-title">Projects</h1>
-    <p class="page-lead">
-      Boards I designed in EasyEDA. Every project has an interactive 3D board.
-    </p>
-  </header>
-
-  <section class="projects-block container" aria-labelledby="featured-heading">
-    <div class="block-head">
-      <SectionHeading label="// selected" title="Featured" id="featured-heading" />
-      <a href="#all-heading" class="link-arrow block-head__jump">All {projects.length} projects <span class="link-arrow__icon" aria-hidden="true">↓</span></a>
+  <section class="page-header">
+    <div class="container">
+      <SectionHeading
+        label="// portfolio"
+        title="Projects"
+        level={1}
+        description="PCB design, embedded firmware, and IoT builds. Each project is a real engineering problem solved end-to-end. Cards drawn as a stack have several board versions inside."
+      />
     </div>
-    <ul class="projects-grid projects-grid--featured" role="list">
-      {featured.map((project, i) => (
-        <li class="project-item">
-          <ProjectCard
-            title={project.data.title}
-            href={projectUrl(project)}
-            summary={project.data.summary}
-            coverImage={project.data.coverImage}
-            tags={project.data.tags}
-            versions={project.data.versions.map((v) => v.label)}
-            priority={i < 2}
-            headingLevel={3}
-            variant="feature"
-          />
-        </li>
-      ))}
-    </ul>
   </section>
 
-  <section class="projects-block projects-block--index container" aria-labelledby="all-heading">
-    <SectionHeading label={`// index · ${projects.length} projects`} title="All projects" id="all-heading" />
+  <section class="projects-section" aria-label="Projects list">
+    <div class="container">
+      <!-- Filters (hidden while every project has the same status) -->
+      {statuses.length > 1 && (
+      <div class="filters" role="group" aria-label="Filter projects">
+        <div class="filters__group">
+          <span class="filters__label">Status</span>
+          <div class="filters__chips" role="group" aria-label="Filter by status">
+            <button
+              class="filter-btn filter-btn--active"
+              data-filter-type="status"
+              data-filter-value="all"
+              aria-pressed="true"
+            >
+              All
+            </button>
+            {statuses.map((s) => (
+              <button
+                class="filter-btn"
+                data-filter-type="status"
+                data-filter-value={s}
+                aria-pressed="false"
+              >
+                {statusLabel[s]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      )}
 
-    <table class="data-table index-table">
-      <caption class="sr-only">All {projects.length} projects with their board or microcontroller, technologies and number of board versions</caption>
-      <thead>
-        <tr>
-          <th scope="col">Project</th>
-          <th scope="col">Board / MCU</th>
-          <th scope="col">Tags</th>
-          <th scope="col" class="index-table__num">Versions</th>
-          <th scope="col"><span class="sr-only">Link</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr>
-            <th scope="row" class="index-table__project">
-              <a href={r.href} class="index-table__link">{r.title}</a>
-            </th>
-            <td class:list={["index-table__mcu", { "index-table__cell--empty": !r.mcu }]}>{r.mcu && <><span class="index-table__key" aria-hidden="true">MCU</span><span aria-hidden={r.mcuExtra ? "true" : undefined}>{r.mcu}</span>{r.mcuExtra && <span class="sr-only">{r.mcuExtra}</span>}</>}</td>
-            <td class="index-table__tags">
-              <span class="index-table__chips">
-                {r.tags.map((t) => <TagChip tag={t} />)}
-              </span>
-            </td>
-            <td class:list={["index-table__num", { "index-table__cell--empty": r.versions === 0 }]}>{r.versions > 0 && <span class="index-table__versions">{r.versions}<span class="index-table__versions-word"> versions</span></span>}</td>
-            <td class="index-table__go" aria-hidden="true">
-              <span class="index-table__arrow">→</span>
-            </td>
-          </tr>
+      <!-- Count -->
+      <p class="projects-count" id="projects-count" aria-live="polite">
+        {projects.length} project{projects.length !== 1 ? "s" : ""}
+      </p>
+
+      <!-- Grid -->
+      <div
+        class="projects-grid"
+        id="projects-grid"
+        role="list"
+        aria-label="Projects"
+      >
+        {projects.map((project, i) => (
+          <div
+            class="project-item"
+            role="listitem"
+            data-status={project.data.status}
+          >
+            <ProjectCard
+              title={project.data.title}
+              href={projectUrl(project)}
+              summary={project.data.summary}
+              coverImage={project.data.coverImage}
+              tags={project.data.tags}
+              versions={project.data.versions.map((v) => v.label)}
+              priority={i < 3}
+              headingLevel={2}
+            />
+          </div>
         ))}
-      </tbody>
-    </table>
+      </div>
+
+      <p class="no-results" id="no-results" hidden aria-live="polite">
+        No projects match the selected filters.
+      </p>
+    </div>
   </section>
 </BaseLayout>
 
+<!-- Client-side filter logic (no framework, no bundler needed) -->
+<script>
+  const noResults = document.getElementById("no-results");
+  const countEl = document.getElementById("projects-count");
+  const allItems = Array.from(document.querySelectorAll<HTMLElement>(".project-item"));
+
+  const statusValues = new Set(
+    Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter-type="status"]')).map((b) => b.dataset["filterValue"])
+  );
+  // ?status=… makes a filtered view linkable and keeps it on Back.
+  const fromUrl = new URLSearchParams(location.search).get("status");
+  let activeStatus = fromUrl && statusValues.has(fromUrl) ? fromUrl : "all";
+
+  const root = document.documentElement;
+  const motionOk = () =>
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches && !root.classList.contains("motion-paused");
+
+  function applyFilters(animate = false) {
+    let visible = 0;
+    for (const item of allItems) {
+      const status = item.dataset["status"] ?? "";
+      const show = activeStatus === "all" || status === activeStatus;
+      item.hidden = !show;
+      item.classList.remove("filter-in");
+      if (show) {
+        // Remaining cards settle in (30 ms stagger, capped) instead of jumping.
+        if (animate) item.style.setProperty("--fi", `${Math.min(visible, 6) * 30}ms`);
+        visible++;
+      }
+    }
+    if (animate) {
+      void document.body.offsetWidth; // one reflow restarts every animation
+      for (const item of allItems) if (!item.hidden) item.classList.add("filter-in");
+    }
+    if (countEl) {
+      countEl.textContent = `${visible} project${visible !== 1 ? "s" : ""}`;
+    }
+    if (noResults) noResults.hidden = visible > 0;
+  }
+
+  function updateButtons(type: string, value: string) {
+    const btns = document.querySelectorAll<HTMLButtonElement>(
+      `[data-filter-type="${type}"]`
+    );
+    for (const btn of btns) {
+      const isActive = btn.dataset["filterValue"] === value;
+      btn.classList.toggle("filter-btn--active", isActive);
+      btn.setAttribute("aria-pressed", String(isActive));
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLButtonElement>("[data-filter-type]");
+    if (!btn) return;
+    const type = btn.dataset["filterType"]!;
+    const value = btn.dataset["filterValue"]!;
+    if (type === "status") {
+      activeStatus = value;
+      const url = new URL(location.href);
+      if (value === "all") url.searchParams.delete("status");
+      else url.searchParams.set("status", value);
+      history.replaceState(null, "", url);
+    }
+    updateButtons(type, value);
+    applyFilters(motionOk());
+  });
+
+  if (activeStatus !== "all") {
+    updateButtons("status", activeStatus);
+    applyFilters();
+  }
+</script>
+
 <style>
-  /* Tighter head than other pages so the first featured titles show above
-     the fold at 1366 × 768. */
-  .page-head {
-    padding-bottom: var(--space-6);
-  }
-
-  /* Featured heading with the "All N projects ↓" jump link on its right */
-  .block-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 0 var(--space-6);
-    margin-bottom: var(--space-8);
-  }
-
-  .block-head > :global(.section-heading) {
-    margin-bottom: 0;
-  }
-
-  .block-head__jump {
-    flex-shrink: 0;
-  }
-
-  .projects-block {
+  .projects-section {
     padding-bottom: var(--space-24);
   }
 
-  /* Featured: two large cards per row (one on phones) */
-  .projects-grid--featured {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    grid-template-columns: repeat(auto-fill, minmax(min(440px, 100%), 1fr));
-    row-gap: var(--space-8);
+  /* Filter change: cards that stay settle in (set by the script above). */
+  :global(.project-item.filter-in) {
+    animation: filter-in 200ms var(--ease-out) var(--fi, 0ms) both;
   }
 
-  /* Wide feature plates: a flatter box keeps the titles near the fold
-     (renders are contained, never cropped). */
-  .projects-grid--featured :global(.project-card__plate) {
-    aspect-ratio: 2 / 1;
+  @keyframes filter-in {
+    from { opacity: 0; transform: scale(0.97); }
   }
 
-  /* ── Index table ─────────────────────────────────────────────────────── */
-  /* Text lines up with the container edges: no padding on the outer cells. */
-  .index-table :is(th, td):first-child {
-    padding-left: 0;
+  /* Filters */
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
   }
 
-  .index-table :is(th, td):last-child {
-    padding-right: 0;
+  .filters__group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
   }
 
-  /* Hover: a soft accent band inside the table, title and arrow turn pink */
-  .index-table tbody tr:hover {
-    background: transparent;
-  }
-
-  .index-table tbody tr:hover > * {
-    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
-  }
-
-  .index-table__project {
-    padding: var(--space-4);
-    text-align: left;
-    font-family: var(--font-body);
-    font-size: var(--fs-16);
-    font-weight: 600;
-    letter-spacing: normal;
-    text-transform: none;
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .index-table tbody tr {
-    position: relative;
-  }
-
-  .index-table__link {
-    color: var(--text-primary);
-    text-decoration: none;
-  }
-
-  .index-table__link:hover {
-    color: var(--accent);
-  }
-
-  /* The whole row is a click target for the mouse (one tab stop: the title). */
-  .index-table__link::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-  }
-
-  .index-table__link:focus-visible {
-    outline: none;
-  }
-
-  .index-table__link:focus-visible::after {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
-    border-radius: var(--radius-sm);
-  }
-
-  .index-table__mcu {
+  .filters__label {
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    min-width: 44px;
+    flex-shrink: 0;
   }
 
-  .index-table__key {
-    display: none;
-  }
-
-  .index-table__chips {
+  .filters__chips {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
+    gap: var(--space-2);
   }
 
-  .index-table__num {
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .index-table__versions {
+  .filter-btn {
+    appearance: none;
+    padding: 3px 12px;
+    border-radius: 9999px;
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    color: var(--text-primary);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   }
 
-  .index-table__versions-word {
-    color: var(--text-muted);
-  }
-
-  .index-table__go {
-    width: 1%;
-    text-align: right;
-  }
-
-  .index-table__arrow {
-    display: inline-block;
-    color: var(--text-muted);
-    font-size: var(--fs-18);
-    transition: color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
-  }
-
-  .index-table tbody tr:hover .index-table__arrow {
+  .filter-btn:hover {
     color: var(--accent);
-    transform: translateX(3px);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    background: var(--accent-glow);
   }
 
-  .index-table tbody tr:hover .index-table__link {
+  .filter-btn--active {
     color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-glow);
   }
 
-  @media (min-width: 1100px) {
-    .index-table__chips {
-      flex-wrap: nowrap;
-    }
+  .projects-count {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-6);
   }
 
-  @media (max-width: 640px) {
-    .projects-block {
-      padding-bottom: var(--space-16);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .index-table__mcu {
-      font-size: var(--fs-12);
-    }
-  }
-
-  /* ── Phones: each row becomes a compact stacked block ────────────────── */
-  @media (max-width: 640px) {
-    .index-table,
-    .index-table tbody,
-    .index-table tr,
-    .index-table th,
-    .index-table td {
-      display: block;
-    }
-
-    .index-table thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-    }
-
-    .index-table tbody tr {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: var(--space-2) var(--space-3);
-      padding-block: var(--space-4);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .index-table tbody th,
-    .index-table tbody td {
-      padding: 0;
-      border: 0;
-    }
-
-    .index-table__project { grid-column: 1; grid-row: 1; }
-    .index-table__go { grid-column: 2; grid-row: 1; width: auto; }
-    .index-table__mcu { grid-column: 1 / -1; font-size: var(--fs-12); }
-    .index-table__tags { grid-column: 1 / -1; }
-    .index-table__num {
-      grid-column: 1 / -1;
-      text-align: left;
-    }
-
-    .index-table__key {
-      display: inline;
-      margin-right: var(--space-2);
-      color: var(--text-muted);
-      letter-spacing: var(--tracking-label);
-    }
-
-    .index-table__cell--empty {
-      display: none;
-    }
-
-    .index-table__versions {
-      font-size: var(--fs-12);
-      letter-spacing: var(--tracking-label);
-      text-transform: uppercase;
-    }
+  .no-results {
+    text-align: center;
+    color: var(--text-secondary);
+    padding-block: var(--space-16);
+    font-size: 0.95rem;
   }
 </style>

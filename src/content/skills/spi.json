@@ -1,7 +1,7 @@
 {
   "name": "SPI",
   "category": "protocols & connectivity",
-  "mark": "SPI",
+  "mark": "bus",
   "aliases": [
     "spi"
   ]

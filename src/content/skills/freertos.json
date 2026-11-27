@@ -1,7 +1,7 @@
 {
   "name": "FreeRTOS",
   "category": "embedded systems",
-  "mark": "RTOS",
+  "mark": "chip",
   "aliases": [
     "freertos"
   ]

@@ -11,6 +11,8 @@
  * pulses. Colours come from the --circuit-* tokens (light/dark theme).
  * Light on purpose: starts after load + idle, fewer traces on phones, capped
  * pixel ratio, paused in hidden tabs, a still frame for reduced motion.
+ * A CSS mask fades it out under the central content column (27 Nov 2026), so
+ * it frames the page from the edges and never competes with text.
  */
 ---
 
@@ -90,7 +92,7 @@
         traces.push({ pts, cum, len: cum[cum.length - 1]! });
       }
       drawLayer();
-      const n = Math.max(5, Math.round(traces.length * 0.35));
+      const n = Math.max(4, Math.round(traces.length * 0.25)); // a few at a time: calm, not busy
       pulses = Array.from({ length: n }, (_, i) => newPulse(i * 0.6));
     };
 
@@ -238,6 +240,50 @@
 
   .circuit-field.is-on {
     opacity: 1;
+  }
+
+  /* Calm by design: the traces live at the page edges and fade out under
+     the content column, so they never sit behind text. The mask uses colour
+     keywords only (alpha is all that matters in a mask). */
+  .circuit-field {
+    --cf-col: min(var(--max-content), 100vw);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      var(--mask-opaque) 0,
+      var(--mask-opaque) calc(50% - var(--cf-col) / 2 - 4rem),
+      color-mix(in srgb, var(--mask-opaque) 12%, transparent) calc(50% - var(--cf-col) / 2 + 8rem),
+      color-mix(in srgb, var(--mask-opaque) 12%, transparent) calc(50% + var(--cf-col) / 2 - 8rem),
+      var(--mask-opaque) calc(50% + var(--cf-col) / 2 + 4rem),
+      var(--mask-opaque) 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      var(--mask-opaque) 0,
+      var(--mask-opaque) calc(50% - var(--cf-col) / 2 - 4rem),
+      color-mix(in srgb, var(--mask-opaque) 12%, transparent) calc(50% - var(--cf-col) / 2 + 8rem),
+      color-mix(in srgb, var(--mask-opaque) 12%, transparent) calc(50% + var(--cf-col) / 2 - 8rem),
+      var(--mask-opaque) calc(50% + var(--cf-col) / 2 + 4rem),
+      var(--mask-opaque) 100%
+    );
+  }
+
+  /* Narrower than the content column + margins: there is no free edge, so
+     keep one even, faint wash instead (stronger toward the corners). */
+  @media (max-width: 1360px) {
+    .circuit-field {
+      -webkit-mask-image: radial-gradient(
+        ellipse 75% 70% at 50% 45%,
+        color-mix(in srgb, var(--mask-opaque) 30%, transparent) 0,
+        color-mix(in srgb, var(--mask-opaque) 45%, transparent) 55%,
+        var(--mask-opaque) 100%
+      );
+      mask-image: radial-gradient(
+        ellipse 75% 70% at 50% 45%,
+        color-mix(in srgb, var(--mask-opaque) 30%, transparent) 0,
+        color-mix(in srgb, var(--mask-opaque) 45%, transparent) 55%,
+        var(--mask-opaque) 100%
+      );
+    }
   }
 
   @media print {

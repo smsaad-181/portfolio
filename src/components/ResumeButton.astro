@@ -3,6 +3,8 @@
  * ResumeButton.astro
  * "Download CV" when the PDF exists in public/; otherwise a mailto
  * "CV available on request" so visitors never hit a 404.
+ * Uses the shared .btn styles (global.css) plus a small icon, like the other
+ * buttons with a trailing glyph.
  */
 import { getProfile, getResume, getResumeUrl, resumeFileName } from "../lib/profile";
 
@@ -18,11 +20,34 @@ const mailto = `mailto:${profile.data.email}?subject=${encodeURIComponent("CV re
 ---
 
 {resumeUrl ? (
-  <a href={resumeUrl} class={`btn btn--${variant}`} download={fileName}>
+  <a href={resumeUrl} class={`btn btn--${variant} resume-btn`} download={fileName}>
+    <svg class="resume-btn__icon" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8 2.5v7.5M4.75 7 8 10.25 11.25 7M3 13h10" />
+    </svg>
     Download CV
   </a>
 ) : (
-  <a href={mailto} class={`btn btn--${variant}`}>
+  <a href={mailto} class={`btn btn--${variant} resume-btn`}>
     CV available on request
   </a>
 )}
+
+<style>
+  .resume-btn__icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--dur-fast) var(--ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .resume-btn:hover .resume-btn__icon {
+      transform: translateY(1px);
+    }
+  }
+</style>

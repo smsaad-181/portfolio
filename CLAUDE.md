@@ -77,17 +77,17 @@ template is git-ignored — verify with `git check-ignore .env` before any commi
 ### Images & design
 - Project photos/schematics: Astro `<Image />` only, never raw `<img>`, with
   meaningful alt text. Put optimisable images in `src/assets/`
-  (`profile/portrait.*`, `projects/<slug>/`).
+  (`profile/hero-photo.jpg`, `profile/cv-photo.jpg`, `projects/<slug>/`).
 - Never show placeholder or admin text to the public ("upload via /admin",
   "if the link is broken…"). Hide the element instead.
 - Visual identity is **Saad's choice (20 Nov 2026), overriding the plan's
   copper direction**: deep violet-black, pink → violet → blue gradient,
-  flowing line-art hero with his cut-out portrait, "Hello, I'm" + gradient
+  flowing line-art hero with his photo in a gradient ring (27 Nov), "Hello, I'm" + gradient
   name + role pill. Fonts: Rubik (text), JetBrains Mono (labels), Mr Dafoe
   (signature logo only); Bitstream Charter only on the resume sheet, to
   match his LaTeX CV (`src/styles/charter.css`, free licence in
   `src/assets/fonts/charter/LICENSE.txt`). Don't redesign away from it
-  without asking him.
+  without asking him. The premium refinement (27 Nov) is in `docs/DESIGN-SYSTEM.md`.
 - WCAG AA contrast in **both** themes. No hard-coded colours outside
   `src/styles/tokens.css` (exceptions: the OG image generator and the SVG
   favicon, which keep their own copy of the values, and skill logos, which keep

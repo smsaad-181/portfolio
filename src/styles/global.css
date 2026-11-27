@@ -153,9 +153,9 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-primary);
 }
 
-h1 { font-size: clamp(var(--fs-28), 4vw, var(--fs-40)); }
-h2 { font-size: clamp(var(--fs-22), 3vw, var(--fs-28)); }
-h3 { font-size: var(--fs-18); }
+h1 { font-size: clamp(var(--fs-32), 4.5vw, var(--fs-44)); }
+h2 { font-size: clamp(var(--fs-28), 3.2vw, var(--fs-32)); }
+h3 { font-size: var(--fs-20); }
 
 p { margin-block: 0.75em; }
 p:first-child { margin-block-start: 0; }
@@ -203,20 +203,24 @@ ul, ol {
 }
 
 .prose h2 {
-  margin-top: var(--space-8);
+  margin-top: var(--space-12);
   margin-bottom: var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--border);
-  font-size: 1.35rem;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  letter-spacing: -0.01em;
+  font-size: var(--fs-24);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
 }
 
 .prose h3 {
-  margin-top: var(--space-6);
+  margin-top: var(--space-8);
   margin-bottom: var(--space-2);
-  font-size: 1.1rem;
+  font-size: var(--fs-18);
+  font-weight: 600;
+}
+
+.prose > :first-child {
+  margin-top: 0;
 }
 
 .prose ul, .prose ol {
@@ -239,6 +243,7 @@ ul, ol {
   padding: 0.1em 0.35em;
   font-size: 0.85em;
   color: var(--accent);
+  overflow-wrap: anywhere; /* long identifiers never push past the column */
 }
 
 .prose a {
@@ -257,6 +262,12 @@ ul, ol {
 .prose p,
 .prose li {
   color: var(--text-secondary);
+  font-size: 1.0625rem; /* 17 px reading size */
+  line-height: 1.7;
+}
+
+.prose p + p {
+  margin-top: var(--space-4);
 }
 
 .prose h3 {
@@ -318,9 +329,9 @@ ul, ol {
 
 .section-label {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--fs-12);
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
   color: var(--accent);
   margin-bottom: var(--space-3);
@@ -363,6 +374,145 @@ ul, ol {
   padding-block: var(--space-16) var(--space-8);
 }
 
+/* Shared inner-page head: label, H1, lead (docs/DESIGN-SYSTEM.md §3) */
+.page-head {
+  padding-block: var(--space-16) var(--space-12);
+}
+
+.page-title {
+  font-size: clamp(var(--fs-32), 4.5vw, var(--fs-44));
+  font-weight: 700;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+  text-wrap: balance;
+}
+
+.page-lead {
+  margin-top: var(--space-4);
+  max-width: 38rem;
+  font-size: var(--fs-18);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ─── Cards ────────────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  padding: var(--space-6);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
+}
+
+/* Feature card: a thin gradient rule on top (one of the few gradient uses) */
+.card--feature::before {
+  content: "";
+  position: absolute;
+  /* inset by the corner radius so the line never overhangs the rounded corners */
+  inset: -1px var(--radius-lg) auto;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--gradient-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.card:hover,
+  .card--hover:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+    transform: translateY(-2px);
+  }
+}
+
+/* ─── Text link with arrow ─────────────────────────────────────────────────── */
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px; /* touch target; text stays visually the same */
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.link-arrow__icon {
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.link-arrow:hover .link-arrow__icon {
+  transform: translateX(3px);
+}
+
+/* ─── Metadata row: mono · items · separated by dots ───────────────────────
+   Keeps the content's own casing (EasyEDA, IoT). Every item carries a dot in
+   front of it; the row is shifted left by one separator width and that strip
+   is clipped, so the dot at the start of each line (first item or a wrapped
+   line) is never shown. */
+
+.meta-row {
+  --meta-sep: 1.6em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: var(--space-1);
+  margin: 0 0 0 calc(-1 * var(--meta-sep));
+  padding: 0;
+  list-style: none;
+  clip-path: inset(-8px -8px -8px var(--meta-sep));
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+.meta-row > *::before {
+  content: "·";
+  display: inline-block;
+  width: var(--meta-sep);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ─── Data table (hairline rows) ───────────────────────────────────────────── */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-16);
+}
+
+.data-table th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: var(--space-4);
+  vertical-align: middle;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table tbody tr {
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg-elevated);
+}
+
 /* ─── Scroll reveal (BaseLayout adds .reveal-on; reduced motion = no class) ── */
 
 /* :root raises specificity above components' own transition rules; the
@@ -376,9 +526,6 @@ ul, ol {
     transform 0.6s var(--ease) var(--reveal-delay, 0ms);
 }
 
-:root.reveal-on [data-reveal="left"] { transform: translateX(-24px); }
-:root.reveal-on [data-reveal="right"] { transform: translateX(24px); }
-:root.reveal-on [data-reveal="zoom"] { transform: scale(0.96); }
 
 :root.reveal-on [data-reveal].is-visible {
   opacity: 1;
@@ -398,9 +545,11 @@ ul, ol {
 /* ─── Card tilt + spotlight (BaseLayout adds .tilt-on: mouse, motion OK) ────
    [data-tilt] cards lean slightly toward the pointer and a soft accent glow
    follows it. BaseLayout sets --tilt-x/-y and --glow-x/-y on pointer move. */
+/* Premium redesign (27 Nov): no 3D lean any more, just a 2 px lift and a
+   soft glow that follows the pointer. */
 :root.tilt-on [data-tilt]:hover {
-  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-4px);
-  background-image: radial-gradient(360px circle at var(--glow-x, 50%) var(--glow-y, 50%), var(--accent-glow), transparent 65%);
+  transform: translateY(-2px);
+  background-image: radial-gradient(420px circle at var(--glow-x, 50%) var(--glow-y, 50%), var(--accent-glow), transparent 70%);
 }
 
 /* ─── Project grid (Home + Projects): cards line up row by row ────────────── */

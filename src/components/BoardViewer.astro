@@ -54,7 +54,10 @@ const first = boards[0];
 {first && (
   <section class="bv" aria-labelledby="bv-heading" data-bv data-title={title}>
     <div class="bv__head">
-      <h2 class="bv__title" id="bv-heading">Interactive 3D board</h2>
+      <div class="bv__heading">
+        <p class="section-label bv__label">// 3d viewer</p>
+        <h2 class="bv__title" id="bv-heading">Interactive 3D board</h2>
+      </div>
       {boards.length > 1 && (
         <div class="bv__tabs" role="group" aria-label="Choose a board">
           {boards.map((b, i) => (
@@ -545,18 +548,25 @@ const first = boards[0];
   .bv__head {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: var(--space-4);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  /* Same as SectionHeading: mono label + 28–32 px H2 */
+  .bv__label {
+    margin: 0;
   }
 
   .bv__title {
-    font-family: var(--font-mono);
-    font-size: 1.35rem;
-    letter-spacing: -0.01em;
-    color: var(--accent);
-    margin: 0;
+    font-family: var(--font-body);
+    font-size: clamp(var(--fs-28), 3.2vw, var(--fs-32));
+    font-weight: 700;
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+    margin: var(--space-2) 0 0;
   }
 
   .bv__tabs {
@@ -589,9 +599,9 @@ const first = boards[0];
   }
 
   .bv__tab[aria-pressed="true"] {
-    color: var(--text-on-accent);
-    background: var(--gradient-button);
-    border-color: transparent;
+    color: var(--text-primary);
+    background: var(--accent-glow);
+    border-color: var(--accent);
   }
 
   .bv__frame {
@@ -616,10 +626,14 @@ const first = boards[0];
 
   .bv__group {
     display: flex;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
     gap: var(--space-1);
   }
 
   .bv__btn {
+    min-height: 32px;
     padding: 0.4rem 0.8rem;
     font-size: 0.8125rem;
   }

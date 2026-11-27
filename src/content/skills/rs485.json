@@ -1,7 +1,7 @@
 {
   "name": "RS485",
   "category": "protocols & connectivity",
-  "mark": "485",
+  "mark": "bus",
   "aliases": [
     "rs485",
     "rs-485"

@@ -2,11 +2,12 @@
 /**
  * Skills — /skills/
  * Every skill from the skills collection, grouped like Saad's CV (order in
- * lib/skills.ts), each with its official logo (SkillLogo) or a badge.
+ * lib/skills.ts), each with its official logo (SkillLogo) or a kind icon.
  * Saad asked for the plain list: no "used in N projects".
+ * Layout: one full-width card per area (heading column + tile grid), so the
+ * page never ends on a lone half-empty card.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
-import SectionHeading from "@components/SectionHeading.astro";
 import Icon from "@components/Icon.astro";
 import SkillLogo from "@components/SkillLogo.astro";
 import { getSkillGroups } from "../lib/skills";
@@ -34,39 +35,38 @@ const BLURB: Record<string, string> = {
   "developer tools": "Editors, toolchains and version control.",
   "web & data": "Front-ends and databases for device data.",
 };
+const gid = (category: string) => `grp-${category.replace(/\W+/g, "-")}`;
 ---
 
 <BaseLayout
   title="Skills"
   description="Hardware, embedded firmware, protocols and IoT platforms Sultan Mahmud Saad works with — EasyEDA, ESP32, I²C, SPI, UART, Modbus, MQTT, LoRaWAN, Node-RED and more."
 >
-  <section class="page-header">
+  <section class="page-head" aria-labelledby="skills-title">
     <div class="container">
-      <SectionHeading
-        label="// toolbox"
-        title="Skills & tools"
-        level={1}
-        description={`${total} tools, languages and protocols, grouped by area.`}
-      />
+      <p class="section-label">// toolbox</p>
+      <h1 class="page-title" id="skills-title">Skills &amp; tools</h1>
+      <p class="page-lead">{total} tools, languages and protocols, grouped by area.</p>
     </div>
   </section>
 
-  <section class="skills-section" aria-label="Skills by area">
+  <section class="skills-section" aria-labelledby="areas-heading">
+    <h2 class="sr-only" id="areas-heading">Skills by area</h2>
     <div class="container skill-groups" data-reveal-stagger>
       {groups.map((g) => (
-        <article class="skill-group" aria-labelledby={`grp-${g.category.replace(/\W+/g, "-")}`} data-reveal data-tilt>
+        <article class="card skill-group" aria-labelledby={gid(g.category)} data-reveal>
           <header class="skill-group__head">
-            <span class="skill-group__icon"><Icon name={ICON[g.category] ?? "wrench"} size={22} /></span>
+            <span class="skill-group__icon" aria-hidden="true"><Icon name={ICON[g.category] ?? "wrench"} size={20} /></span>
             <div>
-              <h2 class="skill-group__title" id={`grp-${g.category.replace(/\W+/g, "-")}`}>{g.label}</h2>
+              <h3 class="skill-group__title" id={gid(g.category)}>{g.label}</h3>
               {BLURB[g.category] && <p class="skill-group__blurb">{BLURB[g.category]}</p>}
+              <p class="skill-group__count">{g.skills.length} {g.skills.length === 1 ? "skill" : "skills"}</p>
             </div>
-            <span class="skill-group__count">{g.skills.length}<span class="sr-only"> skills</span></span>
           </header>
           <ul class="skill-tiles" role="list">
             {g.skills.map(({ skill }) => (
               <li class:list={["skill-tile", { "skill-tile--wide": skill.data.name.split(" ").some((w) => w.length > 11) }]}>
-                <SkillLogo logo={skill.data.logo} mark={skill.data.mark} name={skill.data.name} size={34} />
+                <SkillLogo logo={skill.data.logo} mark={skill.data.mark} name={skill.data.name} size={32} />
                 <span class="skill-tile__name">{skill.data.name}</span>
               </li>
             ))}
@@ -76,9 +76,9 @@ const BLURB: Record<string, string> = {
     </div>
 
     <div class="container">
-      <div class="skills-cta" data-reveal>
-      <p>See these tools at work in real boards.</p>
-      <a href={pageUrl("/projects/")} class="btn btn--primary">Browse projects</a>
+      <div class="card card--feature skills-cta" data-reveal>
+        <p class="skills-cta__title">See these tools at work in real boards.</p>
+        <a href={pageUrl("/projects/")} class="btn btn--primary">Browse projects <span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -91,53 +91,29 @@ const BLURB: Record<string, string> = {
 
   .skill-groups {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
     gap: var(--space-6);
-    align-items: start;
   }
 
   .skill-group {
-    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+    gap: var(--space-8);
+    align-items: start;
     padding: var(--space-6);
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
-  }
-
-  .skill-group::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 3px;
-    background: var(--gradient-accent);
-  }
-
-  .skill-group:hover {
-    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-
-  /* Lift only with a real mouse, and only when the tilt isn't running. */
-  @media (hover: hover) and (pointer: fine) {
-    :global(:root:not(.tilt-on)) .skill-group:hover {
-      transform: translateY(-2px);
-    }
   }
 
   .skill-group__head {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-4);
     align-items: start;
-    margin-bottom: var(--space-4);
   }
 
   .skill-group__icon {
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-md);
     background: var(--accent-glow);
     color: var(--accent);
@@ -145,35 +121,36 @@ const BLURB: Record<string, string> = {
 
   .skill-group__title {
     margin: 0;
-    font-size: var(--fs-18, 1.125rem);
+    font-size: var(--fs-20);
     font-weight: 600;
+    letter-spacing: var(--tracking-tight);
   }
 
   .skill-group__blurb {
     margin: var(--space-1) 0 0;
     font-size: var(--fs-14);
+    line-height: 1.5;
     color: var(--text-secondary);
+    text-wrap: pretty;
   }
 
   .skill-group__count {
+    margin: var(--space-3) 0 0;
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    font-weight: 700;
+    font-size: var(--fs-12);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
     color: var(--text-muted);
   }
 
-  /* Logo tiles: official logo (or badge) + name, in an even grid */
+  /* Logo tiles: official logo (or kind icon) + name, in an even grid */
   .skill-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
     gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .skill-tiles > li + li {
-    margin-top: 0;
   }
 
   .skill-tile {
@@ -181,17 +158,12 @@ const BLURB: Record<string, string> = {
     align-items: center;
     gap: var(--space-3);
     min-width: 0;
-    padding: var(--space-2);
-    border: 1px solid var(--border);
+    min-height: 52px;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-2);
+    border: 1px solid var(--border-subtle);
     border-radius: var(--radius-md);
     background: var(--bg-elevated);
     transition: border-color var(--dur-fast) var(--ease-out);
-  }
-
-  /* A word too long for a half-width tile (e.g. "Communication") gets the
-     full row instead of breaking mid-word. */
-  .skill-tile--wide {
-    grid-column: 1 / -1;
   }
 
   .skill-tile__name {
@@ -205,7 +177,7 @@ const BLURB: Record<string, string> = {
 
   @media (hover: hover) and (pointer: fine) {
     .skill-tile:hover {
-      border-color: var(--accent);
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
     }
   }
 
@@ -214,16 +186,50 @@ const BLURB: Record<string, string> = {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
+    gap: var(--space-4) var(--space-8);
     margin-top: var(--space-12);
-    padding: var(--space-6) var(--space-8);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
+    padding: var(--space-8);
   }
 
-  .skills-cta p {
+  .skills-cta__title {
     margin: 0;
-    font-weight: 500;
+    font-size: var(--fs-20);
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  @media (max-width: 860px) {
+    .skill-group {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .skills-section {
+      padding-bottom: var(--space-16);
+    }
+
+    .skill-group,
+    .skills-cta {
+      padding: var(--space-6) var(--space-4);
+    }
+
+    .skill-tiles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* A word too long for a half-width tile (e.g. "Communication") gets the
+       full row instead of breaking mid-word. */
+    .skill-tile--wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Very narrow phones: one tile per row, so names never break mid-word */
+  @media (max-width: 359px) {
+    .skill-tiles {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

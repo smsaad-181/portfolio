@@ -55,8 +55,8 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
       <div class="resume-bar">
         <div>
           <p class="section-label">// cv</p>
-          <h1 class="resume-bar__title" id="resume-heading">Resume</h1>
-          <p class="resume-bar__updated">Last updated: <time datetime={resumeMeta.updated}>{updated}</time></p>
+          <h1 class="page-title" id="resume-heading">Resume</h1>
+          <p class="resume-bar__updated">Last updated <time datetime={resumeMeta.updated}>{updated}</time></p>
         </div>
         <div class="resume-bar__actions">
           {resumeUrl && (
@@ -206,8 +206,9 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
 </script>
 
 <style>
+  /* ── Page frame (same head as every inner page) ─────────────────────── */
   .resume {
-    padding-block: var(--space-16);
+    padding-block: var(--space-16) var(--space-24);
   }
 
   .resume-bar {
@@ -215,20 +216,17 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-end;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
-  }
-
-  .resume-bar__title {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    font-weight: 700;
-    margin: var(--space-2) 0 var(--space-1);
+    gap: var(--space-6) var(--space-8);
+    max-width: 210mm;
+    margin: 0 auto var(--space-8);
   }
 
   .resume-bar__updated {
-    margin: 0;
+    margin: var(--space-3) 0 0;
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
+    font-size: var(--fs-12);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
     color: var(--text-muted);
   }
 
@@ -242,6 +240,12 @@ const updated = new Date(resumeMeta.updated).toLocaleDateString("en-GB", { day: 
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+  }
+
+  @media screen and (max-width: 640px) {
+    .resume {
+      padding-block: var(--space-12) var(--space-16);
+    }
   }
 
   /* ── The CV sheet: Saad's LaTeX CV (article 10pt, charter, A4,

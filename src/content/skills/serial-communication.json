@@ -1,7 +1,7 @@
 {
   "name": "Serial Communication",
   "category": "protocols & connectivity",
-  "mark": "SER",
+  "mark": "bus",
   "aliases": [
     "serial communication"
   ]

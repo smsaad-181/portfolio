@@ -2,7 +2,7 @@
   "name": "Modbus",
   "category": "protocols & connectivity",
   "home": true,
-  "mark": "MOD",
+  "mark": "bus",
   "aliases": [
     "modbus"
   ]

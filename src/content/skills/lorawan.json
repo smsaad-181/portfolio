@@ -2,7 +2,7 @@
   "name": "LoRa / LoRaWAN",
   "category": "protocols & connectivity",
   "home": true,
-  "mark": "LoRa",
+  "mark": "radio",
   "aliases": [
     "lora",
     "lorawan"

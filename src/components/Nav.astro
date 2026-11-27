@@ -2,10 +2,11 @@
 /**
  * Nav.astro
  * Top navigation: < Sultan Mahmud Saad /> signature wordmark (same mark as the
- * footer), links with a gradient underline on the active page, and a
- * light/dark theme toggle. Transparent until the page scrolls, then gains
- * a blurred backdrop. Mobile collapses into a <details> menu (works
- * without JS).
+ * footer), the page links grouped in a quiet pill with a short gradient
+ * marker under the active page, and a round light/dark theme toggle.
+ * Transparent until the page scrolls, then gains a blurred backdrop and a
+ * hairline. Below 60em (960 px at default text size, wider with larger
+ * browser text) it collapses into a <details> menu (works without JS).
  */
 import Wordmark from "@components/Wordmark.astro";
 import { pageUrl } from "../lib/urls";
@@ -56,7 +57,7 @@ function isActive(href: string): boolean {
         ))}
       </ul>
 
-      <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to light theme">
+      <button type="button" class="nav__icon-btn theme-toggle" data-theme-toggle aria-label="Switch to light theme">
         <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="4.5" fill="currentColor" />
           <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -69,7 +70,7 @@ function isActive(href: string): boolean {
       </button>
 
       <details class="nav__mobile-menu">
-        <summary class="nav__hamburger" aria-label="Toggle navigation menu">
+        <summary class="nav__icon-btn nav__hamburger" aria-label="Toggle navigation menu">
           <span class="nav__hamburger-bar"></span>
           <span class="nav__hamburger-bar"></span>
           <span class="nav__hamburger-bar"></span>
@@ -155,6 +156,7 @@ function isActive(href: string): boolean {
 </script>
 
 <style>
+  /* ── Bar ─────────────────────────────────────────────────────────────── */
   .nav-wrapper {
     position: sticky;
     top: 0;
@@ -164,14 +166,14 @@ function isActive(href: string): boolean {
     align-items: center;
     background: transparent;
     border-bottom: 1px solid transparent;
-    transition: background var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease);
+    transition: background-color var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease);
   }
 
   .nav-wrapper.is-scrolled {
-    background: color-mix(in srgb, var(--bg-base) 85%, transparent);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    border-bottom-color: var(--border);
+    background: color-mix(in srgb, var(--bg-base) 82%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom-color: var(--border-subtle);
   }
 
   .nav {
@@ -183,6 +185,9 @@ function isActive(href: string): boolean {
 
   .nav__logo {
     flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--text-primary);
     text-decoration: none;
   }
@@ -194,16 +199,21 @@ function isActive(href: string): boolean {
   .nav__right {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    flex-shrink: 0;
+    gap: var(--space-3);
   }
 
+  /* ── Desktop links: one quiet pill, short gradient marker on the active page ── */
   .nav__links {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: 2px;
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: var(--space-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
   }
 
   .nav__links li + li {
@@ -212,30 +222,41 @@ function isActive(href: string): boolean {
 
   .nav__link {
     position: relative;
-    display: block;
-    padding: var(--space-2) var(--space-3);
+    display: flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-pill);
     font-size: var(--fs-14);
     font-weight: 500;
+    line-height: 1;
     color: var(--text-secondary);
     text-decoration: none;
-    transition: color var(--dur-fast) var(--ease);
+    transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
   }
 
   .nav__link::after {
     content: "";
     position: absolute;
-    left: var(--space-3);
-    right: var(--space-3);
-    bottom: 2px;
+    left: 50%;
+    bottom: 4px;
+    width: 1rem;
     height: 2px;
+    margin-left: -0.5rem;
+    border-radius: var(--radius-pill);
     background: var(--gradient-accent);
     transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--dur-base) var(--ease);
+    transition: transform var(--dur-base) var(--ease-out);
   }
 
   .nav__link:hover {
     color: var(--text-primary);
+    background: var(--bg-elevated);
+  }
+
+  .nav__link:focus-visible {
+    outline-offset: 2px;
+    border-radius: var(--radius-pill);
   }
 
   .nav__link--active,
@@ -247,21 +268,31 @@ function isActive(href: string): boolean {
     transform: scaleX(1);
   }
 
-  .theme-toggle {
+  /* ── Round icon buttons (theme toggle, menu button) ──────────────────── */
+  .nav__icon-btn {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    background: transparent;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-subtle);
+    background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
     color: var(--text-secondary);
-    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+    cursor: pointer;
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+      background-color var(--dur-fast) var(--ease);
   }
 
-  .theme-toggle:hover {
+  .nav__icon-btn:hover {
     color: var(--text-primary);
-    border-color: var(--accent);
+    border-color: var(--border);
+    background: var(--bg-elevated);
+  }
+
+  .nav__icon-btn:focus-visible {
+    outline-offset: 2px;
+    border-radius: var(--radius-pill);
   }
 
   .theme-toggle__icon {
@@ -281,6 +312,7 @@ function isActive(href: string): boolean {
     display: block;
   }
 
+  /* ── Mobile menu ─────────────────────────────────────────────────────── */
   .nav__mobile-menu {
     display: none;
     position: relative;
@@ -288,60 +320,74 @@ function isActive(href: string): boolean {
 
   .nav__hamburger {
     list-style: none;
-    cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     gap: 5px;
-    width: 36px;
-    height: 36px;
-    padding: 9px 8px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    background: transparent;
   }
 
   .nav__hamburger::-webkit-details-marker { display: none; }
-  .nav__hamburger::marker { display: none; }
+  .nav__hamburger::marker { display: none; content: ""; }
 
   .nav__hamburger-bar {
     display: block;
-    width: 100%;
+    width: 18px;
     height: 2px;
-    background: var(--text-secondary);
-    border-radius: 2px;
+    background: currentColor;
+    border-radius: var(--radius-pill);
+    transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-fast) var(--ease);
   }
 
+  /* Open: bars fold into an ×. */
   .nav__mobile-menu[open] .nav__hamburger {
-    border-color: var(--accent);
-    background: var(--accent-glow);
+    color: var(--text-primary);
+    border-color: var(--border);
+    background: var(--bg-elevated);
   }
 
-  .nav__mobile-menu[open] .nav__hamburger-bar {
-    background: var(--accent);
-  }
+  .nav__mobile-menu[open] .nav__hamburger-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav__mobile-menu[open] .nav__hamburger-bar:nth-child(2) { opacity: 0; }
+  .nav__mobile-menu[open] .nav__hamburger-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   .nav__mobile-links {
     position: absolute;
     top: calc(100% + var(--space-2));
     right: 0;
-    min-width: 180px;
+    width: min(15rem, calc(100vw - 2 * var(--space-4)));
+    margin: 0;
+    padding: var(--space-2);
+    list-style: none;
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: var(--space-2);
-    list-style: none;
     box-shadow: var(--shadow-md);
+    transform-origin: top right;
+  }
+
+  .nav__mobile-menu[open] .nav__mobile-links {
+    animation: nav-menu-in var(--dur-base) var(--ease-out);
+  }
+
+  @keyframes nav-menu-in {
+    from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  }
+
+  :global(:root.motion-paused) .nav__mobile-menu[open] .nav__mobile-links {
+    animation: none;
   }
 
   .nav__mobile-link {
-    display: block;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-md);
     font-size: var(--fs-16);
     font-weight: 500;
     color: var(--text-secondary);
     text-decoration: none;
+    transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
   }
 
   .nav__mobile-link:hover {
@@ -349,13 +395,30 @@ function isActive(href: string): boolean {
     background: var(--bg-elevated);
   }
 
-  .nav__mobile-link--active {
-    color: var(--text-primary);
-    box-shadow: inset 2px 0 0 var(--accent);
-    background: var(--accent-glow);
+  .nav__mobile-link:focus-visible {
+    outline-offset: -2px;
+    border-radius: var(--radius-md);
   }
 
-  @media (max-width: 960px) {
+  .nav__mobile-link--active,
+  .nav__mobile-link--active:hover {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+  }
+
+  /* Active marker in the menu: the same short gradient bar, upright. */
+  .nav__mobile-link--active::before {
+    content: "";
+    width: 3px;
+    height: 1rem;
+    margin-right: var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--gradient-accent);
+  }
+
+  /* em, not px: with 125 % browser text the links collapse sooner instead of
+     colliding with the logo. */
+  @media (max-width: 60em) {
     .nav__links {
       display: none;
     }
@@ -364,25 +427,19 @@ function isActive(href: string): boolean {
       display: block;
     }
 
+    .nav,
     .nav__right {
       gap: var(--space-2);
     }
 
     /* 44 px touch targets */
-    .theme-toggle,
-    .nav__hamburger {
+    .nav__icon-btn {
       width: 44px;
       height: 44px;
     }
+  }
 
-    .nav__hamburger {
-      padding: 13px 11px;
-    }
-
-    .nav__mobile-link {
-      display: flex;
-      align-items: center;
-      min-height: 44px;
-    }
+  @media (prefers-reduced-motion: reduce) {
+    .nav__mobile-menu[open] .nav__mobile-links { animation: none; }
   }
 </style>

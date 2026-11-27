@@ -5,7 +5,7 @@ instead of re-exploring the codebase. Updated at the end of every finished
 task (newest entry on top of the log). Public repo: no secrets, emails or
 private links in this file.
 
-**Last updated:** 2026-11-27 · **Last commit:** see `git log -1`
+**Last updated:** 2026-11-28 · **Last commit:** see `git log -1`
 
 ---
 
@@ -57,6 +57,8 @@ private links in this file.
 - **Audit the contact form** by building once with a dummy `PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000`, then rebuild normally.
 
 ## 4. Session log (newest first)
+
+- **2026-11-28** — Whole-site premium redesign "Midnight Lab" (Saad: keep identity, make it premium; whole site; agent reviews then his OK before publishing). Research of 17 top portfolios → `docs/DESIGN-SYSTEM.md`; new tokens/shared classes (page-head, card, meta-row, data-table, link-arrow); 4 page agents (Projects+case studies with index table and On-this-page aside, About/Skills/Contact/404/Resume frame, Home, nav/footer/background); 4 reviewers (visual, UX, layout metrics, QA) → all safe fixes applied. About uses the graduation photo; `portrait.png` removed. Committed locally — **waiting for Saad's OK to publish**.
 
 - **2026-11-27** — Removed the "See it in" project links from "What I do" and every "Prototype" status badge (cards, project header, spec row); `StatusBadge.astro` deleted. (`6f14d39`)
 

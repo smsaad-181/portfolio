@@ -2,7 +2,7 @@
   "name": "I²C",
   "category": "protocols & connectivity",
   "home": true,
-  "mark": "I²C",
+  "mark": "bus",
   "aliases": [
     "i2c"
   ]

@@ -1,13 +1,18 @@
 ---
 /**
  * Project detail page — /projects/[slug]/
- * Header (status, role, title, summary, tags) + key-specs card, the
- * interactive 3D board(s), the MDX write-up (Overview → Features), board
- * renders (3D renders only), Outcome (dashboard screenshots, only when the
- * project has one) and previous/next navigation. Drafts never get a page.
+ * Header: breadcrumb (eyebrow) → H1 → summary → meta-row (role · N board
+ * versions · EDA, only values the content states) → tags / links, beside the
+ * key-specs card. Then: Versions (only with 2+ revisions) → the MDX write-up
+ * (Overview → Features; at ≥ 1024 px with a sticky "On this page" aside) →
+ * interactive 3D board(s) → board renders (3D renders only) → Outcome
+ * (dashboard screenshots, only when the project has one) → previous/next.
+ * Section headings use SectionHeading (mono label + H2). No status text.
+ * Drafts never get a page.
  */
 import BaseLayout from "@layouts/BaseLayout.astro";
 import TagChip from "@components/TagChip.astro";
+import SectionHeading from "@components/SectionHeading.astro";
 import BoardViewer from "@components/BoardViewer.astro";
 import PublicImage from "@components/PublicImage.astro";
 import { render } from "astro:content";
@@ -32,7 +37,7 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { project, prev, next } = Astro.props;
-const { Content } = await render(project);
+const { Content, headings } = await render(project);
 const { data } = project;
 const siteUrl = absoluteUrl(pageUrl("/"));
 const canonicalProjectUrl = absoluteUrl(projectUrl(project));
@@ -63,6 +68,26 @@ const shownAbove = new Set([cover?.src, ...(versions.length > 1 ? versions.map((
 const renders = gallery.filter((g) => g.kind === "render" && !shownAbove.has(g.src));
 const dashboards = gallery.filter((g) => g.kind === "dashboard");
 
+// Mono meta-row above the H1: role · N board versions · EDA tool — only
+// values the project's own content states.
+const eda = data.specs.find((s) => s.label.trim().toLowerCase() === "eda")?.value;
+const metaItems = [
+  data.role,
+  data.versions.length > 1 ? `${data.versions.length} board versions` : undefined,
+  eda,
+].filter((m): m is string => !!m);
+
+// "On this page": only the sections this page renders, in page order
+// (the write-up's H2 ids come from Astro's heading slugs).
+const hasModels = data.models.length > 0;
+const toc = [
+  ...(versions.length > 1 ? [{ id: "versions-heading", text: "Versions" }] : []),
+  ...headings.filter((h) => h.depth === 2).map((h) => ({ id: h.slug, text: h.text })),
+  ...(hasModels ? [{ id: "bv-heading", text: "Interactive 3D board" }] : []),
+  ...(renders.length > 0 ? [{ id: "renders-heading", text: "Board renders" }] : []),
+  ...(dashboards.length > 0 ? [{ id: "outcome-heading", text: "Outcome" }] : []),
+];
+const hasLinks = !!(data.links.oshwlab || data.links.liveDemo);
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -79,31 +104,32 @@ const jsonLd = {
 <BaseLayout title={data.title} description={data.summary} ogImage={ogImageUrl} ogImageAlt={`${data.title} — PCB project by Sultan Mahmud Saad`} ogType="article">
   <script is:inline slot="head" type="application/ld+json" set:html={toJsonLd(jsonLd)} />
 
-  <nav class="breadcrumb container" aria-label="Breadcrumb">
-    <ol role="list">
-      <li><a href={pageUrl("/")}>Home</a></li>
-      <li aria-hidden="true">/</li>
-      <li><a href={pageUrl("/projects/")}>Projects</a></li>
-      <li aria-hidden="true">/</li>
-      <li aria-current="page">{data.title}</li>
-    </ol>
-  </nav>
-
   <article class="project" aria-labelledby="project-title">
     <!-- Header -->
     <header class="project-head container">
       <div class="project-head__main">
-        <div class="project-head__meta">
-          {data.role && <span class="project-head__role">{data.role}</span>}
-        </div>
-        <h1 class="project-head__title" id="project-title">{data.title}</h1>
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <ol role="list">
+            <li><a href={pageUrl("/")}>Home</a></li>
+            <li aria-hidden="true">/</li>
+            <li><a href={pageUrl("/projects/")}>Projects</a></li>
+            <li aria-hidden="true">/</li>
+            <li aria-current="page">{data.title}</li>
+          </ol>
+        </nav>
+        <h1 class="page-title project-head__title" id="project-title">{data.title}</h1>
         <p class="project-head__summary">{data.summary}</p>
+        {metaItems.length > 0 && (
+          <ul class="meta-row project-head__meta" role="list" aria-label="Project facts">
+            {metaItems.map((m) => <li>{m}</li>)}
+          </ul>
+        )}
         {data.tags.length > 0 && (
           <div class="project-head__tags" role="group" aria-label="Technologies">
             {data.tags.map((tag) => <TagChip tag={tag} />)}
           </div>
         )}
-        {(data.links.oshwlab || data.links.liveDemo) && (
+        {hasLinks && (
           <div class="project-head__links">
             {data.links.oshwlab && (
               <a href={data.links.oshwlab} class="btn btn--secondary" target="_blank" rel="noopener noreferrer">OSHWLab<span class="sr-only"> (opens in new tab)</span></a>
@@ -147,8 +173,12 @@ const jsonLd = {
     <!-- Versions: one card per board revision -->
     {versions.length > 1 && (
       <section class="container project-section" aria-labelledby="versions-heading">
-        <h2 class="section-title" id="versions-heading">Versions</h2>
-        <p class="section-lead">This project has {versions.length} board versions. Each card shows what is different; open one in the 3D viewer below.</p>
+        <SectionHeading
+          label="// versions"
+          title="Versions"
+          id="versions-heading"
+          description={`This project has ${versions.length} board versions. Each card shows what is different; open one in the 3D viewer below.`}
+        />
         <ol class="versions" role="list">
           {versions.map((v, i) => (
             <li class="version">
@@ -176,29 +206,47 @@ const jsonLd = {
       </section>
     )}
 
+    <!-- Write-up -->
+    <div class="container project-section project-body">
+      <div class="prose project-prose">
+        <Content />
+      </div>
+      {toc.length > 1 && (
+        <aside class="project-aside" aria-label="On this page">
+          <p class="project-aside__label">On this page</p>
+          <ol class="project-aside__list" role="list">
+            {toc.map((t) => <li><a href={`#${t.id}`}>{t.text}</a></li>)}
+          </ol>
+          {hasLinks && (
+            <ul class="project-aside__links" role="list">
+              {data.links.oshwlab && (
+                <li><a href={data.links.oshwlab} class="link-arrow" target="_blank" rel="noopener noreferrer">OSHWLab <span class="link-arrow__icon" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></a></li>
+              )}
+              {data.links.liveDemo && (
+                <li><a href={data.links.liveDemo} class="link-arrow" target="_blank" rel="noopener noreferrer">Live demo <span class="link-arrow__icon" aria-hidden="true">↗</span><span class="sr-only"> (opens in new tab)</span></a></li>
+              )}
+            </ul>
+          )}
+        </aside>
+      )}
+    </div>
+
     <!-- Interactive 3D board(s) -->
-    {data.models.length > 0 && (
+    {hasModels && (
       <div class="container project-section">
         <BoardViewer models={data.models} title={data.title} />
       </div>
     )}
 
-    <!-- Write-up -->
-    <div class="container project-section">
-      <div class="prose project-prose">
-        <Content />
-      </div>
-    </div>
-
     <!-- Board renders: the 3D renders exported from EasyEDA -->
     {renders.length > 0 && (
       <section class="container project-section" aria-labelledby="renders-heading">
-        <h2 class="section-title" id="renders-heading">Board renders</h2>
+        <SectionHeading label="// renders" title="Board renders" id="renders-heading" />
         <div class:list={["gallery", { "gallery--single": renders.length === 1 }]}>
           {renders.map((img) => (
             <figure class="gallery__item">
               <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="gallery__link" aria-label={`Open full-size image: ${img.caption ?? img.alt} (opens in new tab)`}>
-                <PublicImage src={img.src} alt={img.alt} widths={[400, 760, 1140, 1520]} sizes={renders.length === 1 ? "(max-width: 800px) calc(100vw - 2rem), 608px" : "(max-width: 700px) calc(100vw - 2rem), 380px"} class="gallery__img" />
+                <PublicImage src={img.src} alt={img.alt} widths={[400, 760, 1140, 1520]} sizes={renders.length === 1 ? "(max-width: 800px) calc(100vw - 2rem), 768px" : "(max-width: 700px) calc(100vw - 2rem), 380px"} class="gallery__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
             </figure>
@@ -210,13 +258,12 @@ const jsonLd = {
     <!-- Outcome: dashboard screenshots, only when the project has one -->
     {dashboards.length > 0 && (
       <section class="container project-section" aria-labelledby="outcome-heading">
-        <h2 class="section-title" id="outcome-heading">Outcome</h2>
-        <p class="section-lead">How the project's dashboard looks.</p>
+        <SectionHeading label="// outcome" title="Outcome" id="outcome-heading" description="How the project's dashboard looks." />
         <div class:list={["dashboards", { "dashboards--phone": dashboards.every((d) => d.height > d.width * 1.6) }]}>
           {dashboards.map((img) => (
             <figure class="dashboard">
               <a href={assetUrl(img.src)} target="_blank" rel="noopener" class="dashboard__link" aria-label={`Open full-size image: ${img.caption ?? img.alt} (opens in new tab)`}>
-                <PublicImage src={img.src} alt={img.alt} widths={[390, 800, 1200, 1600]} sizes={dashboards.length > 1 ? "320px" : "(max-width: 900px) calc(100vw - 2rem), 560px"} class="dashboard__img" />
+                <PublicImage src={img.src} alt={img.alt} widths={[390, 800, 1200, 1600]} sizes={dashboards.length > 1 ? "320px" : "(max-width: 960px) calc(100vw - 3rem), 896px"} class="dashboard__img" />
               </a>
               {img.caption && <figcaption class="gallery__caption">{img.caption}</figcaption>}
             </figure>
@@ -228,37 +275,47 @@ const jsonLd = {
     <!-- Previous / next -->
     <div class="container">
     <nav class="project-nav" aria-label="More projects">
-      {prev ? (
-        <a href={projectUrl(prev)} class="project-nav__link">
-          <span class="project-nav__dir"><span aria-hidden="true">←</span> Previous</span>
-          <span class="project-nav__name">{prev.data.title}</span>
-        </a>
-      ) : <span />}
-      <a href={pageUrl("/projects/")} class="project-nav__all">All projects</a>
-      {next ? (
-        <a href={projectUrl(next)} class="project-nav__link project-nav__link--next">
-          <span class="project-nav__dir">Next <span aria-hidden="true">→</span></span>
-          <span class="project-nav__name">{next.data.title}</span>
-        </a>
-      ) : <span />}
+      <div class="project-nav__head">
+        <p class="section-label project-nav__label">// more projects</p>
+        <a href={pageUrl("/projects/")} class="link-arrow">All projects <span class="link-arrow__icon" aria-hidden="true">→</span></a>
+      </div>
+      <div class="project-nav__cards">
+        {prev ? (
+          <a href={projectUrl(prev)} class="project-nav__link">
+            <span class="project-nav__dir"><span aria-hidden="true">←</span> Previous</span>
+            <span class="project-nav__name">{prev.data.title}</span>
+          </a>
+        ) : <span aria-hidden="true" />}
+        {next ? (
+          <a href={projectUrl(next)} class="project-nav__link project-nav__link--next">
+            <span class="project-nav__dir">Next <span aria-hidden="true">→</span></span>
+            <span class="project-nav__name">{next.data.title}</span>
+          </a>
+        ) : <span aria-hidden="true" />}
+      </div>
     </nav>
     </div>
   </article>
 </BaseLayout>
 
 <style>
+  /* ── Breadcrumb (the head's eyebrow) ────────────────────────────────── */
   .breadcrumb {
-    padding-block: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
   .breadcrumb ol {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: 0 var(--space-2);
+    margin: 0;
     list-style: none;
     padding: 0;
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
+    font-size: var(--fs-12);
+    line-height: 1.25rem;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
     color: var(--text-muted);
   }
 
@@ -266,80 +323,89 @@ const jsonLd = {
     margin-top: 0;
   }
 
+  /* 20 px line + 2 × 12 px padding = 44 px tap height; the negative margin
+     keeps the line where it was. */
   .breadcrumb a {
+    display: inline-block;
+    padding-block: var(--space-3);
+    margin-block: calc(-1 * var(--space-3));
     color: var(--text-secondary);
   }
 
+  .breadcrumb a:hover {
+    color: var(--accent);
+  }
+
   .breadcrumb [aria-current="page"] {
-    color: var(--text-primary);
+    color: var(--text-muted);
   }
 
   /* ── Header ─────────────────────────────────────────────────────────── */
   .project-head {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-    gap: var(--space-12);
-    align-items: start;
-    padding-block: var(--space-8) var(--space-12);
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: var(--space-16);
+    align-items: center;
+    padding-block: var(--space-12) var(--space-16);
   }
 
   .project-head__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
   }
 
-  .project-head__role {
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
-    color: var(--text-secondary);
+  .project-head__meta li + li {
+    margin-top: 0;
   }
 
   .project-head__title {
-    font-size: clamp(var(--fs-28), 4.5vw, 3.25rem);
-    font-weight: 600;
-    line-height: 1.1;
     margin-bottom: var(--space-4);
-    background: var(--gradient-name);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
   }
 
   .project-head__summary {
+    max-width: 38rem;
+    margin: 0 0 var(--space-4);
     font-size: var(--fs-18);
-    line-height: 1.7;
+    line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 60ch;
-    margin-bottom: var(--space-6);
   }
 
   .project-head__tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin-bottom: var(--space-6);
   }
 
   .project-head__links {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3);
+    margin-top: var(--space-8);
   }
 
-  /* Key specs card */
+  /* Key specs card: render on a plate + spec list, thin gradient rule on top */
   .spec-card {
+    position: relative;
+    padding: var(--space-2);
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
     box-shadow: var(--shadow-md);
+    overflow: hidden; /* clips the top rule to the rounded corners */
+  }
+
+  .spec-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 2px;
+    background: var(--gradient-accent);
   }
 
   .spec-card__img-link {
     display: block;
+    border-radius: calc(var(--radius-lg) - var(--space-2));
+    overflow: hidden;
   }
 
   .spec-card__img {
@@ -349,22 +415,29 @@ const jsonLd = {
     aspect-ratio: 3 / 2;
     object-fit: contain;
     box-sizing: border-box;
-    padding: var(--space-4);
+    padding: var(--space-6);
     background:
-      radial-gradient(ellipse 70% 70% at 50% 45%, var(--accent-glow), transparent 70%),
+      radial-gradient(ellipse 65% 65% at 50% 50%, var(--accent-glow), transparent 72%),
       var(--bg-elevated);
-    border-bottom: 1px solid var(--border);
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .spec-card__img-link:hover .spec-card__img {
+      transform: scale(1.02);
+    }
   }
 
   .spec-card__list {
     display: grid;
+    padding: var(--space-2) var(--space-4) var(--space-1);
   }
 
   .spec-card__row {
     display: grid;
-    grid-template-columns: 7.5rem minmax(0, 1fr);
+    grid-template-columns: 7rem minmax(0, 1fr);
     gap: var(--space-4);
-    padding: var(--space-3) var(--space-6);
+    padding-block: var(--space-3);
     border-bottom: 1px solid var(--border-subtle);
     align-items: baseline;
   }
@@ -375,12 +448,15 @@ const jsonLd = {
 
   .spec-card__row dt {
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
+    font-size: var(--fs-12);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
     color: var(--text-muted);
   }
 
   .spec-card__row dd {
     font-size: var(--fs-14);
+    line-height: 1.5;
     font-weight: 500;
     color: var(--text-primary);
     min-width: 0;
@@ -389,14 +465,81 @@ const jsonLd = {
 
   /* ── Sections ───────────────────────────────────────────────────────── */
   .project-section {
-    margin-bottom: var(--space-16);
+    margin-bottom: var(--space-24);
   }
 
+  /* Write-up: one reading column (≤ 38rem, global .prose); at ≥ 1024 px a
+     sticky "On this page" aside fills the right side. */
   .project-prose {
-    max-width: 78ch;
+    max-width: 38rem;
   }
 
-  /* Same look as the write-up's h2 headings */
+  .project-aside {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .project-body {
+      display: grid;
+      grid-template-columns: minmax(0, 38rem) minmax(12rem, 16rem);
+      justify-content: space-between;
+      gap: var(--space-16);
+      align-items: start;
+    }
+
+    .project-aside {
+      display: block;
+      position: sticky;
+      top: calc(var(--nav-height) + var(--space-8));
+      padding-left: var(--space-6);
+      border-left: 1px solid var(--border-subtle);
+    }
+  }
+
+  .project-aside__label {
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--fs-12);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .project-aside__list,
+  .project-aside__links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-aside__list li + li,
+  .project-aside__links li + li {
+    margin-top: 0;
+  }
+
+  .project-aside__list a {
+    display: block;
+    padding-block: var(--space-1);
+    font-size: var(--fs-14);
+    line-height: 1.5;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .project-aside__list a:hover {
+    color: var(--accent);
+  }
+
+  .project-aside__links {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   /* Versions */
   .versions {
     display: grid;
@@ -414,27 +557,29 @@ const jsonLd = {
   .version {
     display: flex;
     flex-direction: column;
+    padding: var(--space-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
-    overflow: hidden;
+    box-shadow: var(--shadow-sm);
   }
 
   .version__img {
     position: relative;
     aspect-ratio: 16 / 10;
     overflow: hidden;
+    border-radius: calc(var(--radius-lg) - var(--space-2));
     background:
-      radial-gradient(ellipse 70% 70% at 50% 45%, var(--accent-glow), transparent 70%),
+      radial-gradient(ellipse 65% 65% at 50% 50%, var(--accent-glow), transparent 72%),
       var(--bg-elevated);
   }
 
   /* Fixed box: tall boards (e.g. the L-shaped V1.2) scale down instead of stretching the card */
   .version__img :global(img) {
     position: absolute;
-    inset: var(--space-4);
-    width: calc(100% - 2 * var(--space-4));
-    height: calc(100% - 2 * var(--space-4));
+    inset: var(--space-6);
+    width: calc(100% - 2 * var(--space-6));
+    height: calc(100% - 2 * var(--space-6));
     object-fit: contain;
   }
 
@@ -443,14 +588,14 @@ const jsonLd = {
     flex-direction: column;
     flex: 1;
     gap: var(--space-2);
-    padding: var(--space-4) var(--space-6) var(--space-6);
+    padding: var(--space-6) var(--space-4) var(--space-4);
   }
 
   .version__num {
     margin: 0;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
+    font-size: var(--fs-12);
+    letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--accent);
   }
@@ -463,39 +608,45 @@ const jsonLd = {
 
   .version__summary {
     margin: 0;
+    font-size: var(--fs-14);
+    line-height: 1.6;
     color: var(--text-secondary);
   }
 
   .version__list {
-    margin: var(--space-2) 0 var(--space-4);
-    padding-left: 1.2em;
+    margin: var(--space-2) 0 var(--space-6);
+    padding: var(--space-3) 0 0;
+    border-top: 1px solid var(--border-subtle);
+    list-style: none;
     font-size: var(--fs-14);
     color: var(--text-secondary);
-    line-height: 1.6;
+    line-height: 1.5;
+  }
+
+  .version__list li {
+    position: relative;
+    padding-left: var(--space-4);
+  }
+
+  .version__list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 6px;
+    height: 1px;
+    background: var(--text-muted);
   }
 
   .version__list li + li {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2);
   }
 
   .version__btn {
     margin-top: auto;
     align-self: flex-start;
-  }
-
-  .section-title {
-    margin: 0 0 var(--space-6);
-    padding-bottom: var(--space-2);
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-mono);
-    font-size: 1.35rem;
-    letter-spacing: -0.01em;
-    color: var(--accent);
-  }
-
-  .section-lead {
-    margin: calc(-1 * var(--space-3)) 0 var(--space-6);
-    color: var(--text-secondary);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--fs-14);
   }
 
   .gallery {
@@ -504,22 +655,27 @@ const jsonLd = {
     gap: var(--space-6);
   }
 
-  /* One render: show it large rather than as a small card */
+  /* One render: large and centred, never a lone half-width card */
   .gallery--single {
-    grid-template-columns: minmax(0, 38rem); /* same width as the write-up */
+    grid-template-columns: minmax(0, 48rem);
+    justify-content: center;
   }
 
   .gallery__item,
   .dashboard {
     margin: 0;
+    padding: var(--space-2);
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
+    box-shadow: var(--shadow-sm);
   }
 
-  .gallery__link {
+  .gallery__link,
+  .dashboard__link {
     display: block;
+    overflow: hidden;
+    border-radius: calc(var(--radius-lg) - var(--space-2));
     background: var(--bg-elevated);
   }
 
@@ -529,32 +685,35 @@ const jsonLd = {
     height: auto;
     aspect-ratio: 4 / 3;
     object-fit: contain;
-    transition: transform var(--dur-slow) var(--ease);
+    padding: var(--space-4);
+    transition: transform var(--dur-slow) var(--ease-out);
   }
 
-  .gallery__link:hover .gallery__img {
-    transform: scale(1.03);
+  @media (hover: hover) and (pointer: fine) {
+    .gallery__link:hover .gallery__img {
+      transform: scale(1.025);
+    }
   }
 
   .gallery__caption {
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-2) var(--space-1);
+    font-family: var(--font-body);
     font-size: var(--fs-14);
+    line-height: 1.5;
     color: var(--text-secondary);
   }
 
+  /* Bright UI screenshots: capped and centred so they don't fill the page */
   .dashboards {
     display: grid;
     gap: var(--space-6);
+    max-width: 56rem;
+    margin-inline: auto;
   }
 
   /* Phone-layout screenshots sit side by side at phone width */
   .dashboards--phone {
     grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 320px));
-  }
-
-  .dashboard__link {
-    display: block;
-    background: var(--bg-elevated);
   }
 
   .dashboard__img {
@@ -565,29 +724,50 @@ const jsonLd = {
 
   /* ── Prev / next ────────────────────────────────────────────────────── */
   .project-nav {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    padding-block: var(--space-12) var(--space-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .project-nav__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     gap: var(--space-4);
-    align-items: center;
-    padding-block: var(--space-8) var(--space-4);
-    border-top: 1px solid var(--border);
+    margin-bottom: var(--space-6);
+  }
+
+  .project-nav__label {
+    margin: 0;
+  }
+
+  .project-nav__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
   }
 
   .project-nav__link {
     display: flex;
     flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-4);
+    gap: var(--space-2);
+    padding: var(--space-6);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
+    box-shadow: var(--shadow-sm);
     color: var(--text-primary);
-    transition: border-color var(--dur-fast) var(--ease);
+    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
   }
 
   .project-nav__link:hover {
-    border-color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
     color: var(--text-primary);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .project-nav__link:hover {
+      transform: translateY(-2px);
+    }
   }
 
   .project-nav__link--next {
@@ -596,44 +776,55 @@ const jsonLd = {
 
   .project-nav__dir {
     font-family: var(--font-mono);
-    font-size: var(--fs-14);
+    font-size: var(--fs-12);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .project-nav__link:hover .project-nav__dir {
     color: var(--accent);
   }
 
   .project-nav__name {
-    font-weight: 500;
-  }
-
-  .project-nav__all {
-    font-family: var(--font-mono);
-    font-size: var(--fs-14);
+    font-size: var(--fs-18);
+    font-weight: 600;
+    line-height: 1.3;
   }
 
   @media (max-width: 900px) {
     .project-head {
       grid-template-columns: 1fr;
       gap: var(--space-8);
+      padding-block: var(--space-8) var(--space-12);
+    }
+
+    .project-section {
+      margin-bottom: var(--space-16);
     }
   }
 
   @media (max-width: 640px) {
-    .project-nav {
+    .version__btn {
+      min-height: 44px;
+    }
+
+    .project-nav__cards {
       grid-template-columns: 1fr;
+      gap: var(--space-4);
     }
 
     .project-nav__link--next {
       text-align: left;
     }
 
-    .project-nav__all {
-      order: 3;
-      text-align: center;
+    .spec-card__list {
+      padding-inline: var(--space-3);
     }
 
     .spec-card__row {
       grid-template-columns: 1fr;
       gap: var(--space-1);
-      padding-inline: var(--space-4);
     }
   }
 </style>

@@ -1,10 +1,10 @@
 ---
 /**
  * Footer.astro
- * Simple footer with social links and copyright.
- * Social links are hardcoded here so the footer renders even before the
- * profile collection is loaded on a given page. Update these when Saad
- * confirms his exact profile URLs.
+ * Minimal footer aligned to the page container: wordmark + tagline and the
+ * social links on top, a hairline, then copyright and the "Pause animations"
+ * control. Social links are hardcoded here so the footer renders even before
+ * the profile collection is loaded on a given page.
  */
 import Wordmark from "@components/Wordmark.astro";
 
@@ -14,63 +14,73 @@ const socialLinks = [
   {
     label: "GitHub",
     href: "https://github.com/smsaad-181",
-    icon: "github",
   },
   {
     label: "LinkedIn",
     href: "https://linkedin.com/in/sultan-mahmud-saad",
-    icon: "linkedin",
   },
   {
     label: "OSHWLab",
     href: "https://oshwlab.com/smsaad181",
-    icon: "oshwlab",
   },
   {
     label: "Email",
     href: "mailto:smsaad181@gmail.com",
-    icon: "email",
   },
 ];
 ---
 
 <footer class="footer" role="contentinfo">
   <div class="footer__inner container">
-    <div class="footer__brand">
-      <span class="footer__logo">
-        <Wordmark compact={false} />
-      </span>
-      <p class="footer__tagline">Embedded Engineer · PCB Designer · IoT</p>
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="footer__logo">
+          <Wordmark compact={false} />
+        </span>
+        <p class="footer__tagline">Embedded Engineer · PCB Designer · IoT</p>
+      </div>
+
+      <nav class="footer__social" aria-label="Social links">
+        <ul role="list">
+          {socialLinks.map((link) => {
+            const external = !link.href.startsWith("mailto");
+            return (
+              <li>
+                <a
+                  href={link.href}
+                  class="footer__social-link"
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noopener noreferrer" : undefined}
+                  aria-label={external ? `${link.label} (opens in new tab)` : link.label}
+                >
+                  {link.label}
+                  <svg class="footer__arrow" viewBox="0 0 12 12" aria-hidden="true">
+                    {external ? (
+                      <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                    ) : (
+                      <path d="M2 6h7.5M6.5 3l3 3-3 3" />
+                    )}
+                  </svg>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
     </div>
 
-    <nav class="footer__social" aria-label="Social links">
-      <ul role="list">
-        {socialLinks.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              class="footer__social-link"
-              target={link.href.startsWith("mailto") ? undefined : "_blank"}
-              rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
-              aria-label={link.href.startsWith("mailto") ? link.label : `${link.label} (opens in new tab)`}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div class="footer__bottom">
+      <p class="footer__copy">
+        &copy; {year} Sultan Mahmud Saad. Built with
+        <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>.
+      </p>
 
-    <p class="footer__copy">
-      &copy; {year} Sultan Mahmud Saad. Built with
-      <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>.
-    </p>
-
-    <!-- WCAG 2.2.2: a way to stop the looping background + hero motion.
-         Remembered per visitor; BaseLayout's head script applies it before paint. -->
-    <button type="button" class="footer__motion" data-motion-toggle hidden>
-      Pause animations
-    </button>
+      <!-- WCAG 2.2.2: a way to stop the looping background + hero motion.
+           Remembered per visitor; BaseLayout's head script applies it before paint. -->
+      <button type="button" class="footer__motion" data-motion-toggle hidden>
+        Pause animations
+      </button>
+    </div>
   </div>
 </footer>
 
@@ -99,37 +109,36 @@ const socialLinks = [
   .footer {
     margin-top: var(--space-24);
     border-top: 1px solid var(--border-subtle);
-    padding-block: var(--space-12);
-    background: var(--bg-surface);
+    padding-block: var(--space-12) var(--space-8);
+    background: var(--bg-base);
   }
 
   .footer__inner {
     display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-    gap: var(--space-6) var(--space-8);
-    align-items: start;
+    gap: var(--space-8);
   }
 
-  .footer__brand {
-    grid-column: 1;
-    grid-row: 1;
+  /* ── Top row: brand left, links right ── */
+  .footer__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6) var(--space-8);
   }
 
   .footer__logo {
-    display: inline-block;
-    margin-bottom: var(--space-3);
+    display: inline-flex;
+    margin-bottom: var(--space-2);
   }
 
   .footer__tagline {
-    font-size: 0.85rem;
-    color: var(--text-muted);
+    margin: 0;
     font-family: var(--font-mono);
-  }
-
-  .footer__social {
-    grid-column: 2;
-    grid-row: 1;
+    font-size: var(--fs-14);
+    color: var(--text-muted);
+    text-wrap: balance;
+    /* not uppercased: "IoT" must keep its casing */
   }
 
   .footer__social ul {
@@ -137,59 +146,103 @@ const socialLinks = [
     padding: 0;
     margin: 0;
     display: flex;
-    gap: var(--space-4);
     flex-wrap: wrap;
-    justify-content: flex-end;
+    gap: var(--space-1) var(--space-6);
   }
 
   .footer__social-link {
-    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 2.25rem;
+    font-size: var(--fs-14);
     font-weight: 500;
     color: var(--text-secondary);
     text-decoration: none;
-    transition: color 0.15s;
+    transition: color var(--dur-fast) var(--ease);
+  }
+
+  .footer__arrow {
+    width: 0.75rem;
+    height: 0.75rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    color: var(--text-muted);
+    transition: transform var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   }
 
   .footer__social-link:hover {
+    color: var(--text-primary);
+  }
+
+  .footer__social-link:hover .footer__arrow {
     color: var(--accent);
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .footer__social-link:hover .footer__arrow {
+      transform: translate(1px, -1px);
+    }
+  }
+
+  /* ── Bottom row: hairline, copyright left, motion control right ── */
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-subtle);
+  }
+
   .footer__copy {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    font-size: 0.8rem;
-    color: var(--text-muted);
     margin: 0;
+    font-size: var(--fs-14);
+    color: var(--text-muted);
   }
 
   .footer__copy a {
     color: var(--text-muted);
     text-decoration: underline;
-    text-underline-offset: 2px;
+    text-decoration-color: var(--border);
+    text-underline-offset: 3px;
+    transition: color var(--dur-fast) var(--ease), text-decoration-color var(--dur-fast) var(--ease);
   }
 
   .footer__copy a:hover {
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    text-decoration-color: currentColor;
   }
 
   .footer__motion {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    justify-self: start;
-    padding: var(--space-1) var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0 var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     background: transparent;
     color: var(--text-secondary);
     font: inherit;
-    font-size: 0.8rem;
+    font-size: var(--fs-14);
+    line-height: 1;
     cursor: pointer;
-    transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+      background-color var(--dur-fast) var(--ease);
+  }
+
+  .footer__motion[hidden] {
+    display: none;
   }
 
   .footer__motion:hover {
-    color: var(--accent);
+    color: var(--text-primary);
     border-color: var(--accent);
+    background: var(--accent-glow);
   }
 
   /* Nothing moves for reduced-motion visitors: no control needed. */
@@ -197,32 +250,36 @@ const socialLinks = [
     .footer__motion { display: none; }
   }
 
-  @media (max-width: 640px) {
-    .footer__inner {
-      grid-template-columns: 1fr;
+  /* Phones: stacked, every link and the button a 44 px target. */
+  @media (max-width: 40em) {
+    .footer {
+      margin-top: var(--space-16);
+      padding-block: var(--space-8) var(--space-6);
     }
 
-    .footer__social {
-      grid-column: 1;
-      grid-row: 2;
+    .footer__inner {
+      gap: var(--space-6);
+    }
+
+    .footer__top {
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .footer__social ul {
-      justify-content: flex-start;
+      display: grid;
+      grid-template-columns: repeat(2, max-content);
+      gap: 0 var(--space-8);
     }
 
-    .footer__social-link {
-      display: inline-block;
-      padding-block: 12px;
-    }
-
-    .footer__copy {
-      grid-row: 3;
-    }
-
+    .footer__social-link,
     .footer__motion {
-      grid-row: 4;
       min-height: 44px;
+    }
+
+    .footer__bottom {
+      flex-direction: column-reverse;
+      align-items: flex-start;
     }
   }
 </style>

@@ -129,7 +129,8 @@ const skills = defineCollection({
     aliases: z.array(z.string().min(1)).optional(),
     // Official logo: a Simple Icons slug listed in src/lib/brand-logos.ts.
     logo: z.string().min(1).optional(),
-    // Badge text when there is no logo, e.g. "I²C" or "RTOS" (max 5 chars).
+    // Icon kind when there is no official logo: bus | radio | chip | code
+    // (SkillLogo.astro draws a matching line icon).
     mark: z.string().min(1).max(5).optional(),
   }),
 });

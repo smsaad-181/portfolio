@@ -199,7 +199,7 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud Saad`;
         document.querySelectorAll<HTMLElement>("[data-reveal], [data-count], [data-draw]").forEach((el) => io.observe(el));
       }
 
-      // Card tilt: [data-tilt] leans up to 4° toward the pointer; a glow follows it.
+      // Card hover glow: [data-tilt] cards get a soft glow that follows the pointer.
       if (root.classList.contains("tilt-on")) {
         document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
           let frame = 0;
@@ -208,15 +208,13 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud Saad`;
             frame = requestAnimationFrame(() => {
               const r = card.getBoundingClientRect();
               const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-              card.style.setProperty("--tilt-y", `${((x - 0.5) * 8).toFixed(2)}deg`);
-              card.style.setProperty("--tilt-x", `${((0.5 - y) * 8).toFixed(2)}deg`);
               card.style.setProperty("--glow-x", `${(x * 100).toFixed(1)}%`);
               card.style.setProperty("--glow-y", `${(y * 100).toFixed(1)}%`);
             });
           });
           card.addEventListener("pointerleave", () => {
             cancelAnimationFrame(frame);
-            for (const p of ["--tilt-x", "--tilt-y", "--glow-x", "--glow-y"]) card.style.removeProperty(p);
+            for (const p of ["--glow-x", "--glow-y"]) card.style.removeProperty(p);
           });
         });
       }
@@ -230,6 +228,9 @@ const fullTitle = titleIsFull ? title : `${title} · Sultan Mahmud Saad`;
     top: -100%;
     left: var(--space-4);
     z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     padding: var(--space-2) var(--space-4);
     background: var(--accent);
     color: var(--text-inverse);

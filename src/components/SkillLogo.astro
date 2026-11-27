@@ -1,31 +1,61 @@
 ---
 /**
  * SkillLogo.astro — a small square tile with a tool's official logo (brand
- * colour on a light tile, so it reads in both themes), or, for things with
- * no logo (bus protocols, FreeRTOS, VS Code…), a short badge text such as
- * "I²C" or "RTOS". Decorative: the skill name is always shown next to it.
+ * colour on a light tile, so it reads in both themes). Things with no
+ * official logo in Simple Icons (bus protocols, radios, FreeRTOS, VS Code…)
+ * get a quiet accent line icon chosen by kind (`mark`), never a text badge
+ * that could read as a placeholder. Decorative: the skill name is always
+ * shown next to it as text.
  */
 import { brandLogo } from "../lib/brand-logos";
+
+/** Icon kinds for skills without an official logo (`mark` in the skill JSON). */
+type Kind = "bus" | "radio" | "chip" | "code";
 
 export interface Props {
   /** Simple Icons slug, e.g. "arduino" (src/lib/brand-logos.ts). */
   logo?: string | undefined;
-  /** Badge text when there is no logo; defaults to the first letters of the name. */
+  /** Icon kind when there is no logo: "bus" (wired protocols), "radio" (wireless), "chip" (RTOS/firmware), "code" (editors). */
   mark?: string | undefined;
   name: string;
   /** Tile size in px. */
   size?: number;
 }
-const { logo, mark, name, size = 36 } = Astro.props;
+const { logo, mark, size = 36 } = Astro.props;
 const icon = logo ? brandLogo(logo) : undefined;
-const text = mark ?? name.replace(/[^A-Za-z0-9²+#]/g, "").slice(0, 4);
+const KINDS: readonly Kind[] = ["bus", "radio", "chip", "code"];
+const kind: Kind = KINDS.includes(mark as Kind) ? (mark as Kind) : "chip";
+
+// Line icons (24×24, stroked with currentColor = --accent).
+const LINE: Record<Kind, string> = {
+  // two data lines with opposite arrows: a wired serial bus
+  bus: "M3 8.5h15M14.5 5 18 8.5 14.5 12M21 15.5H6M9.5 12 6 15.5 9.5 19",
+  // antenna mast radiating waves
+  radio: "M12 13v8M9 21h6M12 13a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM8.2 15.3a5 5 0 0 1 0-7.6M15.8 7.7a5 5 0 0 1 0 7.6M5.3 18.2a9 9 0 0 1 0-13.4M18.7 4.8a9 9 0 0 1 0 13.4",
+  // microcontroller package with pins
+  chip: "M7 7h10v10H7zM10 10h4v4h-4zM9.5 3v4M14.5 3v4M9.5 17v4M14.5 17v4M3 9.5h4M3 14.5h4M17 9.5h4M17 14.5h4",
+  // code brackets
+  code: "M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16",
+};
+
+// Some official logos are wide wordmarks (MySQL's dolphin + text, KiCad's
+// lettering) that look tiny at the shared 58% size. They get a viewBox
+// cropped to their artwork and a wider box, so they fill the tile like
+// the others.
+const VIEWBOX: Record<string, string> = {
+  mysql: "0 3.6 24 16.8",
+  kicad: "0 7 24 10",
+};
+const viewBox = (logo && VIEWBOX[logo]) ?? "0 0 24 24";
 ---
 
-<span class:list={["skill-logo", { "skill-logo--mark": !icon }]} style={`--tile: ${size}px`} aria-hidden="true">
+<span class:list={["skill-logo", { "skill-logo--icon": !icon }]} style={`--tile: ${size}px`} aria-hidden="true">
   {icon ? (
-    <svg viewBox="0 0 24 24" role="presentation" focusable="false"><path fill={`#${icon.hex}`} d={icon.path} /></svg>
+    <svg viewBox={viewBox} role="presentation" focusable="false" class:list={[{ "skill-logo__wide": logo && VIEWBOX[logo] }]}><path fill={`#${icon.hex}`} d={icon.path} /></svg>
   ) : (
-    <span class="skill-logo__mark" data-len={Math.min(text.length, 5)}>{text}</span>
+    <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+      <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d={LINE[kind]} />
+    </svg>
   )}
 </span>
 
@@ -46,20 +76,22 @@ const text = mark ?? name.replace(/[^A-Za-z0-9²+#]/g, "").slice(0, 4);
     height: 58%;
   }
 
-  .skill-logo__mark {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--logo-mark);
-    font-size: calc(var(--tile) * 0.36);
+  /* Wide wordmark logos (tight viewBox): use the tile's width */
+  .skill-logo svg.skill-logo__wide {
+    width: 84%;
+    height: 84%;
   }
 
-  .skill-logo__mark[data-len="4"] {
-    font-size: calc(var(--tile) * 0.28);
+  /* No official logo: a quiet accent-tinted tile with a line icon, so it sits
+     calmly beside the brand tiles instead of looking like a placeholder. */
+  .skill-logo--icon {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--bg-surface));
+    border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
   }
 
-  .skill-logo__mark[data-len="5"] {
-    font-size: calc(var(--tile) * 0.24);
+  .skill-logo--icon svg {
+    width: 60%;
+    height: 60%;
   }
 </style>

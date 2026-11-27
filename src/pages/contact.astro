@@ -24,49 +24,58 @@ const links = [
 ---
 
 <BaseLayout title="Contact" description={`Contact ${data.name}, ${data.title} in ${data.location}: email, LinkedIn, GitHub, OSHWLab${formKey ? " or the message form" : ""}.`}>
-  <section class="contact" aria-labelledby="contact-title">
-    <div class="container contact__inner">
-      <header class="contact__head">
-        <p class="section-label">// reach out</p>
-        <h1 class="contact__title" id="contact-title">Get in touch</h1>
-        <p class="contact__lead">
-          Hiring for a hardware or embedded role, or have a PCB or IoT project in mind?
-          {formKey ? "Send me a message or email me directly." : "Email me directly or reach me on LinkedIn."}
-        </p>
+  <section class="page-head" aria-labelledby="contact-title">
+    <div class="container">
+      <p class="section-label">// reach out</p>
+      <h1 class="page-title" id="contact-title">Get in touch</h1>
+      <p class="page-lead">
+        Hiring for a hardware or embedded role, or have a PCB or IoT project in mind?
+        {formKey ? "Send me a message or email me directly." : "Email me directly or reach me on LinkedIn."}
+      </p>
+      <div class="contact__status">
         {data.availability && (
           <p class="availability"><span class="availability__dot" aria-hidden="true"></span>{data.availability}</p>
         )}
-      </header>
+        <p class="contact__where"><Icon name="pin" size={16} />Based in {data.location}</p>
+      </div>
+    </div>
+  </section>
 
+  <section class="contact" aria-labelledby="ways-heading">
+    <h2 class="sr-only" id="ways-heading">Ways to reach me</h2>
+    <div class="container">
       <div class:list={["contact__grid", { "contact__grid--single": !formKey }]}>
         <div class="contact__ways">
           <!-- Email + copy -->
-          <div class="way way--email">
-            <span class="way__icon"><Icon name="email" size={22} /></span>
-            <div class="way__body">
-              <h2 class="way__title">Email</h2>
-              <a href={`mailto:${data.email}`} class="way__value" data-email>{data.email}</a>
+          <div class="card way way--email">
+            <div class="way__top">
+              <span class="way__icon"><Icon name="email" size={20} /></span>
+              <button type="button" class="copy" data-copy={data.email} aria-label={`Copy email address ${data.email}`}>
+                <span class="copy__idle"><Icon name="copy" size={16} />Copy</span>
+                <span class="copy__done" hidden><Icon name="check" size={16} />Copied</span>
+              </button>
             </div>
-            <button type="button" class="copy" data-copy={data.email} aria-label={`Copy email address ${data.email}`}>
-              <span class="copy__idle"><Icon name="copy" size={16} />Copy</span>
-              <span class="copy__done" hidden><Icon name="check" size={16} />Copied</span>
-            </button>
+            <div class="way__body">
+              <h3 class="way__title">Email</h3>
+              <a href={`mailto:${data.email}`} class="way__value" data-email>{data.email}</a>
+              <span class="way__hint">Copy the address or open your mail app</span>
+            </div>
             <p class="sr-only" aria-live="polite" data-copy-status></p>
           </div>
 
           {links.map((l) => (
-            <a href={l.href} target="_blank" rel="noopener noreferrer" class="way way--link">
-              <span class="way__icon"><Icon name={l.name} size={22} /></span>
+            <a href={l.href} target="_blank" rel="noopener noreferrer" class="card way way--link">
+              <span class="way__top">
+                <span class="way__icon"><Icon name={l.name} size={20} /></span>
+                <span class="way__arrow" aria-hidden="true">↗</span>
+              </span>
               <span class="way__body">
                 <span class="way__title">{l.title}<span class="sr-only"> (opens in new tab)</span></span>
                 <span class="way__value">{l.value}</span>
                 <span class="way__hint">{l.hint}</span>
               </span>
-              <span class="way__arrow" aria-hidden="true">→</span>
             </a>
           ))}
-
-          <p class="contact__where"><Icon name="pin" size={16} />Based in {data.location}</p>
         </div>
 
         {formKey && (
@@ -203,25 +212,15 @@ const links = [
 
 <style>
   .contact {
-    padding-block: var(--space-16) var(--space-24);
+    padding-bottom: var(--space-24);
   }
 
-  .contact__head {
-    max-width: 640px;
-    margin-bottom: var(--space-12);
-  }
-
-  .contact__title {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    font-weight: 700;
-    margin: var(--space-2) 0 var(--space-4);
-  }
-
-  .contact__lead {
-    max-width: 38rem;
-    color: var(--text-secondary);
-    line-height: 1.7;
-    margin: 0 0 var(--space-6);
+  .contact__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-6);
+    margin-top: var(--space-6);
   }
 
   .availability {
@@ -229,15 +228,17 @@ const links = [
     align-items: center;
     gap: var(--space-2);
     margin: 0;
-    padding: 0.35rem 0.9rem;
+    padding: var(--space-1) var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     background: var(--bg-surface);
     font-size: var(--fs-14);
     font-weight: 500;
+    color: var(--text-primary);
   }
 
   .availability__dot {
+    flex: none;
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -245,11 +246,19 @@ const links = [
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-completed) 20%, transparent);
   }
 
+  .contact__where {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
+  }
+
   .contact__grid {
-    margin-top: var(--space-8);
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: var(--space-8);
+    gap: var(--space-6);
     align-items: start;
   }
 
@@ -257,42 +266,35 @@ const links = [
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* No message form: show the ways to reach me as a 2-column grid so the page
-     isn't half empty on desktop. */
-  @media (min-width: 900px) {
+  /* No message form: the four ways to reach me as a 2 × 2 grid */
+  @media (min-width: 760px) {
     .contact__grid--single .contact__ways {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .contact__grid--single .contact__where {
-      grid-column: 1 / -1;
     }
   }
 
   .contact__ways {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-6);
   }
 
   .way {
     display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    min-width: 0;
+    color: inherit;
+  }
+
+  a.way:hover {
+    color: inherit;
+  }
+
+  .way__top {
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--space-4);
-    padding: var(--space-4) var(--space-6);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--bg-surface);
-    color: inherit;
-  }
-
-  .way--link {
-    transition: border-color var(--dur-base) var(--ease), transform var(--dur-base) var(--ease);
-  }
-
-  .way--link:hover {
-    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    transform: translateY(-1px);
-    color: inherit;
   }
 
   .way__icon {
@@ -309,47 +311,71 @@ const links = [
   .way__body {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    gap: var(--space-1);
     min-width: 0;
   }
 
   .way__title {
-    font-size: var(--fs-16);
-    font-weight: 600;
+    display: block;
     margin: 0;
+    line-height: 1.3;
+    font-size: var(--fs-20);
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
   }
 
   .way__value {
+    display: block;
+    line-height: 1.5;
     font-family: var(--font-mono);
     font-size: var(--fs-14);
     color: var(--accent);
     overflow-wrap: anywhere;
   }
 
+  /* Phones: a 44px tap height for the address, without moving the layout
+     (the padding is cancelled by an equal negative margin). */
+  @media (max-width: 640px), (pointer: coarse) {
+    a.way__value {
+      --tap-pad: calc((44px - 1.5em) / 2);
+      padding-block: var(--tap-pad);
+      margin-block: calc(var(--tap-pad) * -1);
+      position: relative;
+    }
+  }
+
   .way__hint {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    display: block;
+    line-height: 1.5;
+    margin-top: var(--space-1);
+    font-size: var(--fs-14);
+    color: var(--text-secondary);
   }
 
   .way__arrow {
+    font-size: var(--fs-18);
+    line-height: 1;
     color: var(--text-muted);
     transition: transform var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   }
 
   .way--link:hover .way__arrow {
     color: var(--accent);
-    transform: translateX(3px);
+    transform: translate(2px, -2px);
   }
 
   .copy {
     flex: none;
-    padding: 0.4rem 0.8rem;
+    min-height: 44px;
+    padding: var(--space-1) var(--space-3);
     border: 1px solid var(--border);
     border-radius: var(--radius-pill);
     background: var(--bg-elevated);
     color: var(--text-secondary);
     font: 500 var(--fs-14) var(--font-body);
     cursor: pointer;
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
   }
 
   .copy:hover {
@@ -367,20 +393,11 @@ const links = [
     display: none;
   }
 
-  .contact__where {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin: var(--space-2) 0 0;
-    font-size: var(--fs-14);
-    color: var(--text-muted);
-  }
-
   /* Form */
   .form {
     display: grid;
     gap: var(--space-4);
-    padding: var(--space-6) var(--space-8);
+    padding: var(--space-6);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--bg-surface);
@@ -475,10 +492,20 @@ const links = [
     }
   }
 
+  @media (max-width: 640px) {
+    .contact {
+      padding-bottom: var(--space-16);
+    }
+
+    /* The pill wraps to two lines on phones: softer corners read better */
+    .availability {
+      border-radius: var(--radius-md);
+    }
+  }
+
   @media (max-width: 480px) {
     .way {
       padding: var(--space-4);
-      flex-wrap: wrap;
     }
 
     .form {
